@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年12月项目冲刺数据中心</title>
+    <title>2025年12月项目冲刺数据中心 (Supabase版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
         body { font-family: 'Noto Sans SC', sans-serif; background-color: #f1f5f9; user-select: none; }
@@ -144,23 +146,31 @@
         <div class="bg-slate-800 text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-wide">
-                    <i class="fas fa-calendar-check mr-2 text-yellow-400"></i>12月冲刺数据中心
+                    <i class="fas fa-calendar-check mr-2 text-green-400"></i>12月冲刺数据中心
                 </h1>
-                <div class="flex items-center gap-2 mt-2 text-xs text-slate-400">
-                    <span id="storage-mode" class="px-2 py-0.5 rounded border border-slate-600">
-                        <i class="fas fa-spinner fa-spin mr-1"></i> 检测中...
-                    </span>
-                    <span>|</span>
-                    <span id="last-save">未保存</span>
+                <div class="flex flex-col gap-1 mt-2">
+                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <span id="storage-mode" class="px-2 py-0.5 rounded border border-slate-600">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> 初始化...
+                        </span>
+                        <span>|</span>
+                        <span id="last-save">未保存</span>
+                    </div>
+                    <!-- Sync ID Input -->
+                    <div class="flex items-center gap-2 text-xs mt-1" id="sync-area">
+                        <span class="text-slate-400">同步暗号:</span>
+                        <input type="text" id="sync-id-input" class="bg-slate-700 text-white px-2 py-0.5 rounded border border-slate-600 w-24 focus:ring-1 focus:ring-green-400 outline-none" placeholder="输入ID同步" onchange="updateSyncId(this.value)">
+                        <button onclick="forceSync()" class="text-green-400 hover:text-green-300" title="强制同步"><i class="fas fa-sync"></i></button>
+                    </div>
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <button onclick="downloadBackup()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center">
-                    <i class="fas fa-download mr-2"></i> 备份数据
+                    <i class="fas fa-download mr-2"></i> 备份
                 </button>
                 <label class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center cursor-pointer">
-                    <i class="fas fa-upload mr-2"></i> 恢复数据
+                    <i class="fas fa-upload mr-2"></i> 恢复
                     <input type="file" id="import-file" class="hidden" accept=".json" onchange="importBackup(this)">
                 </label>
             </div>
@@ -193,7 +203,7 @@
         </div>
 
         <div class="p-3 bg-slate-50 text-center text-xs text-slate-400">
-            提示：点击 <i class="fas fa-pen text-slate-400 mx-1"></i> 记录当日学习心得。建议每周点击上方“备份数据”保存进度文件。
+            提示：点击 <i class="fas fa-pen text-slate-400 mx-1"></i> 记录当日学习心得。在上方输入相同的“同步暗号”可在多设备间同步。
         </div>
     </div>
 
@@ -220,15 +230,18 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // --- Data & Logic ---
+    <!-- Script Logic -->
+    <script>
+        // --- ☁️ Supabase 配置区 ---
+        // 请在此处填入你在 Supabase 项目设置中获取的 URL 和 Key
+        // 留空则仅使用本地存储
         
-        // Calendar Data Structure
+        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";  // 格式如: https://xyz.supabase.co
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";  // 格式如: eyJhbGciOiJIUzI1NiIsIn...
+
+        // ------------------------
+
+        // Data Structure
         const calendarData = [
             { day: 1, past: true }, { day: 2, past: true },
             { day: 3, today: true, tasks: [
@@ -313,87 +326,91 @@
         ];
 
         // Global State
-        let db = null;
-        let user = null;
+        let supabaseClient = null;
         let isCloudMode = false;
+        let syncId = localStorage.getItem('study_sync_id') || 'default';
         let appState = {
-            completedTasks: [], // Array of Task IDs
-            notes: {} // Map: "day_3": "note content"
+            completedTasks: [], 
+            notes: {} 
         };
 
         // --- Init Logic ---
         
         async function init() {
             renderCalendar();
-            
-            // Try to connect to Firebase (If running in platform)
-            try {
-                if (typeof __firebase_config !== 'undefined') {
-                    const firebaseConfig = JSON.parse(__firebase_config);
-                    const app = initializeApp(firebaseConfig);
-                    const auth = getAuth(app);
-                    db = getFirestore(app);
-                    
-                    // Auth
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                       await auth.signInWithCustomToken(__initial_auth_token);
-                    } else {
-                       await signInAnonymously(auth);
-                    }
-                    
-                    user = auth.currentUser;
-                    if (user) {
-                        isCloudMode = true;
-                        updateStorageStatus("云端同步中", "text-green-600");
-                        await loadFromCloud();
-                    }
-                } else {
-                    throw new Error("No config");
+            document.getElementById('sync-id-input').value = syncId;
+
+            // Check config
+            if (SUPABASE_URL && SUPABASE_KEY) {
+                try {
+                    const { createClient } = supabase;
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+                    isCloudMode = true;
+                    updateStorageStatus("云端就绪 (Supabase)", "text-green-400");
+                    await loadFromCloud();
+                } catch (e) {
+                    console.error("Supabase Init Error", e);
+                    useLocalMode();
                 }
-            } catch (e) {
-                // Fallback to LocalStorage
-                console.log("Running in Local Mode");
-                isCloudMode = false;
-                updateStorageStatus("本地模式 (文件自存)", "text-blue-600");
-                loadFromLocal();
+            } else {
+                useLocalMode();
             }
+        }
+
+        function useLocalMode() {
+            isCloudMode = false;
+            updateStorageStatus("本地模式 (无云同步)", "text-blue-400");
+            loadFromLocal();
         }
 
         // --- Storage Operations ---
 
         async function saveState() {
-            // Update UI Stats first
             updateProgressUI();
-            
             const timestamp = new Date().toLocaleString();
             document.getElementById('last-save').innerText = "已保存: " + timestamp.split(' ')[1];
 
-            if (isCloudMode && user && db) {
-                // Save to Firestore
+            // Always save to local as backup
+            localStorage.setItem('study_dashboard_v1', JSON.stringify(appState));
+
+            if (isCloudMode && supabaseClient) {
                 try {
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default';
-                    // We use a single document for simplicity in this specific user-scenario
-                    // Path: artifacts/{appId}/users/{userId}/calendar_data/master
-                    await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'calendar_data', 'master'), appState);
+                    // Upsert to Supabase
+                    // Table: study_progress (id: text, data: jsonb)
+                    const { error } = await supabaseClient
+                        .from('study_progress')
+                        .upsert({ id: syncId, data: appState });
+                    
+                    if(error) console.error("Cloud save error", error);
                 } catch (e) {
                     console.error("Cloud save failed", e);
                 }
-            } else {
-                // Save to LocalStorage
-                localStorage.setItem('study_dashboard_v1', JSON.stringify(appState));
             }
         }
 
         async function loadFromCloud() {
+            if (!isCloudMode) return;
             try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default';
-                const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'calendar_data', 'master'));
-                if (docSnap.exists()) {
-                    appState = docSnap.data();
+                updateStorageStatus("正在同步...", "text-yellow-400");
+                const { data, error } = await supabaseClient
+                    .from('study_progress')
+                    .select('data')
+                    .eq('id', syncId)
+                    .single();
+
+                if (data && data.data) {
+                    appState = data.data;
+                    updateStorageStatus("同步成功 (Supabase)", "text-green-400");
                     refreshUI();
+                } else {
+                    // No data found for this ID, stick to local or empty
+                    console.log("No cloud data found for this ID");
+                    updateStorageStatus("云端无数据 (使用本地)", "text-blue-400");
+                    loadFromLocal();
                 }
             } catch (e) {
                 console.error("Load failed", e);
+                loadFromLocal();
             }
         }
 
@@ -403,6 +420,22 @@
                 appState = JSON.parse(saved);
                 refreshUI();
             }
+        }
+
+        // --- Sync ID Logic ---
+        
+        window.updateSyncId = function(val) {
+            if(!val) return;
+            syncId = val;
+            localStorage.setItem('study_sync_id', val);
+            if(isCloudMode) {
+                loadFromCloud(); // Switch profile
+            }
+        }
+
+        window.forceSync = function() {
+            if(isCloudMode) loadFromCloud();
+            else alert("未配置 Supabase，无法云同步。请检查代码中的 URL 和 Key。");
         }
 
         // --- UI Rendering ---
@@ -453,7 +486,6 @@
         }
 
         function refreshUI() {
-            // Restore Task Status
             document.querySelectorAll('.task-tag').forEach(el => {
                 if (appState.completedTasks.includes(el.dataset.id)) {
                     el.classList.add('done');
@@ -462,7 +494,6 @@
                 }
             });
 
-            // Restore Notes
             Object.keys(appState.notes).forEach(dayKey => {
                 const dayNum = dayKey.replace('day_', '');
                 const cell = document.getElementById(`day-${dayNum}`);
@@ -477,7 +508,6 @@
                     }
                 }
             });
-
             updateProgressUI();
         }
 
@@ -490,11 +520,11 @@
             } else {
                 appState.completedTasks.push(id);
             }
-            refreshUI(); // Re-render to show strikethrough
-            saveState(); // Persist
+            refreshUI();
+            saveState();
         };
 
-        // Note Modal Logic
+        // Note Modal
         let currentNoteDay = null;
         const modal = document.getElementById('note-modal');
         const noteInput = document.getElementById('note-input');
@@ -524,7 +554,6 @@
             closeModal();
         };
 
-        // Word count updater
         noteInput.addEventListener('input', (e) => {
             document.getElementById('word-count').innerText = e.target.value.length + " 字";
         });
@@ -548,14 +577,14 @@
             reader.onload = function(e) {
                 try {
                     const loadedState = JSON.parse(e.target.result);
-                    if (confirm(`确定要恢复数据吗？这会覆盖当前的 ${loadedState.completedTasks.length} 个任务进度。`)) {
+                    if (confirm(`恢复数据会覆盖当前进度，确定吗？`)) {
                         appState = loadedState;
                         refreshUI();
                         saveState();
                         alert("数据恢复成功！");
                     }
                 } catch(err) {
-                    alert("文件格式错误，无法读取。");
+                    alert("文件格式错误。");
                 }
             };
             reader.readAsText(file);
@@ -566,7 +595,7 @@
         function updateStorageStatus(msg, colorClass) {
             const el = document.getElementById('storage-mode');
             el.innerHTML = `<i class="fas fa-database mr-1"></i> ${msg}`;
-            el.className = `px-2 py-0.5 rounded border border-slate-600 text-xs font-bold ${colorClass.replace('text-', 'bg-').replace('600', '100')} ${colorClass}`;
+            el.className = `px-2 py-0.5 rounded border border-slate-600 text-xs font-bold ${colorClass.replace('text-', 'bg-').replace('400', '900')} ${colorClass}`;
         }
 
         function updateProgressUI() {
