@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 关键修改：viewport-fit=cover 适配 iPhone 刘海屏全屏 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>12月冲刺 Pro</title>
     
-    <!-- PWA 核心配置 (iOS必须放在最前) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="冲刺计划">
@@ -23,21 +21,17 @@
         
         body { font-family: 'Noto Sans SC', sans-serif; background-color: #f6f8fa; -webkit-tap-highlight-color: transparent; }
         
-        /* 适配 iPhone 顶部的安全区域，防止内容被刘海挡住 */
         .safe-area-top { padding-top: env(safe-area-inset-top); }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-        /* 响应式网格 */
         .calendar-wrapper { display: grid; gap: 12px; grid-template-columns: 1fr; }
         @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, 1fr); gap: 8px; } }
 
-        /* 卡片 */
         .day-card { background: white; border-radius: 12px; padding: 12px; min-height: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; }
         .is-past { background-color: #f9fafb; opacity: 0.8; }
         .is-past .task-item { opacity: 0.6; }
         .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); z-index: 10; }
 
-        /* 任务条 */
         .task-item { font-size: 0.85rem; padding: 8px 10px 8px 30px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; position: relative; transition: all 0.2s; font-weight: 500; line-height: 1.4; display: flex; align-items: center; }
         .task-item::before { content: ''; position: absolute; left: 10px; width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.4; transition: all 0.2s; }
         .task-item.done { background-color: #f3f4f6 !important; color: #9ca3af !important; border-color: transparent !important; text-decoration: line-through; transform: scale(0.98); }
@@ -62,7 +56,6 @@
             .task-container { width: 100%; }
         }
 
-        /* 模态框 */
         .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: 0.3s; position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
         .modal-content { background: white; width: 90%; max-width: 700px; border-radius: 20px; transform: scale(0.95) translateY(10px); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
@@ -93,7 +86,7 @@
         .toolbar-btn:hover { background-color: #eff6ff; color: #3b82f6; }
         .hidden-tool { display: none; }
 
-        /* 安装引导弹窗 */
+        /* iOS 引导 */
         #ios-install-guide { display: none; }
         .ios-arrow { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; font-size: 24px; color: #3b82f6; z-index: 200; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform:translateX(-50%) translateY(0);} 40% {transform:translateX(-50%) translateY(-10px);} 60% {transform:translateX(-50%) translateY(-5px);} }
@@ -105,12 +98,12 @@
 </head>
 <body class="safe-area-top safe-area-bottom pb-10">
 
-    <!-- iOS 安装引导 (仅在浏览器模式显示) -->
+    <!-- iOS 引导 -->
     <div id="ios-install-guide" class="fixed inset-x-0 bottom-0 bg-white/90 backdrop-blur border-t border-slate-200 p-4 z-50 text-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
         <p class="text-sm text-slate-800 font-bold mb-1">想获得全屏 App 体验？</p>
         <p class="text-xs text-slate-500">
             <span class="text-red-500 font-bold">请先删除旧图标</span><br>
-            然后点击 <i class="fas fa-share-square mx-1"></i> 分享 -> “添加到主屏幕”
+            点击 <i class="fas fa-share-square mx-1"></i> 分享 -> “添加到主屏幕”
         </p>
         <div class="ios-arrow"><i class="fas fa-arrow-down"></i></div>
         <button onclick="document.getElementById('ios-install-guide').style.display='none'" class="absolute top-2 right-2 text-slate-400 p-2">&times;</button>
@@ -127,15 +120,9 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 离线
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 mb-1">
-                        <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">12月冲刺</h1>
-                        <button id="install-btn" class="text-xs bg-slate-800 text-white px-3 py-1 rounded-full font-bold shadow hover:bg-slate-700 transition">
-                            <i class="fas fa-download mr-1"></i> 安装
-                        </button>
-                    </div>
+                    <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight mb-2">12月冲刺</h1>
                     
-                    <!-- 进度条 -->
-                    <div class="flex items-center gap-3 max-w-xs mt-2">
+                    <div class="flex items-center gap-3 max-w-xs">
                         <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden relative">
                             <div id="progress-fill" class="h-full bg-blue-500 rounded-full transition-all duration-700 relative overflow-hidden" style="width: 0%">
                                 <div class="progress-shimmer"></div>
@@ -145,7 +132,6 @@
                     </div>
                 </div>
 
-                <!-- 倒计时 -->
                 <div class="countdown-box">
                     <div class="countdown-num" id="days-left">--</div>
                     <div class="countdown-label">距离考试仅剩</div>
@@ -218,29 +204,17 @@
         const iconUrl = URL.createObjectURL(new Blob([iconSVG], {type: 'image/svg+xml'}));
         document.getElementById('apple-icon').href = iconUrl;
         
-        // 关键修复：动态计算 start_url，确保 PWA 启动路径与当前访问路径完全一致
         const currentPath = window.location.pathname + window.location.search;
         const manifest = { 
-            name: "12月冲刺 Pro", 
-            short_name: "冲刺", 
-            start_url: currentPath, // 动态匹配当前URL
-            scope: "/", // 强制根作用域
-            display: "standalone", 
-            background_color: "#f6f8fa", 
-            theme_color: "#ffffff", 
-            icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] 
+            name: "12月冲刺 Pro", short_name: "冲刺", start_url: currentPath, scope: "/", display: "standalone", 
+            background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] 
         };
         document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
 
         if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install', e => self.skipWaiting());self.addEventListener('fetch', e => {});`], {type: 'application/javascript'}))).catch(() => {});
 
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('install-btn').style.display = 'block'; });
-        document.getElementById('install-btn').addEventListener('click', async () => { if(deferredPrompt) { deferredPrompt.prompt(); const {outcome} = await deferredPrompt.userChoice; if(outcome==='accepted') document.getElementById('install-btn').style.display='none'; deferredPrompt=null; }});
-
         // Detect Standalone Mode
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        // 如果是浏览器模式且是iOS，显示引导
         if (!isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
             setTimeout(() => document.getElementById('ios-install-guide').style.display = 'block', 2000);
         }
