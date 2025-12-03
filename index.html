@@ -2,446 +2,457 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>12月冲刺 (极简版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>12月冲刺 Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f8fafc; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
         
-        .calendar-grid {
+        :root { --primary: #3b82f6; --success: #10b981; }
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f6f8fa; -webkit-tap-highlight-color: transparent; }
+        
+        /* 响应式网格系统 */
+        .calendar-wrapper {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background-color: #e2e8f0;
-            border: 1px solid #e2e8f0;
+            gap: 12px;
+            /* 手机默认单列，电脑(md)变7列 */
+            grid-template-columns: 1fr; 
         }
-        
-        .day-cell {
-            background-color: white;
-            min-height: 120px;
-            padding: 8px;
+        @media (min-width: 768px) {
+            .calendar-wrapper {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 8px;
+            }
+        }
+
+        /* 卡片样式 */
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 100px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
-        .day-header {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #475569;
-        }
+        /* 过去日期的样式 */
+        .is-past { background-color: #f9fafb; opacity: 0.8; }
+        .is-past .task-item { opacity: 0.6; }
         
-        /* 任务条 */
-        .task-tag {
-            font-size: 0.75rem;
-            padding: 4px 8px 4px 24px;
-            border-radius: 6px;
-            margin-bottom: 4px;
+        /* 今天的高亮 */
+        .is-today { 
+            background: #ffffff; 
+            ring: 2px solid #3b82f6; 
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            z-index: 10;
+        }
+
+        /* 任务条样式优化 */
+        .task-item {
+            font-size: 0.85rem;
+            padding: 8px 10px 8px 30px; /* 左边留出打钩空间 */
+            margin-bottom: 6px;
+            border-radius: 8px;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
             line-height: 1.4;
-            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
         }
-        
-        .task-tag::before {
+
+        /* 自定义打钩框 */
+        .task-item::before {
             content: '';
             position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            border: 1.5px solid currentColor;
-            border-radius: 3px;
-            opacity: 0.5;
+            left: 10px;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-radius: 4px;
+            opacity: 0.4;
+            transition: all 0.2s;
         }
 
-        .task-tag:hover { filter: brightness(0.95); transform: translateY(-1px); }
-
-        /* Types */
-        .t-pol { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-        .t-eng { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-        .t-art { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
-        .t-the { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-
-        /* Completed State */
-        .task-tag.done {
-            background: #f1f5f9 !important;
-            color: #94a3b8 !important;
-            border-color: #e2e8f0 !important;
+        /* 完成状态 */
+        .task-item.done {
+            background-color: #f3f4f6 !important;
+            color: #9ca3af !important;
+            border-color: transparent !important;
             text-decoration: line-through;
-            opacity: 0.7;
+            transform: scale(0.98);
         }
-        .task-tag.done::before {
-            background-color: #94a3b8;
-            border-color: #94a3b8;
-            border: none;
+        .task-item.done::before {
+            background-color: #9ca3af;
+            border-color: #9ca3af;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
         }
 
-        /* Note Button */
-        .note-btn {
-            color: #cbd5e1;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* 科目配色 (更柔和的高级灰调) */
+        .t-pol { background: #fff1f2; color: #be123c; } /* 玫瑰红 */
+        .t-eng { background: #eff6ff; color: #1d4ed8; } /* 科技蓝 */
+        .t-art { background: #fdf4ff; color: #86198f; } /* 魅惑紫 */
+        .t-the { background: #ecfdf5; color: #047857; } /* 森林绿 */
+
+        /* 笔记按钮 */
+        .note-trigger {
+            opacity: 0.3;
+            transition: 0.2s;
             padding: 4px;
-            border-radius: 4px;
         }
-        .day-cell:hover .note-btn { color: #94a3b8; }
-        .note-btn:hover { background-color: #eff6ff; color: #3b82f6 !important; }
-        .has-note .note-btn { color: #f59e0b !important; opacity: 1; }
+        .day-card:hover .note-trigger { opacity: 1; }
+        .has-note .note-trigger { color: #f59e0b; opacity: 1; }
 
-        /* Special Days */
-        .is-today { background-color: #eff6ff; ring: 2px solid #3b82f6; z-index: 2; }
-        .is-past { background-color: #f8fafc; }
-        .is-past .day-header { opacity: 0.5; }
-        .bg-xiao-arrival { background: repeating-linear-gradient(45deg, #fef2f2, #fef2f2 10px, #fee2e2 10px, #fee2e2 20px); }
+        /* 进度条动画 */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .progress-shimmer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
 
+        /* 移动端特殊优化 */
         @media (max-width: 768px) {
-            .calendar-grid { display: flex; flex-direction: column; gap: 8px; border: none; background: transparent; }
-            .day-cell { border-radius: 12px; border: 1px solid #e2e8f0; min-height: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-            .week-header { display: none; }
+            .week-header { display: none; } /* 手机不显示周几表头 */
+            .day-card { 
+                flex-direction: row; /* 手机上变成横向布局 */
+                flex-wrap: wrap;
+                align-items: flex-start;
+                padding: 16px;
+                gap: 12px;
+            }
+            .day-header-mobile {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                border-bottom: 1px dashed #f3f4f6;
+                padding-bottom: 8px;
+            }
+            .task-container { width: 100%; }
         }
 
-        /* Modal */
+        /* 模态框 */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+            opacity: 0; pointer-events: none; transition: 0.3s; position: fixed; inset: 0; z-index: 50;
             display: flex; justify-content: center; align-items: center;
-            z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .modal-box {
-            background: white; width: 90%; max-width: 500px;
-            border-radius: 16px; transform: scale(0.95); transition: 0.3s;
-            display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        .modal-content {
+            background: white; width: 90%; max-width: 500px; border-radius: 20px;
+            transform: scale(0.95) translateY(20px); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        .modal-overlay.open .modal-box { transform: scale(1); }
+        .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="pb-10">
 
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto px-4 pt-6 md:pt-10">
         
-        <!-- Header & Stats -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center">
-                    12月冲刺数据中心
-                    <!-- 云同步指示灯 -->
-                    <span id="cloud-status" class="ml-2 w-2 h-2 rounded-full bg-slate-300" title="离线模式"></span>
-                </h1>
-                <p class="text-slate-400 text-sm mt-1">坚持就是胜利，数据自动保存</p>
-            </div>
+        <!-- 头部数据看板 -->
+        <div class="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 tracking-wider">DASHBOARD</span>
+                        <div id="cloud-status-badge" class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-slate-50 text-slate-400 border border-slate-100">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 离线
+                        </div>
+                    </div>
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">12月冲刺计划</h1>
+                    <p class="text-slate-400 text-sm mt-1 font-medium">Keep moving, stay focused.</p>
+                </div>
 
-            <div class="flex items-center gap-4 w-full md:w-auto bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <span class="text-slate-500 font-bold text-sm whitespace-nowrap">总进度 <span id="progress-val" class="text-slate-800">0%</span></span>
-                <div class="w-full md:w-48 h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full md:w-auto flex flex-col gap-2">
+                    <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                        <span>当前进度</span>
+                        <span id="progress-text" class="text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full md:w-64 h-3 bg-slate-100 rounded-full overflow-hidden relative">
+                        <div id="progress-fill" class="h-full bg-blue-500 rounded-full transition-all duration-700 relative overflow-hidden" style="width: 0%">
+                            <div class="progress-shimmer"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- 装饰背景 -->
+            <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-50 -z-0 pointer-events-none"></div>
         </div>
 
-        <!-- Legend -->
-        <div class="flex gap-3 mb-4 text-xs font-bold text-slate-500 justify-end">
-            <span class="flex items-center"><span class="w-2 h-2 bg-red-400 rounded-full mr-1"></span>政治</span>
-            <span class="flex items-center"><span class="w-2 h-2 bg-blue-400 rounded-full mr-1"></span>英语</span>
-            <span class="flex items-center"><span class="w-2 h-2 bg-purple-400 rounded-full mr-1"></span>手绘</span>
-            <span class="flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>理论</span>
+        <!-- 只有在电脑端显示的周表头 -->
+        <div class="hidden md:grid grid-cols-7 text-center mb-3 text-xs font-bold text-slate-400 week-header px-2">
+            <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div>
         </div>
 
-        <!-- Calendar Header -->
-        <div class="grid grid-cols-7 text-center py-3 bg-white/50 backdrop-blur rounded-t-xl text-xs font-bold text-slate-400 week-header border border-slate-200 border-b-0">
-            <div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div>周六</div><div>周日</div>
+        <!-- 日历主体 -->
+        <div class="calendar-wrapper" id="calendar-view">
+            <!-- JS 渲染区域 -->
         </div>
 
-        <!-- Calendar Grid -->
-        <div class="calendar-grid rounded-b-xl overflow-hidden" id="calendar-root">
-            <!-- JS will inject days here -->
+        <!-- 底部 ID 显示 -->
+        <div class="mt-12 text-center">
+             <div class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-[10px] text-slate-400 font-mono">
+                <i class="fas fa-fingerprint"></i> ID: <span id="sync-id-label">LOCAL</span>
+            </div>
         </div>
 
-        <div class="mt-8 text-center text-xs text-slate-300 font-mono">
-            SYNC ID: <span id="sync-id-display">LOCAL</span>
-        </div>
     </div>
 
-    <!-- Note Modal -->
+    <!-- 笔记弹窗 -->
     <div id="note-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="p-5 border-b flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-lg">
-                    <span id="modal-date"></span> 学习日记
-                </h3>
+        <div class="modal-content overflow-hidden">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-700">📝 <span id="modal-date-title"></span> 笔记</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition">&times;</button>
             </div>
-            <div class="p-5">
-                <textarea id="note-input" class="w-full h-40 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none resize-none text-sm text-slate-700 leading-relaxed placeholder-slate-400 transition" placeholder="写下今天的复盘..."></textarea>
-                <div class="mt-4 flex justify-end gap-3">
-                    <button onclick="closeModal()" class="px-5 py-2.5 text-slate-500 hover:bg-slate-100 rounded-lg text-sm font-bold transition">取消</button>
-                    <button onclick="saveNote()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-sm shadow-lg shadow-slate-200 transition">保存</button>
-                </div>
+            <div class="p-6">
+                <textarea id="note-text" class="w-full h-32 p-0 bg-transparent border-none focus:ring-0 text-slate-600 text-sm leading-relaxed resize-none" placeholder="记录下今天的学习心得、背诵重点或者是心情..."></textarea>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-end">
+                <button onclick="saveNote()" class="bg-slate-800 hover:bg-black text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-slate-200 transition transform active:scale-95">保存记录</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 🔧 配置区 (在这里填一次，终身自动同步)
-        // ==========================================
-        
-        // 1. 你的唯一同步暗号 (比如手机号或昵称拼音)
-        const MY_SYNC_ID = "default-user"; 
-
-        // 2. Supabase 配置 (填入你的 Key)
-        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s"; 
-
-        // ==========================================
+        // ================= 配置区 =================
+        const MY_SYNC_ID = "my-study-id"; // 改这里
+        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
+        // =========================================
 
         const calendarData = [
             { day: 1, past: true }, { day: 2, past: true },
             { day: 3, today: true, tasks: [
-                { id: "d3_1", text: "肖八1-3套错题二刷", type: "t-pol" },
-                { id: "d3_2", text: "理论: 名词解释(流派)", type: "t-the" },
-                { id: "d3_3", text: "整理快题万能模板", type: "t-art" }
+                { id: "t3_1", text: "肖八1-3套错题二刷", type: "t-pol" },
+                { id: "t3_2", text: "理论: 名词解释(流派)", type: "t-the" },
+                { id: "t3_3", text: "整理快题万能模板", type: "t-art" }
             ]},
             { day: 4, tasks: [
-                { id: "d4_1", text: "肖八4-6套选择题", type: "t-pol" },
-                { id: "d4_2", text: "英语写作模板(图表)", type: "t-eng" },
-                { id: "d4_3", text: "理论: 填空选择突击", type: "t-the" }
+                { id: "t4_1", text: "肖八4-6套选择题", type: "t-pol" },
+                { id: "t4_2", text: "英语写作模板(图表)", type: "t-eng" },
+                { id: "t4_3", text: "理论: 填空选择突击", type: "t-the" }
             ]},
             { day: 5, tasks: [
-                { id: "d5_1", text: "肖八7-8套(可选/弃)", type: "t-pol" },
-                { id: "d5_2", text: "英语写作模板(书信)", type: "t-eng" },
-                { id: "d5_3", text: "晚: 局部线稿x3", type: "t-art" }
+                { id: "t5_1", text: "肖八7-8套(可选)", type: "t-pol" },
+                { id: "t5_2", text: "英语写作模板(书信)", type: "t-eng" },
+                { id: "t5_3", text: "晚: 局部线稿x3", type: "t-art" }
             ]},
             { day: 6, tasks: [
-                { id: "d6_1", text: "手绘3小时模拟", type: "t-art" },
-                { id: "d6_2", text: "肖八全部错题复盘", type: "t-pol" }
+                { id: "t6_1", text: "手绘3小时模拟", type: "t-art" },
+                { id: "t6_2", text: "肖八全部错题复盘", type: "t-pol" }
             ]},
             { day: 7, tasks: [
-                { id: "d7_1", text: "理论模考", type: "t-the" },
-                { id: "d7_2", text: "下午: 英语全真模拟", type: "t-eng" }
+                { id: "t7_1", text: "理论模考", type: "t-the" },
+                { id: "t7_2", text: "下午: 英语全真模拟", type: "t-eng" }
             ]},
             { day: 8, tasks: [
-                { id: "d8_1", text: "英语作文模板熟背", type: "t-eng" },
-                { id: "d8_2", text: "手绘复盘/改图", type: "t-art" }
+                { id: "t8_1", text: "英语作文模板熟背", type: "t-eng" },
+                { id: "t8_2", text: "手绘复盘/改图", type: "t-art" }
             ]},
             { day: 9, tasks: [
-                { id: "d9_1", text: "理论核心名词突击", type: "t-the" },
-                { id: "d9_2", text: "马原原理回顾", type: "t-pol" }
+                { id: "t9_1", text: "理论核心名词突击", type: "t-the" },
+                { id: "t9_2", text: "马原原理回顾", type: "t-pol" }
             ]},
-            { day: 10, note: "肖四到货日!", specialClass: "bg-xiao-arrival", tasks: [
-                { id: "d10_1", text: "肖四卷1+卷2选择题", type: "t-pol" },
-                { id: "d10_2", text: "背肖四卷1大题(死背)", type: "t-pol" }
+            { day: 10, note: "肖四到货!", special: true, tasks: [
+                { id: "t10_1", text: "肖四卷1+卷2选择题", type: "t-pol" },
+                { id: "t10_2", text: "背肖四卷1大题(死背)", type: "t-pol" }
             ]},
             { day: 11, tasks: [
-                { id: "d11_1", text: "肖四卷3+卷4选择题", type: "t-pol" },
-                { id: "d11_2", text: "背肖四卷2大题", type: "t-pol" }
+                { id: "t11_1", text: "肖四卷3+卷4选择题", type: "t-pol" },
+                { id: "t11_2", text: "背肖四卷2大题", type: "t-pol" }
             ]},
             { day: 12, tasks: [
-                { id: "d12_1", text: "背肖四卷3大题", type: "t-pol" },
-                { id: "d12_2", text: "近3年阅读真题手感", type: "t-eng" }
+                { id: "t12_1", text: "背肖四卷3大题", type: "t-pol" },
+                { id: "t12_2", text: "近3年阅读真题手感", type: "t-eng" }
             ]},
             { day: 13, tasks: [
-                { id: "d13_1", text: "背肖四卷4大题", type: "t-pol" },
-                { id: "d13_2", text: "二刷肖四全部选择题", type: "t-pol" }
+                { id: "t13_1", text: "背肖四卷4大题", type: "t-pol" },
+                { id: "t13_2", text: "二刷肖四全部选择题", type: "t-pol" }
             ]},
             { day: 14, tasks: [
-                { id: "d14_1", text: "最后一张完整快题", type: "t-art" },
-                { id: "d14_2", text: "理论查漏补缺", type: "t-the" }
+                { id: "t14_1", text: "最后一张完整快题", type: "t-art" },
+                { id: "t14_2", text: "理论查漏补缺", type: "t-the" }
             ]},
             { day: 15, tasks: [
-                { id: "d15_1", text: "肖四大题第二轮", type: "t-pol" },
-                { id: "d15_2", text: "打印入场凭证", type: "t-pol", style: "border:1px dashed #94a3b8; background:transparent; color:#64748b" }
+                { id: "t15_1", text: "肖四大题第二轮", type: "t-pol" },
+                { id: "t15_2", text: "打印入场凭证", type: "t-pol" }
             ]},
             { day: 16, note: "建议请假", tasks: [
-                { id: "d16_1", text: "政治错题+时政死角", type: "t-pol" },
-                { id: "d16_2", text: "理论死角扫除", type: "t-the" }
+                { id: "t16_1", text: "政治错题+时政死角", type: "t-pol" },
+                { id: "t16_2", text: "理论死角扫除", type: "t-the" }
             ]},
             { day: 17, note: "建议请假", tasks: [
-                { id: "d17_1", text: "作文默写最后一遍", type: "t-eng" },
-                { id: "d17_2", text: "看优秀案例(不动笔)", type: "t-art" }
+                { id: "t17_1", text: "作文默写最后一遍", type: "t-eng" },
+                { id: "t17_2", text: "看优秀案例", type: "t-art" }
             ]},
             { day: 18, note: "建议请假", tasks: [
-                { id: "d18_1", text: "肖四滚瓜烂熟", type: "t-pol" },
-                { id: "d18_2", text: "全流程脑上演练", type: "t-art" }
+                { id: "t18_1", text: "肖四滚瓜烂熟", type: "t-pol" },
+                { id: "t18_2", text: "全流程脑上演练", type: "t-art" }
             ]},
             { day: 19, tasks: [
-                { id: "d19_1", text: "踩点 / 酒店确认", type: "t-pol", style: "border:1px dashed #94a3b8; background:transparent; color:#64748b" },
-                { id: "d19_2", text: "22:00 休息", type: "t-pol" }
+                { id: "t19_1", text: "踩点 / 酒店确认", type: "t-pol" },
+                { id: "t19_2", text: "22:00 休息", type: "t-pol" }
             ]},
-            { day: 20, specialClass: "bg-red-50", tasks: [
-                { id: "d20_1", text: "上午: 政治", type: "t-pol" },
-                { id: "d20_2", text: "下午: 英语", type: "t-eng" }
+            { day: 20, note: "Day 1", special: true, tasks: [
+                { id: "t20_1", text: "上午: 政治", type: "t-pol" },
+                { id: "t20_2", text: "下午: 英语", type: "t-eng" }
             ]},
-            { day: 21, specialClass: "bg-red-50", tasks: [
-                { id: "d21_1", text: "上午: 理论", type: "t-the" },
-                { id: "d21_2", text: "下午: 手绘", type: "t-art" }
+            { day: 21, note: "Day 2", special: true, tasks: [
+                { id: "t21_1", text: "上午: 理论", type: "t-the" },
+                { id: "t21_2", text: "下午: 手绘", type: "t-art" }
             ]}
         ];
 
         let supabaseClient = null;
-        let isCloudMode = false;
-        let appState = { completedTasks: [], notes: {} };
+        let isCloud = false;
+        let state = { done: [], notes: {} };
 
-        // --- Init ---
+        // Init
         async function init() {
-            renderCalendar();
-            document.getElementById('sync-id-display').innerText = MY_SYNC_ID;
-
-            if (SUPABASE_URL && SUPABASE_KEY) {
+            render();
+            document.getElementById('sync-id-label').innerText = MY_SYNC_ID;
+            
+            if(SUPABASE_URL && SUPABASE_KEY) {
                 try {
-                    const { createClient } = supabase;
-                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-                    isCloudMode = true;
-                    setStatus("online");
-                    await loadFromCloud();
-                } catch (e) {
-                    console.error("Supabase Error", e);
-                    loadFromLocal();
-                }
-            } else {
-                loadFromLocal();
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    isCloud = true;
+                    updateStatus('online');
+                    await loadCloud();
+                } catch(e) { console.error(e); loadLocal(); }
+            } else { loadLocal(); }
+        }
+
+        // Logic
+        async function save() {
+            updateProgress();
+            localStorage.setItem('study_v2', JSON.stringify(state));
+            if(isCloud) {
+                updateStatus('syncing');
+                await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: state });
+                updateStatus('online');
             }
         }
 
-        // --- Core Logic ---
-        async function saveState() {
-            updateProgressUI();
-            localStorage.setItem('study_dashboard_v1', JSON.stringify(appState)); // Local Backup
-
-            if (isCloudMode && supabaseClient) {
-                try {
-                    setStatus("syncing");
-                    await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: appState });
-                    setStatus("online");
-                } catch (e) {
-                    setStatus("error");
-                }
-            }
+        async function loadCloud() {
+            const { data } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
+            if(data?.data) { state = data.data; refresh(); } else { loadLocal(); }
         }
 
-        async function loadFromCloud() {
-            try {
-                const { data } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
-                if (data && data.data) {
-                    appState = data.data;
-                    refreshUI();
-                } else {
-                    loadFromLocal();
-                }
-            } catch (e) {
-                loadFromLocal();
-            }
+        function loadLocal() {
+            const s = localStorage.getItem('study_v2');
+            if(s) { state = JSON.parse(s); refresh(); }
         }
 
-        function loadFromLocal() {
-            const saved = localStorage.getItem('study_dashboard_v1');
-            if (saved) {
-                appState = JSON.parse(saved);
-                refreshUI();
-            }
+        function updateStatus(s) {
+            const b = document.getElementById('cloud-status-badge');
+            if(s==='online') b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> 云同步`;
+            if(s==='syncing') b.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中`;
         }
 
-        // --- UI ---
-        function renderCalendar() {
-            const root = document.getElementById('calendar-root');
+        // Render
+        function render() {
+            const root = document.getElementById('calendar-view');
             root.innerHTML = '';
+            
             calendarData.forEach(d => {
-                const cell = document.createElement('div');
-                cell.className = `day-cell ${d.past ? 'is-past' : ''} ${d.today ? 'is-today' : ''} ${d.specialClass || ''}`;
-                cell.id = `day-${d.day}`;
-                
-                let dayLabel = d.day;
-                if(d.today) dayLabel += " <span class='text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded ml-1'>今天</span>";
-                if(d.note) dayLabel += ` <span class='text-[10px] text-red-400 font-normal ml-1'>${d.note}</span>`;
+                const card = document.createElement('div');
+                card.className = `day-card ${d.past ? 'is-past' : ''} ${d.today ? 'is-today' : ''}`;
+                if(d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
+                card.id = `day-${d.day}`;
 
+                // 头部 (适配手机和电脑)
                 const header = document.createElement('div');
-                header.className = 'day-header';
-                header.innerHTML = `<span>${dayLabel}</span><i class="fas fa-edit note-btn" onclick="openNoteModal(${d.day})"></i>`;
-                cell.appendChild(header);
+                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
+                
+                let label = `<span class="text-xl font-bold text-slate-700 font-mono">${d.day}</span>`;
+                if(d.today) label += `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>`;
+                if(d.note) label += `<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>`;
+                
+                header.innerHTML = `<div>${label}</div> <i class="fas fa-edit note-trigger hover:text-blue-500 cursor-pointer text-slate-300" onclick="openNote(${d.day})"></i>`;
+                card.appendChild(header);
 
-                if (d.tasks) {
+                // 任务区域
+                const taskContainer = document.createElement('div');
+                taskContainer.className = 'task-container w-full';
+                
+                if(d.tasks) {
                     d.tasks.forEach(t => {
-                        const taskEl = document.createElement('div');
-                        taskEl.className = `task-tag ${t.type}`;
-                        taskEl.innerText = t.text;
-                        taskEl.dataset.id = t.id;
-                        if(t.style) taskEl.style = t.style;
-                        taskEl.onclick = () => toggleTask(t.id);
-                        cell.appendChild(taskEl);
+                        const task = document.createElement('div');
+                        task.className = `task-item ${t.type}`;
+                        task.dataset.id = t.id;
+                        task.innerHTML = t.text;
+                        task.onclick = () => toggle(t.id);
+                        taskContainer.appendChild(task);
                     });
                 }
-                root.appendChild(cell);
+                card.appendChild(taskContainer);
+                root.appendChild(card);
             });
         }
 
-        function refreshUI() {
-            document.querySelectorAll('.task-tag').forEach(el => {
-                if (appState.completedTasks.includes(el.dataset.id)) el.classList.add('done');
+        function refresh() {
+            document.querySelectorAll('.task-item').forEach(el => {
+                if(state.done.includes(el.dataset.id)) el.classList.add('done');
                 else el.classList.remove('done');
             });
-            Object.keys(appState.notes).forEach(dayKey => {
-                const dayNum = dayKey.replace('day_', '');
-                const cell = document.getElementById(`day-${dayNum}`);
-                if (cell) {
-                    if (appState.notes[dayKey]) cell.classList.add('has-note');
-                    else cell.classList.remove('has-note');
-                }
+            Object.keys(state.notes).forEach(k => {
+                const d = k.replace('d','');
+                const c = document.getElementById(`day-${d}`);
+                if(c && state.notes[k]) c.classList.add('has-note');
+                else if(c) c.classList.remove('has-note');
             });
-            updateProgressUI();
+            updateProgress();
         }
 
-        function setStatus(status) {
-            const el = document.getElementById('cloud-status');
-            if(status === 'online') el.className = "ml-2 w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]";
-            if(status === 'syncing') el.className = "ml-2 w-2 h-2 rounded-full bg-yellow-400 animate-pulse";
-            if(status === 'error') el.className = "ml-2 w-2 h-2 rounded-full bg-red-400";
-        }
-
-        window.toggleTask = function(id) {
-            const idx = appState.completedTasks.indexOf(id);
-            if (idx > -1) appState.completedTasks.splice(idx, 1);
-            else appState.completedTasks.push(id);
-            refreshUI();
-            saveState();
+        // Actions
+        window.toggle = (id) => {
+            const i = state.done.indexOf(id);
+            if(i > -1) state.done.splice(i, 1);
+            else state.done.push(id);
+            refresh();
+            save();
         };
 
-        // Note Logic
-        let currentNoteDay = null;
+        // Note Modal
+        let curNoteDay = null;
         const modal = document.getElementById('note-modal');
-        const noteInput = document.getElementById('note-input');
+        const txt = document.getElementById('note-text');
 
-        window.openNoteModal = function(day) {
-            currentNoteDay = day;
-            document.getElementById('modal-date').innerText = `12月${day}日`;
-            noteInput.value = appState.notes[`day_${day}`] || '';
+        window.openNote = (d) => {
+            curNoteDay = d;
+            document.getElementById('modal-date-title').innerText = `12月${d}日`;
+            txt.value = state.notes[`d${d}`] || '';
             modal.classList.add('open');
-            setTimeout(() => noteInput.focus(), 100);
+            setTimeout(() => txt.focus(), 100);
         };
-        window.closeModal = function() { modal.classList.remove('open'); };
-        window.saveNote = function() {
-            const val = noteInput.value.trim();
-            if (val) appState.notes[`day_${currentNoteDay}`] = val;
-            else delete appState.notes[`day_${currentNoteDay}`];
-            refreshUI();
-            saveState();
-            closeModal();
+        window.closeModal = () => modal.classList.remove('open');
+        window.saveNote = () => {
+            const v = txt.value.trim();
+            if(v) state.notes[`d${curNoteDay}`] = v;
+            else delete state.notes[`d${curNoteDay}`];
+            refresh(); save(); closeModal();
         };
 
-        function updateProgressUI() {
-            const allTasks = document.querySelectorAll('.task-tag').length;
-            const doneTasks = appState.completedTasks.length;
-            const pct = allTasks === 0 ? 0 : Math.round((doneTasks / allTasks) * 100);
-            document.getElementById('progress-val').innerText = pct + "%";
-            document.getElementById('progress-bar').style.width = pct + "%";
+        function updateProgress() {
+            const total = document.querySelectorAll('.task-item').length;
+            const done = state.done.length;
+            const p = total ? Math.round((done/total)*100) : 0;
+            document.getElementById('progress-text').innerText = p + '%';
+            document.getElementById('progress-fill').style.width = p + '%';
         }
 
         init();
