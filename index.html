@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年12月项目冲刺数据中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f1f5f9; user-select: none; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #cbd5e1;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .day-cell {
+            background-color: white;
+            min-height: 130px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s;
+        }
+
+        .day-header {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #475569;
+        }
+        
+        /* 任务条 */
+        .task-tag {
+            font-size: 0.7rem;
+            padding: 3px 6px 3px 22px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            line-height: 1.3;
+            border: 1px solid transparent;
+        }
+        
+        /* Checkbox Icon */
+        .task-tag::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border: 1.5px solid currentColor;
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        .task-tag:hover { filter: brightness(0.95); transform: translateX(2px); }
+
+        /* Types */
+        .t-pol { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+        .t-eng { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .t-art { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+        .t-the { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+
+        /* Completed State */
+        .task-tag.done {
+            background: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            border-color: #e2e8f0 !important;
+            text-decoration: line-through;
+        }
+        .task-tag.done::before {
+            background-color: #94a3b8;
+            border-color: #94a3b8;
+        }
+
+        /* Note Button */
+        .note-btn {
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 2px;
+        }
+        .day-cell:hover .note-btn { color: #94a3b8; }
+        .note-btn:hover { color: #3b82f6 !important; transform: scale(1.2); }
+        .has-note .note-btn { color: #f59e0b !important; opacity: 1; }
+
+        /* Note Preview Indicator */
+        .note-preview {
+            margin-top: auto;
+            font-size: 0.6rem;
+            color: #64748b;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
+        /* Special Days */
+        .is-today { background-color: #eff6ff; box-shadow: inset 0 0 0 2px #3b82f6; z-index: 2; }
+        .is-past { background-color: #f8fafc; }
+        .is-past .day-header { opacity: 0.5; }
+        .is-past .task-tag:not(.done) { opacity: 0.6; }
+        .bg-xiao-arrival { background: repeating-linear-gradient(45deg, #fef2f2, #fef2f2 10px, #fee2e2 10px, #fee2e2 20px); }
+
+        @media (max-width: 768px) {
+            .calendar-grid { display: flex; flex-direction: column; gap: 8px; border: none; background: transparent; }
+            .day-cell { border-radius: 8px; border: 1px solid #e2e8f0; min-height: auto; }
+            .week-header { display: none; }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: white; width: 95%; max-width: 600px;
+            border-radius: 12px; transform: translateY(20px); transition: 0.3s;
+            display: flex; flex-direction: column; max-height: 90vh;
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+        <!-- Control Panel -->
+        <div class="bg-slate-800 text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-wide">
+                    <i class="fas fa-calendar-check mr-2 text-yellow-400"></i>12月冲刺数据中心
+                </h1>
+                <div class="flex items-center gap-2 mt-2 text-xs text-slate-400">
+                    <span id="storage-mode" class="px-2 py-0.5 rounded border border-slate-600">
+                        <i class="fas fa-spinner fa-spin mr-1"></i> 检测中...
+                    </span>
+                    <span>|</span>
+                    <span id="last-save">未保存</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="downloadBackup()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center">
+                    <i class="fas fa-download mr-2"></i> 备份数据
+                </button>
+                <label class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center cursor-pointer">
+                    <i class="fas fa-upload mr-2"></i> 恢复数据
+                    <input type="file" id="import-file" class="hidden" accept=".json" onchange="importBackup(this)">
+                </label>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="bg-slate-50 border-b border-slate-200 p-4 flex flex-col md:flex-row justify-between items-center text-sm gap-4">
+            <div class="flex gap-4">
+                <div class="flex items-center"><div class="w-3 h-3 bg-[#fef2f2] border border-[#fecaca] rounded mr-1"></div> 政治</div>
+                <div class="flex items-center"><div class="w-3 h-3 bg-[#eff6ff] border border-[#bfdbfe] rounded mr-1"></div> 英语</div>
+                <div class="flex items-center"><div class="w-3 h-3 bg-[#faf5ff] border border-[#e9d5ff] rounded mr-1"></div> 手绘</div>
+                <div class="flex items-center"><div class="w-3 h-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded mr-1"></div> 理论</div>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <span class="text-slate-500 font-bold whitespace-nowrap">总进度: <span id="progress-val">0%</span></span>
+                <div class="w-full md:w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Header -->
+        <div class="grid grid-cols-7 text-center py-2 bg-white text-xs font-bold text-slate-400 week-header">
+            <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid" id="calendar-root">
+            <!-- JS will inject days here -->
+        </div>
+
+        <div class="p-3 bg-slate-50 text-center text-xs text-slate-400">
+            提示：点击 <i class="fas fa-pen text-slate-400 mx-1"></i> 记录当日学习心得。建议每周点击上方“备份数据”保存进度文件。
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div id="note-modal" class="modal-overlay">
+        <div class="modal-box shadow-2xl">
+            <div class="bg-slate-50 p-4 border-b flex justify-between items-center rounded-t-lg">
+                <h3 class="font-bold text-slate-700">
+                    <i class="fas fa-book-open mr-2 text-blue-500"></i>
+                    <span id="modal-date"></span> 学习笔记
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+            </div>
+            <div class="p-4 flex-1 flex flex-col">
+                <textarea id="note-input" class="flex-1 w-full min-h-[200px] p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-sm leading-relaxed text-slate-700 placeholder-slate-400" placeholder="今天背了什么？有什么感悟？哪里还需要加强？..."></textarea>
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-xs text-slate-400" id="word-count">0 字</span>
+                    <div class="flex gap-2">
+                        <button onclick="closeModal()" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded text-sm">取消</button>
+                        <button onclick="saveNote()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow">保存笔记</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- Data & Logic ---
+        
+        // Calendar Data Structure
+        const calendarData = [
+            { day: 1, past: true }, { day: 2, past: true },
+            { day: 3, today: true, tasks: [
+                { id: "d3_1", text: "肖八1-3套错题二刷", type: "t-pol" },
+                { id: "d3_2", text: "理论: 名词解释(流派)", type: "t-the" },
+                { id: "d3_3", text: "整理快题万能模板", type: "t-art" }
+            ]},
+            { day: 4, tasks: [
+                { id: "d4_1", text: "肖八4-6套选择题", type: "t-pol" },
+                { id: "d4_2", text: "英语写作模板(图表)", type: "t-eng" },
+                { id: "d4_3", text: "理论: 填空选择突击", type: "t-the" }
+            ]},
+            { day: 5, tasks: [
+                { id: "d5_1", text: "肖八7-8套(可选/弃)", type: "t-pol" },
+                { id: "d5_2", text: "英语写作模板(书信)", type: "t-eng" },
+                { id: "d5_3", text: "晚: 局部线稿x3", type: "t-art" }
+            ]},
+            { day: 6, tasks: [
+                { id: "d6_1", text: "手绘3小时模拟", type: "t-art" },
+                { id: "d6_2", text: "肖八全部错题复盘", type: "t-pol" }
+            ]},
+            { day: 7, tasks: [
+                { id: "d7_1", text: "理论模考", type: "t-the" },
+                { id: "d7_2", text: "下午: 英语全真模拟", type: "t-eng" }
+            ]},
+            { day: 8, tasks: [
+                { id: "d8_1", text: "英语作文模板熟背", type: "t-eng" },
+                { id: "d8_2", text: "手绘复盘/改图", type: "t-art" }
+            ]},
+            { day: 9, tasks: [
+                { id: "d9_1", text: "理论核心名词突击", type: "t-the" },
+                { id: "d9_2", text: "马原原理回顾", type: "t-pol" }
+            ]},
+            { day: 10, note: "肖四到货日!", specialClass: "bg-xiao-arrival", tasks: [
+                { id: "d10_1", text: "肖四卷1+卷2选择题", type: "t-pol" },
+                { id: "d10_2", text: "背肖四卷1大题(死背)", type: "t-pol" }
+            ]},
+            { day: 11, tasks: [
+                { id: "d11_1", text: "肖四卷3+卷4选择题", type: "t-pol" },
+                { id: "d11_2", text: "背肖四卷2大题", type: "t-pol" }
+            ]},
+            { day: 12, tasks: [
+                { id: "d12_1", text: "背肖四卷3大题", type: "t-pol" },
+                { id: "d12_2", text: "近3年阅读真题手感", type: "t-eng" }
+            ]},
+            { day: 13, tasks: [
+                { id: "d13_1", text: "背肖四卷4大题", type: "t-pol" },
+                { id: "d13_2", text: "二刷肖四全部选择题", type: "t-pol" }
+            ]},
+            { day: 14, tasks: [
+                { id: "d14_1", text: "最后一张完整快题", type: "t-art" },
+                { id: "d14_2", text: "理论查漏补缺", type: "t-the" }
+            ]},
+            { day: 15, tasks: [
+                { id: "d15_1", text: "肖四大题第二轮", type: "t-pol" },
+                { id: "d15_2", text: "打印入场凭证", type: "t-pol", style: "border:1px dashed #94a3b8; background:transparent; color:#64748b" }
+            ]},
+            { day: 16, note: "建议请假", tasks: [
+                { id: "d16_1", text: "政治错题+时政死角", type: "t-pol" },
+                { id: "d16_2", text: "理论死角扫除", type: "t-the" }
+            ]},
+            { day: 17, note: "建议请假", tasks: [
+                { id: "d17_1", text: "作文默写最后一遍", type: "t-eng" },
+                { id: "d17_2", text: "看优秀案例(不动笔)", type: "t-art" }
+            ]},
+            { day: 18, note: "建议请假", tasks: [
+                { id: "d18_1", text: "肖四滚瓜烂熟", type: "t-pol" },
+                { id: "d18_2", text: "全流程脑上演练", type: "t-art" }
+            ]},
+            { day: 19, tasks: [
+                { id: "d19_1", text: "踩点 / 酒店确认", type: "t-pol", style: "border:1px dashed #94a3b8; background:transparent; color:#64748b" },
+                { id: "d19_2", text: "22:00 休息", type: "t-pol" }
+            ]},
+            { day: 20, specialClass: "bg-red-50", tasks: [
+                { id: "d20_1", text: "上午: 政治", type: "t-pol" },
+                { id: "d20_2", text: "下午: 英语", type: "t-eng" }
+            ]},
+            { day: 21, specialClass: "bg-red-50", tasks: [
+                { id: "d21_1", text: "上午: 理论", type: "t-the" },
+                { id: "d21_2", text: "下午: 手绘", type: "t-art" }
+            ]}
+        ];
+
+        // Global State
+        let db = null;
+        let user = null;
+        let isCloudMode = false;
+        let appState = {
+            completedTasks: [], // Array of Task IDs
+            notes: {} // Map: "day_3": "note content"
+        };
+
+        // --- Init Logic ---
+        
+        async function init() {
+            renderCalendar();
+            
+            // Try to connect to Firebase (If running in platform)
+            try {
+                if (typeof __firebase_config !== 'undefined') {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    db = getFirestore(app);
+                    
+                    // Auth
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                       await auth.signInWithCustomToken(__initial_auth_token);
+                    } else {
+                       await signInAnonymously(auth);
+                    }
+                    
+                    user = auth.currentUser;
+                    if (user) {
+                        isCloudMode = true;
+                        updateStorageStatus("云端同步中", "text-green-600");
+                        await loadFromCloud();
+                    }
+                } else {
+                    throw new Error("No config");
+                }
+            } catch (e) {
+                // Fallback to LocalStorage
+                console.log("Running in Local Mode");
+                isCloudMode = false;
+                updateStorageStatus("本地模式 (文件自存)", "text-blue-600");
+                loadFromLocal();
+            }
+        }
+
+        // --- Storage Operations ---
+
+        async function saveState() {
+            // Update UI Stats first
+            updateProgressUI();
+            
+            const timestamp = new Date().toLocaleString();
+            document.getElementById('last-save').innerText = "已保存: " + timestamp.split(' ')[1];
+
+            if (isCloudMode && user && db) {
+                // Save to Firestore
+                try {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default';
+                    // We use a single document for simplicity in this specific user-scenario
+                    // Path: artifacts/{appId}/users/{userId}/calendar_data/master
+                    await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'calendar_data', 'master'), appState);
+                } catch (e) {
+                    console.error("Cloud save failed", e);
+                }
+            } else {
+                // Save to LocalStorage
+                localStorage.setItem('study_dashboard_v1', JSON.stringify(appState));
+            }
+        }
+
+        async function loadFromCloud() {
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default';
+                const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'calendar_data', 'master'));
+                if (docSnap.exists()) {
+                    appState = docSnap.data();
+                    refreshUI();
+                }
+            } catch (e) {
+                console.error("Load failed", e);
+            }
+        }
+
+        function loadFromLocal() {
+            const saved = localStorage.getItem('study_dashboard_v1');
+            if (saved) {
+                appState = JSON.parse(saved);
+                refreshUI();
+            }
+        }
+
+        // --- UI Rendering ---
+
+        function renderCalendar() {
+            const root = document.getElementById('calendar-root');
+            root.innerHTML = '';
+            
+            calendarData.forEach(d => {
+                const cell = document.createElement('div');
+                cell.className = `day-cell ${d.past ? 'is-past' : ''} ${d.today ? 'is-today' : ''} ${d.specialClass || ''}`;
+                cell.id = `day-${d.day}`;
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                let dayLabel = d.day;
+                if(d.today) dayLabel += " <span class='text-[10px] bg-blue-100 text-blue-600 px-1 rounded'>今天</span>";
+                if(d.note) dayLabel += ` <span class='text-[10px] text-red-400 font-normal'>${d.note}</span>`;
+                
+                header.innerHTML = `
+                    <span>${dayLabel}</span>
+                    <i class="fas fa-pen note-btn" onclick="openNoteModal(${d.day})"></i>
+                `;
+                cell.appendChild(header);
+
+                // Tasks
+                if (d.tasks) {
+                    d.tasks.forEach(t => {
+                        const taskEl = document.createElement('div');
+                        taskEl.className = `task-tag ${t.type}`;
+                        taskEl.innerText = t.text;
+                        taskEl.dataset.id = t.id;
+                        if(t.style) taskEl.style = t.style;
+                        taskEl.onclick = () => toggleTask(t.id);
+                        cell.appendChild(taskEl);
+                    });
+                }
+                
+                // Note Preview
+                const notePrev = document.createElement('div');
+                notePrev.className = 'note-preview';
+                notePrev.id = `preview-${d.day}`;
+                cell.appendChild(notePrev);
+
+                root.appendChild(cell);
+            });
+        }
+
+        function refreshUI() {
+            // Restore Task Status
+            document.querySelectorAll('.task-tag').forEach(el => {
+                if (appState.completedTasks.includes(el.dataset.id)) {
+                    el.classList.add('done');
+                } else {
+                    el.classList.remove('done');
+                }
+            });
+
+            // Restore Notes
+            Object.keys(appState.notes).forEach(dayKey => {
+                const dayNum = dayKey.replace('day_', '');
+                const cell = document.getElementById(`day-${dayNum}`);
+                const preview = document.getElementById(`preview-${dayNum}`);
+                if (cell && preview) {
+                    if (appState.notes[dayKey]) {
+                        cell.classList.add('has-note');
+                        preview.innerText = appState.notes[dayKey];
+                    } else {
+                        cell.classList.remove('has-note');
+                        preview.innerText = '';
+                    }
+                }
+            });
+
+            updateProgressUI();
+        }
+
+        // --- Interaction ---
+
+        window.toggleTask = function(id) {
+            const idx = appState.completedTasks.indexOf(id);
+            if (idx > -1) {
+                appState.completedTasks.splice(idx, 1);
+            } else {
+                appState.completedTasks.push(id);
+            }
+            refreshUI(); // Re-render to show strikethrough
+            saveState(); // Persist
+        };
+
+        // Note Modal Logic
+        let currentNoteDay = null;
+        const modal = document.getElementById('note-modal');
+        const noteInput = document.getElementById('note-input');
+
+        window.openNoteModal = function(day) {
+            currentNoteDay = day;
+            document.getElementById('modal-date').innerText = `12月${day}日`;
+            noteInput.value = appState.notes[`day_${day}`] || '';
+            document.getElementById('word-count').innerText = noteInput.value.length + " 字";
+            modal.classList.add('open');
+            setTimeout(() => noteInput.focus(), 100);
+        };
+
+        window.closeModal = function() {
+            modal.classList.remove('open');
+        };
+
+        window.saveNote = function() {
+            const val = noteInput.value.trim();
+            if (val) {
+                appState.notes[`day_${currentNoteDay}`] = val;
+            } else {
+                delete appState.notes[`day_${currentNoteDay}`];
+            }
+            refreshUI();
+            saveState();
+            closeModal();
+        };
+
+        // Word count updater
+        noteInput.addEventListener('input', (e) => {
+            document.getElementById('word-count').innerText = e.target.value.length + " 字";
+        });
+
+        // --- Export / Import ---
+
+        window.downloadBackup = function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "12月冲刺数据备份_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        };
+
+        window.importBackup = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedState = JSON.parse(e.target.result);
+                    if (confirm(`确定要恢复数据吗？这会覆盖当前的 ${loadedState.completedTasks.length} 个任务进度。`)) {
+                        appState = loadedState;
+                        refreshUI();
+                        saveState();
+                        alert("数据恢复成功！");
+                    }
+                } catch(err) {
+                    alert("文件格式错误，无法读取。");
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // --- Helpers ---
+
+        function updateStorageStatus(msg, colorClass) {
+            const el = document.getElementById('storage-mode');
+            el.innerHTML = `<i class="fas fa-database mr-1"></i> ${msg}`;
+            el.className = `px-2 py-0.5 rounded border border-slate-600 text-xs font-bold ${colorClass.replace('text-', 'bg-').replace('600', '100')} ${colorClass}`;
+        }
+
+        function updateProgressUI() {
+            const allTasks = document.querySelectorAll('.task-tag').length;
+            const doneTasks = appState.completedTasks.length;
+            const pct = allTasks === 0 ? 0 : Math.round((doneTasks / allTasks) * 100);
+            
+            document.getElementById('progress-val').innerText = pct + "%";
+            document.getElementById('progress-bar').style.width = pct + "%";
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
