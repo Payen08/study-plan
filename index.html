@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025年12月项目冲刺数据中心 (Supabase版)</title>
+    <title>12月冲刺 (极简版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f1f5f9; user-select: none; }
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f8fafc; user-select: none; }
         
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
-            background-color: #cbd5e1;
-            border: 1px solid #cbd5e1;
+            background-color: #e2e8f0;
+            border: 1px solid #e2e8f0;
         }
         
         .day-cell {
             background-color: white;
-            min-height: 130px;
-            padding: 6px;
+            min-height: 120px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             transition: background-color 0.2s;
         }
 
         .day-header {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,32 +40,31 @@
         
         /* 任务条 */
         .task-tag {
-            font-size: 0.7rem;
-            padding: 3px 6px 3px 22px;
-            border-radius: 4px;
-            margin-bottom: 3px;
+            font-size: 0.75rem;
+            padding: 4px 8px 4px 24px;
+            border-radius: 6px;
+            margin-bottom: 4px;
             cursor: pointer;
             position: relative;
             transition: all 0.2s;
-            line-height: 1.3;
+            line-height: 1.4;
             border: 1px solid transparent;
         }
         
-        /* Checkbox Icon */
         .task-tag::before {
             content: '';
             position: absolute;
-            left: 6px;
+            left: 8px;
             top: 50%;
             transform: translateY(-50%);
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border: 1.5px solid currentColor;
-            border-radius: 2px;
-            opacity: 0.6;
+            border-radius: 3px;
+            opacity: 0.5;
         }
 
-        .task-tag:hover { filter: brightness(0.95); transform: translateX(2px); }
+        .task-tag:hover { filter: brightness(0.95); transform: translateY(-1px); }
 
         /* Types */
         .t-pol { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
@@ -80,10 +78,13 @@
             color: #94a3b8 !important;
             border-color: #e2e8f0 !important;
             text-decoration: line-through;
+            opacity: 0.7;
         }
         .task-tag.done::before {
             background-color: #94a3b8;
             border-color: #94a3b8;
+            border: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
         }
 
         /* Note Button */
@@ -91,36 +92,22 @@
             color: #cbd5e1;
             cursor: pointer;
             transition: all 0.2s;
-            padding: 2px;
+            padding: 4px;
+            border-radius: 4px;
         }
         .day-cell:hover .note-btn { color: #94a3b8; }
-        .note-btn:hover { color: #3b82f6 !important; transform: scale(1.2); }
+        .note-btn:hover { background-color: #eff6ff; color: #3b82f6 !important; }
         .has-note .note-btn { color: #f59e0b !important; opacity: 1; }
 
-        /* Note Preview Indicator */
-        .note-preview {
-            margin-top: auto;
-            font-size: 0.6rem;
-            color: #64748b;
-            border-top: 1px dashed #e2e8f0;
-            padding-top: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-height: 1.2;
-        }
-
         /* Special Days */
-        .is-today { background-color: #eff6ff; box-shadow: inset 0 0 0 2px #3b82f6; z-index: 2; }
+        .is-today { background-color: #eff6ff; ring: 2px solid #3b82f6; z-index: 2; }
         .is-past { background-color: #f8fafc; }
         .is-past .day-header { opacity: 0.5; }
-        .is-past .task-tag:not(.done) { opacity: 0.6; }
         .bg-xiao-arrival { background: repeating-linear-gradient(45deg, #fef2f2, #fef2f2 10px, #fee2e2 10px, #fee2e2 20px); }
 
         @media (max-width: 768px) {
             .calendar-grid { display: flex; flex-direction: column; gap: 8px; border: none; background: transparent; }
-            .day-cell { border-radius: 8px; border: 1px solid #e2e8f0; min-height: auto; }
+            .day-cell { border-radius: 12px; border: 1px solid #e2e8f0; min-height: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
             .week-header { display: none; }
         }
 
@@ -132,116 +119,91 @@
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: white; width: 95%; max-width: 600px;
-            border-radius: 12px; transform: translateY(20px); transition: 0.3s;
-            display: flex; flex-direction: column; max-height: 90vh;
+            background: white; width: 90%; max-width: 500px;
+            border-radius: 16px; transform: scale(0.95); transition: 0.3s;
+            display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        .modal-overlay.open .modal-box { transform: translateY(0); }
+        .modal-overlay.open .modal-box { transform: scale(1); }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 min-h-screen">
 
-    <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
-        <!-- Control Panel -->
-        <div class="bg-slate-800 text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Header & Stats -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
-                <h1 class="text-2xl font-bold tracking-wide">
-                    <i class="fas fa-calendar-check mr-2 text-green-400"></i>12月冲刺数据中心
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center">
+                    12月冲刺数据中心
+                    <!-- 云同步指示灯 -->
+                    <span id="cloud-status" class="ml-2 w-2 h-2 rounded-full bg-slate-300" title="离线模式"></span>
                 </h1>
-                <div class="flex flex-col gap-1 mt-2">
-                    <div class="flex items-center gap-2 text-xs text-slate-400">
-                        <span id="storage-mode" class="px-2 py-0.5 rounded border border-slate-600">
-                            <i class="fas fa-spinner fa-spin mr-1"></i> 初始化...
-                        </span>
-                        <span>|</span>
-                        <span id="last-save">未保存</span>
-                    </div>
-                    <!-- Sync ID Input -->
-                    <div class="flex items-center gap-2 text-xs mt-1" id="sync-area">
-                        <span class="text-slate-400">同步暗号:</span>
-                        <input type="text" id="sync-id-input" class="bg-slate-700 text-white px-2 py-0.5 rounded border border-slate-600 w-24 focus:ring-1 focus:ring-green-400 outline-none" placeholder="输入ID同步" onchange="updateSyncId(this.value)">
-                        <button onclick="forceSync()" class="text-green-400 hover:text-green-300" title="强制同步"><i class="fas fa-sync"></i></button>
-                    </div>
-                </div>
+                <p class="text-slate-400 text-sm mt-1">坚持就是胜利，数据自动保存</p>
             </div>
 
-            <div class="flex gap-3">
-                <button onclick="downloadBackup()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center">
-                    <i class="fas fa-download mr-2"></i> 备份
-                </button>
-                <label class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center cursor-pointer">
-                    <i class="fas fa-upload mr-2"></i> 恢复
-                    <input type="file" id="import-file" class="hidden" accept=".json" onchange="importBackup(this)">
-                </label>
-            </div>
-        </div>
-
-        <!-- Stats Bar -->
-        <div class="bg-slate-50 border-b border-slate-200 p-4 flex flex-col md:flex-row justify-between items-center text-sm gap-4">
-            <div class="flex gap-4">
-                <div class="flex items-center"><div class="w-3 h-3 bg-[#fef2f2] border border-[#fecaca] rounded mr-1"></div> 政治</div>
-                <div class="flex items-center"><div class="w-3 h-3 bg-[#eff6ff] border border-[#bfdbfe] rounded mr-1"></div> 英语</div>
-                <div class="flex items-center"><div class="w-3 h-3 bg-[#faf5ff] border border-[#e9d5ff] rounded mr-1"></div> 手绘</div>
-                <div class="flex items-center"><div class="w-3 h-3 bg-[#f0fdf4] border border-[#bbf7d0] rounded mr-1"></div> 理论</div>
-            </div>
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <span class="text-slate-500 font-bold whitespace-nowrap">总进度: <span id="progress-val">0%</span></span>
-                <div class="w-full md:w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="flex items-center gap-4 w-full md:w-auto bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-slate-500 font-bold text-sm whitespace-nowrap">总进度 <span id="progress-val" class="text-slate-800">0%</span></span>
+                <div class="w-full md:w-48 h-2.5 bg-slate-200 rounded-full overflow-hidden">
                     <div id="progress-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
+        <!-- Legend -->
+        <div class="flex gap-3 mb-4 text-xs font-bold text-slate-500 justify-end">
+            <span class="flex items-center"><span class="w-2 h-2 bg-red-400 rounded-full mr-1"></span>政治</span>
+            <span class="flex items-center"><span class="w-2 h-2 bg-blue-400 rounded-full mr-1"></span>英语</span>
+            <span class="flex items-center"><span class="w-2 h-2 bg-purple-400 rounded-full mr-1"></span>手绘</span>
+            <span class="flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>理论</span>
+        </div>
+
         <!-- Calendar Header -->
-        <div class="grid grid-cols-7 text-center py-2 bg-white text-xs font-bold text-slate-400 week-header">
-            <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div>
+        <div class="grid grid-cols-7 text-center py-3 bg-white/50 backdrop-blur rounded-t-xl text-xs font-bold text-slate-400 week-header border border-slate-200 border-b-0">
+            <div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div>周六</div><div>周日</div>
         </div>
 
         <!-- Calendar Grid -->
-        <div class="calendar-grid" id="calendar-root">
+        <div class="calendar-grid rounded-b-xl overflow-hidden" id="calendar-root">
             <!-- JS will inject days here -->
         </div>
 
-        <div class="p-3 bg-slate-50 text-center text-xs text-slate-400">
-            提示：点击 <i class="fas fa-pen text-slate-400 mx-1"></i> 记录当日学习心得。在上方输入相同的“同步暗号”可在多设备间同步。
+        <div class="mt-8 text-center text-xs text-slate-300 font-mono">
+            SYNC ID: <span id="sync-id-display">LOCAL</span>
         </div>
     </div>
 
     <!-- Note Modal -->
     <div id="note-modal" class="modal-overlay">
-        <div class="modal-box shadow-2xl">
-            <div class="bg-slate-50 p-4 border-b flex justify-between items-center rounded-t-lg">
-                <h3 class="font-bold text-slate-700">
-                    <i class="fas fa-book-open mr-2 text-blue-500"></i>
-                    <span id="modal-date"></span> 学习笔记
+        <div class="modal-box">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg">
+                    <span id="modal-date"></span> 学习日记
                 </h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
             </div>
-            <div class="p-4 flex-1 flex flex-col">
-                <textarea id="note-input" class="flex-1 w-full min-h-[200px] p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-sm leading-relaxed text-slate-700 placeholder-slate-400" placeholder="今天背了什么？有什么感悟？哪里还需要加强？..."></textarea>
-                <div class="mt-4 flex justify-between items-center">
-                    <span class="text-xs text-slate-400" id="word-count">0 字</span>
-                    <div class="flex gap-2">
-                        <button onclick="closeModal()" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded text-sm">取消</button>
-                        <button onclick="saveNote()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm shadow">保存笔记</button>
-                    </div>
+            <div class="p-5">
+                <textarea id="note-input" class="w-full h-40 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none resize-none text-sm text-slate-700 leading-relaxed placeholder-slate-400 transition" placeholder="写下今天的复盘..."></textarea>
+                <div class="mt-4 flex justify-end gap-3">
+                    <button onclick="closeModal()" class="px-5 py-2.5 text-slate-500 hover:bg-slate-100 rounded-lg text-sm font-bold transition">取消</button>
+                    <button onclick="saveNote()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-sm shadow-lg shadow-slate-200 transition">保存</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script Logic -->
     <script>
-        // --- ☁️ Supabase 配置区 ---
-        // 请在此处填入你在 Supabase 项目设置中获取的 URL 和 Key
-        // 留空则仅使用本地存储
+        // ==========================================
+        // 🔧 配置区 (在这里填一次，终身自动同步)
+        // ==========================================
         
-        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";  // 格式如: https://xyz.supabase.co
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";  // 格式如: eyJhbGciOiJIUzI1NiIsIn...
+        // 1. 你的唯一同步暗号 (比如手机号或昵称拼音)
+        const MY_SYNC_ID = "default-user"; 
 
-        // ------------------------
+        // 2. Supabase 配置 (填入你的 Key)
+        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s"; 
 
-        // Data Structure
+        // ==========================================
+
         const calendarData = [
             { day: 1, past: true }, { day: 2, past: true },
             { day: 3, today: true, tasks: [
@@ -325,91 +287,57 @@
             ]}
         ];
 
-        // Global State
         let supabaseClient = null;
         let isCloudMode = false;
-        let syncId = localStorage.getItem('study_sync_id') || 'default';
-        let appState = {
-            completedTasks: [], 
-            notes: {} 
-        };
+        let appState = { completedTasks: [], notes: {} };
 
-        // --- Init Logic ---
-        
+        // --- Init ---
         async function init() {
             renderCalendar();
-            document.getElementById('sync-id-input').value = syncId;
+            document.getElementById('sync-id-display').innerText = MY_SYNC_ID;
 
-            // Check config
             if (SUPABASE_URL && SUPABASE_KEY) {
                 try {
                     const { createClient } = supabase;
                     supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
                     isCloudMode = true;
-                    updateStorageStatus("云端就绪 (Supabase)", "text-green-400");
+                    setStatus("online");
                     await loadFromCloud();
                 } catch (e) {
-                    console.error("Supabase Init Error", e);
-                    useLocalMode();
+                    console.error("Supabase Error", e);
+                    loadFromLocal();
                 }
             } else {
-                useLocalMode();
+                loadFromLocal();
             }
         }
 
-        function useLocalMode() {
-            isCloudMode = false;
-            updateStorageStatus("本地模式 (无云同步)", "text-blue-400");
-            loadFromLocal();
-        }
-
-        // --- Storage Operations ---
-
+        // --- Core Logic ---
         async function saveState() {
             updateProgressUI();
-            const timestamp = new Date().toLocaleString();
-            document.getElementById('last-save').innerText = "已保存: " + timestamp.split(' ')[1];
-
-            // Always save to local as backup
-            localStorage.setItem('study_dashboard_v1', JSON.stringify(appState));
+            localStorage.setItem('study_dashboard_v1', JSON.stringify(appState)); // Local Backup
 
             if (isCloudMode && supabaseClient) {
                 try {
-                    // Upsert to Supabase
-                    // Table: study_progress (id: text, data: jsonb)
-                    const { error } = await supabaseClient
-                        .from('study_progress')
-                        .upsert({ id: syncId, data: appState });
-                    
-                    if(error) console.error("Cloud save error", error);
+                    setStatus("syncing");
+                    await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: appState });
+                    setStatus("online");
                 } catch (e) {
-                    console.error("Cloud save failed", e);
+                    setStatus("error");
                 }
             }
         }
 
         async function loadFromCloud() {
-            if (!isCloudMode) return;
             try {
-                updateStorageStatus("正在同步...", "text-yellow-400");
-                const { data, error } = await supabaseClient
-                    .from('study_progress')
-                    .select('data')
-                    .eq('id', syncId)
-                    .single();
-
+                const { data } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
                 if (data && data.data) {
                     appState = data.data;
-                    updateStorageStatus("同步成功 (Supabase)", "text-green-400");
                     refreshUI();
                 } else {
-                    // No data found for this ID, stick to local or empty
-                    console.log("No cloud data found for this ID");
-                    updateStorageStatus("云端无数据 (使用本地)", "text-blue-400");
                     loadFromLocal();
                 }
             } catch (e) {
-                console.error("Load failed", e);
                 loadFromLocal();
             }
         }
@@ -422,47 +350,24 @@
             }
         }
 
-        // --- Sync ID Logic ---
-        
-        window.updateSyncId = function(val) {
-            if(!val) return;
-            syncId = val;
-            localStorage.setItem('study_sync_id', val);
-            if(isCloudMode) {
-                loadFromCloud(); // Switch profile
-            }
-        }
-
-        window.forceSync = function() {
-            if(isCloudMode) loadFromCloud();
-            else alert("未配置 Supabase，无法云同步。请检查代码中的 URL 和 Key。");
-        }
-
-        // --- UI Rendering ---
-
+        // --- UI ---
         function renderCalendar() {
             const root = document.getElementById('calendar-root');
             root.innerHTML = '';
-            
             calendarData.forEach(d => {
                 const cell = document.createElement('div');
                 cell.className = `day-cell ${d.past ? 'is-past' : ''} ${d.today ? 'is-today' : ''} ${d.specialClass || ''}`;
                 cell.id = `day-${d.day}`;
                 
-                // Header
+                let dayLabel = d.day;
+                if(d.today) dayLabel += " <span class='text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded ml-1'>今天</span>";
+                if(d.note) dayLabel += ` <span class='text-[10px] text-red-400 font-normal ml-1'>${d.note}</span>`;
+
                 const header = document.createElement('div');
                 header.className = 'day-header';
-                let dayLabel = d.day;
-                if(d.today) dayLabel += " <span class='text-[10px] bg-blue-100 text-blue-600 px-1 rounded'>今天</span>";
-                if(d.note) dayLabel += ` <span class='text-[10px] text-red-400 font-normal'>${d.note}</span>`;
-                
-                header.innerHTML = `
-                    <span>${dayLabel}</span>
-                    <i class="fas fa-pen note-btn" onclick="openNoteModal(${d.day})"></i>
-                `;
+                header.innerHTML = `<span>${dayLabel}</span><i class="fas fa-edit note-btn" onclick="openNoteModal(${d.day})"></i>`;
                 cell.appendChild(header);
 
-                // Tasks
                 if (d.tasks) {
                     d.tasks.forEach(t => {
                         const taskEl = document.createElement('div');
@@ -474,57 +379,42 @@
                         cell.appendChild(taskEl);
                     });
                 }
-                
-                // Note Preview
-                const notePrev = document.createElement('div');
-                notePrev.className = 'note-preview';
-                notePrev.id = `preview-${d.day}`;
-                cell.appendChild(notePrev);
-
                 root.appendChild(cell);
             });
         }
 
         function refreshUI() {
             document.querySelectorAll('.task-tag').forEach(el => {
-                if (appState.completedTasks.includes(el.dataset.id)) {
-                    el.classList.add('done');
-                } else {
-                    el.classList.remove('done');
-                }
+                if (appState.completedTasks.includes(el.dataset.id)) el.classList.add('done');
+                else el.classList.remove('done');
             });
-
             Object.keys(appState.notes).forEach(dayKey => {
                 const dayNum = dayKey.replace('day_', '');
                 const cell = document.getElementById(`day-${dayNum}`);
-                const preview = document.getElementById(`preview-${dayNum}`);
-                if (cell && preview) {
-                    if (appState.notes[dayKey]) {
-                        cell.classList.add('has-note');
-                        preview.innerText = appState.notes[dayKey];
-                    } else {
-                        cell.classList.remove('has-note');
-                        preview.innerText = '';
-                    }
+                if (cell) {
+                    if (appState.notes[dayKey]) cell.classList.add('has-note');
+                    else cell.classList.remove('has-note');
                 }
             });
             updateProgressUI();
         }
 
-        // --- Interaction ---
+        function setStatus(status) {
+            const el = document.getElementById('cloud-status');
+            if(status === 'online') el.className = "ml-2 w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]";
+            if(status === 'syncing') el.className = "ml-2 w-2 h-2 rounded-full bg-yellow-400 animate-pulse";
+            if(status === 'error') el.className = "ml-2 w-2 h-2 rounded-full bg-red-400";
+        }
 
         window.toggleTask = function(id) {
             const idx = appState.completedTasks.indexOf(id);
-            if (idx > -1) {
-                appState.completedTasks.splice(idx, 1);
-            } else {
-                appState.completedTasks.push(id);
-            }
+            if (idx > -1) appState.completedTasks.splice(idx, 1);
+            else appState.completedTasks.push(id);
             refreshUI();
             saveState();
         };
 
-        // Note Modal
+        // Note Logic
         let currentNoteDay = null;
         const modal = document.getElementById('note-modal');
         const noteInput = document.getElementById('note-input');
@@ -533,83 +423,28 @@
             currentNoteDay = day;
             document.getElementById('modal-date').innerText = `12月${day}日`;
             noteInput.value = appState.notes[`day_${day}`] || '';
-            document.getElementById('word-count').innerText = noteInput.value.length + " 字";
             modal.classList.add('open');
             setTimeout(() => noteInput.focus(), 100);
         };
-
-        window.closeModal = function() {
-            modal.classList.remove('open');
-        };
-
+        window.closeModal = function() { modal.classList.remove('open'); };
         window.saveNote = function() {
             const val = noteInput.value.trim();
-            if (val) {
-                appState.notes[`day_${currentNoteDay}`] = val;
-            } else {
-                delete appState.notes[`day_${currentNoteDay}`];
-            }
+            if (val) appState.notes[`day_${currentNoteDay}`] = val;
+            else delete appState.notes[`day_${currentNoteDay}`];
             refreshUI();
             saveState();
             closeModal();
         };
 
-        noteInput.addEventListener('input', (e) => {
-            document.getElementById('word-count').innerText = e.target.value.length + " 字";
-        });
-
-        // --- Export / Import ---
-
-        window.downloadBackup = function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "12月冲刺数据备份_" + new Date().toISOString().slice(0,10) + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        };
-
-        window.importBackup = function(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const loadedState = JSON.parse(e.target.result);
-                    if (confirm(`恢复数据会覆盖当前进度，确定吗？`)) {
-                        appState = loadedState;
-                        refreshUI();
-                        saveState();
-                        alert("数据恢复成功！");
-                    }
-                } catch(err) {
-                    alert("文件格式错误。");
-                }
-            };
-            reader.readAsText(file);
-        };
-
-        // --- Helpers ---
-
-        function updateStorageStatus(msg, colorClass) {
-            const el = document.getElementById('storage-mode');
-            el.innerHTML = `<i class="fas fa-database mr-1"></i> ${msg}`;
-            el.className = `px-2 py-0.5 rounded border border-slate-600 text-xs font-bold ${colorClass.replace('text-', 'bg-').replace('400', '900')} ${colorClass}`;
-        }
-
         function updateProgressUI() {
             const allTasks = document.querySelectorAll('.task-tag').length;
             const doneTasks = appState.completedTasks.length;
             const pct = allTasks === 0 ? 0 : Math.round((doneTasks / allTasks) * 100);
-            
             document.getElementById('progress-val').innerText = pct + "%";
             document.getElementById('progress-bar').style.width = pct + "%";
         }
 
-        // Start
         init();
-
     </script>
 </body>
 </html>
