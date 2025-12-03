@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>12月冲刺 Pro</title>
+    <title>12月冲刺 Pro (终极版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -134,7 +134,7 @@
             .task-container { width: 100%; }
         }
 
-        /* === 模态框 (Bottom Sheet) 修复版 === */
+        /* === 模态框 === */
         .modal-overlay {
             background: rgba(0,0,0,0.4); 
             backdrop-filter: blur(4px);
@@ -153,7 +153,7 @@
         .modal-content {
             background: white; 
             width: 90%; 
-            max-width: 600px; 
+            max-width: 700px;
             border-radius: 20px;
             transform: scale(0.95) translateY(10px); 
             transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -161,45 +161,81 @@
             display: flex; 
             flex-direction: column;
             overflow: hidden;
+            max-height: 90vh;
         }
         .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
 
-        /* 📱 手机端样式 */
+        /* 📱 手机端抽屉样式 */
         @media (max-width: 768px) {
             .modal-overlay {
-                align-items: flex-end; /* 底部对齐 */
-                padding-bottom: 0;
+                align-items: flex-end; padding-bottom: 0;
             }
             .modal-content {
-                width: 100%;
-                max-width: 100%;
-                border-radius: 24px 24px 0 0;
-                margin: 0;
-                transform: translateY(100%);
-                height: 85vh; /* 占据85%高度 */
-                
-                /* 关键修复：阻止滚动链 */
-                overscroll-behavior: contain; 
+                width: 100%; max-width: 100%; border-radius: 24px 24px 0 0; margin: 0;
+                transform: translateY(100%); 
+                height: 85vh; /* 固定高度 */
             }
-            .modal-overlay.open .modal-content {
-                transform: translateY(0);
-            }
-            #note-text {
-                height: 100% !important; 
-                font-size: 16px !important;
-            }
+            .modal-overlay.open .modal-content { transform: translateY(0); }
         }
         
-        /* 小把手装饰 */
-        .sheet-handle {
-            width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px; margin: 8px auto 0;
+        /* 📝 滚动容器样式 */
+        .editor-scroller {
+            flex: 1;
+            overflow-y: auto; /* 滚动条在这里 */
+            -webkit-overflow-scrolling: touch; /* iOS丝滑滚动 */
+            position: relative;
+            background: white;
+            overscroll-behavior: contain; /* 防止滑到底部拖动背景 */
         }
+
+        /* 📝 富文本编辑器样式 */
+        #note-editor {
+            width: 100%; 
+            min-height: 100%; 
+            padding: 24px;
+            outline: none; 
+            color: #334155; 
+            font-size: 16px; 
+            line-height: 1.6;
+        }
+        
+        /* 编辑器内部样式支持 */
+        #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; }
+        #note-editor table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+        #note-editor th, #note-editor td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
+        #note-editor th { background-color: #f1f5f9; font-weight: bold; }
+        #note-editor ul { list-style-type: disc; padding-left: 20px; margin: 8px 0; }
+        #note-editor ol { list-style-type: decimal; padding-left: 20px; margin: 8px 0; }
+        #note-editor blockquote { border-left: 4px solid #3b82f6; padding-left: 12px; color: #64748b; margin: 8px 0; }
+        #note-editor b, #note-editor strong { color: #0f172a; }
+        
+        /* ☑️ 任务框样式 */
+        #note-editor input[type="checkbox"] {
+            margin-right: 8px;
+            vertical-align: middle;
+            transform: scale(1.3); /* 放大一点好点 */
+            cursor: pointer;
+            accent-color: #3b82f6; /* 蓝色勾选 */
+        }
+
+        #note-editor:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block; 
+        }
+
+        .sheet-handle { width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px; margin: 8px auto 0; }
+        
+        .toolbar-btn {
+            padding: 6px; border-radius: 4px; color: #64748b; transition: 0.2s;
+        }
+        .toolbar-btn:hover { background-color: #f1f5f9; color: #3b82f6; }
     </style>
 </head>
 <body class="pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
-        
         <!-- Header -->
         <div class="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
@@ -242,32 +278,42 @@
                 <i class="fas fa-fingerprint"></i> ID: <span id="sync-id-label">LOCAL</span>
             </div>
         </div>
-
     </div>
 
-    <!-- 笔记弹窗 (修复版) -->
+    <!-- 富文本笔记弹窗 -->
     <div id="note-modal" class="modal-overlay">
         <div class="modal-content">
-            <!-- 手机端顶部把手 -->
+            <!-- 手机端把手 -->
             <div class="md:hidden w-full bg-white pt-2 pb-1 shrink-0" onclick="closeModal()">
                 <div class="sheet-handle"></div>
             </div>
 
-            <!-- 弹窗头部 -->
-            <div class="bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <span class="w-1 h-5 bg-blue-500 rounded-full"></span>
-                    <h3 class="font-bold text-slate-800 text-lg">📝 <span id="modal-date-title"></span></h3>
+            <!-- 头部 + 工具栏 -->
+            <div class="bg-white px-4 py-3 border-b border-slate-100 flex flex-col gap-2 shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-1 h-5 bg-blue-500 rounded-full"></span>
+                        <h3 class="font-bold text-slate-800 text-lg">📝 <span id="modal-date-title"></span></h3>
+                    </div>
+                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
                 </div>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
+                <!-- 简单工具栏 -->
+                <div class="flex gap-2 bg-slate-50 p-1.5 rounded-lg w-max mt-1 overflow-x-auto no-scrollbar">
+                    <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="有序列表"><i class="fas fa-list-ol"></i></button>
+                    <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
+                    <div class="w-px bg-slate-200 mx-1"></div>
+                    <span class="text-[10px] text-slate-400 flex items-center px-1 whitespace-nowrap">支持粘贴截图/表格</span>
+                </div>
             </div>
             
-            <!-- 弹窗内容 (可滚动) -->
-            <div class="p-0 flex-1 relative bg-slate-50/50">
-                <textarea id="note-text" class="w-full h-64 md:h-80 p-6 bg-transparent border-none focus:ring-0 text-slate-700 text-base leading-relaxed resize-none placeholder-slate-400" placeholder="在此记录今日的背诵重点、复盘心得，或者哪怕只是发泄一下情绪..."></textarea>
+            <!-- 编辑区域 (ContentEditable) - 滚动容器独立 -->
+            <div class="editor-scroller">
+                <div id="note-editor" contenteditable="true" placeholder="在此粘贴截图、表格，或者记录复盘心得..."></div>
             </div>
             
-            <!-- 弹窗底部 -->
+            <!-- 底部 -->
             <div class="bg-white px-6 py-4 border-t border-slate-100 flex justify-end shrink-0">
                 <button onclick="saveNote()" class="w-full md:w-auto bg-slate-900 hover:bg-black text-white px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition transform active:scale-95 flex justify-center items-center gap-2">
                     <i class="fas fa-save"></i> 保存笔记
@@ -279,7 +325,7 @@
     <script>
         // ================= 配置区 =================
         const MY_SYNC_ID = "my-study-id"; 
-        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
+        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         // =========================================
 
@@ -374,6 +420,31 @@
             render();
             document.getElementById('sync-id-label').innerText = MY_SYNC_ID;
             
+            // Rich Text Paste Handler (图片转Base64)
+            const editor = document.getElementById('note-editor');
+            editor.addEventListener('paste', function(e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.execCommand('insertImage', false, event.target.result);
+                        };
+                        reader.readAsDataURL(blob);
+                        e.preventDefault(); 
+                    }
+                }
+            });
+
+            // Auto-persist checkboxes
+            editor.addEventListener('change', (e) => {
+                if(e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
+                    e.target.checked ? e.target.setAttribute('checked', '') : e.target.removeAttribute('checked');
+                }
+            });
+
             if(SUPABASE_URL && SUPABASE_KEY) {
                 try {
                     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -470,26 +541,41 @@
             save();
         };
 
-        // Note Modal (Fixed Scrolling)
+        // Rich Text Note Logic
         let curNoteDay = null;
         const modal = document.getElementById('note-modal');
-        const txt = document.getElementById('note-text');
+        const editor = document.getElementById('note-editor');
+
+        window.execCmd = (cmd) => {
+            document.execCommand(cmd, false, null);
+            editor.focus();
+        }
+
+        window.insertCheckbox = () => {
+            const id = 'cb-' + Date.now();
+            const html = `<input type="checkbox" id="${id}"> `;
+            document.execCommand('insertHTML', false, html);
+            editor.focus();
+        };
 
         window.openNote = (d) => {
             curNoteDay = d;
             document.getElementById('modal-date-title').innerText = `12月${d}日`;
-            txt.value = state.notes[`d${d}`] || '';
+            // 使用 innerHTML 读取富文本内容
+            editor.innerHTML = state.notes[`d${d}`] || '';
             modal.classList.add('open');
-            document.body.style.overflow = 'hidden'; // 🔒 Lock Body Scroll
-            setTimeout(() => txt.focus(), 100);
+            document.body.style.overflow = 'hidden'; 
+            setTimeout(() => editor.focus(), 100);
         };
         window.closeModal = () => {
             modal.classList.remove('open');
-            document.body.style.overflow = ''; // 🔓 Unlock Body Scroll
+            document.body.style.overflow = ''; 
         };
         window.saveNote = () => {
-            const v = txt.value.trim();
-            if(v) state.notes[`d${curNoteDay}`] = v;
+            // 保存 HTML 内容
+            const v = editor.innerHTML;
+            // 简单的防空判断（如果只有空标签也算空）
+            if(v && v !== '<br>') state.notes[`d${curNoteDay}`] = v;
             else delete state.notes[`d${curNoteDay}`];
             refresh(); save(); closeModal();
         };
