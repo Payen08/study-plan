@@ -155,7 +155,6 @@
             color: #047857;
         }
 
-        /* 🎨 优化后的选择样式：同色系高亮 */
         .type-option {
             width: 100%;
             padding: 12px;
@@ -170,21 +169,11 @@
             color: #64748b;
         }
 
-        /* 政治(红) */
-        .type-option[data-val="t-pol"]:hover {
-            background: #fee2e2;
-        }
-
         .type-option[data-val="t-pol"].selected {
             background: #fef2f2;
             color: #be123c;
             border-color: #fca5a5;
             box-shadow: 0 4px 10px -2px rgba(239, 68, 68, 0.2);
-        }
-
-        /* 英语(蓝) */
-        .type-option[data-val="t-eng"]:hover {
-            background: #dbeafe;
         }
 
         .type-option[data-val="t-eng"].selected {
@@ -194,21 +183,11 @@
             box-shadow: 0 4px 10px -2px rgba(59, 130, 246, 0.2);
         }
 
-        /* 手绘(紫) */
-        .type-option[data-val="t-art"]:hover {
-            background: #f3e8ff;
-        }
-
         .type-option[data-val="t-art"].selected {
             background: #faf5ff;
             color: #7e22ce;
             border-color: #d8b4fe;
             box-shadow: 0 4px 10px -2px rgba(168, 85, 247, 0.2);
-        }
-
-        /* 史论(绿) */
-        .type-option[data-val="t-the"]:hover {
-            background: #dcfce7;
         }
 
         .type-option[data-val="t-the"].selected {
@@ -321,7 +300,6 @@
             width: 90%;
             max-width: 1000px;
             height: 95vh;
-            /* 💥 高度拉满 */
             border-radius: 16px;
             transform: scale(0.95) translateY(10px);
             transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -355,8 +333,8 @@
                 border-radius: 24px 24px 0 0;
                 margin: 0;
                 transform: translateY(100%);
-                height: 95vh;
-                overscroll-behavior: contain;
+                height: 98dvh;
+                overscroll-behavior: none;
             }
 
             .modal-overlay.open .modal-content.note-mode {
@@ -364,11 +342,11 @@
             }
 
             .modal-content.note-mode .modal-header {
-                padding-top: 16px;
+                padding-top: max(16px, env(safe-area-inset-top));
             }
 
             .modal-content.note-mode .modal-footer {
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
         }
 
@@ -492,7 +470,6 @@
             display: none;
         }
 
-        /* 倒计时样式 */
         .countdown-box {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
@@ -623,8 +600,11 @@
                 <div id="editor-tools" class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200">
                     <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i
                             class="fas fa-bold"></i></button>
-                    <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i
+                    <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="圆点列表"><i
                             class="fas fa-list-ul"></i></button>
+                    <!-- 找回的数字列表按钮 -->
+                    <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i
+                            class="fas fa-list-ol"></i></button>
                     <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i
                             class="far fa-check-square"></i></button>
                 </div>
@@ -675,7 +655,8 @@
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
 
-        const DEMO_DAY_OVERRIDE = 4; // 12月4日
+        // 日期锁定为12月4日
+        const DEMO_DAY_OVERRIDE = 4;
         // =========================================
 
         /* PWA Config */
@@ -926,6 +907,7 @@
             addingDay = d;
             taskModal.classList.add('open');
             taskInput.value = '';
+            // 默认选中第一个
             selectType('t-pol', document.querySelector('.type-option[data-val="t-pol"]'));
             setTimeout(() => taskInput.focus(), 100);
         };
