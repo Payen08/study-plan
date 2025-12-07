@@ -99,7 +99,7 @@
         #note-editor[contenteditable="false"] { color: #1e293b; background-color: #fff; }
         #note-editor[contenteditable="true"] { background-color: #f8fafc; }
 
-        /* 图片样式：上传中会有半透明效果 */
+        /* 图片样式：移除了 box-shadow，保留了圆角和边框 */
         #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; transition: opacity 0.3s; }
         .uploading-img { opacity: 0.5; border: 2px dashed #3b82f6 !important; }
 
@@ -347,7 +347,8 @@
                         // 1. 立即显示本地图片 (乐观 UI)
                         const blobUrl = URL.createObjectURL(file);
                         const uniqueId = `img-${Date.now()}`;
-                        const loadingImgTag = `<br><img id="${uniqueId}" src="${blobUrl}" class="uploading-img"><br>`;
+                        // 这里去掉了 box-shadow
+                        const loadingImgTag = `<br><img id="${uniqueId}" src="${blobUrl}" class="uploading-img" style="max-width:100%; border-radius:8px; margin:10px 0; border:1px solid #e2e8f0;"><br>`;
                         document.execCommand('insertHTML', false, loadingImgTag);
 
                         try {
