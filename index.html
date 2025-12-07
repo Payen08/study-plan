@@ -99,7 +99,10 @@
         #note-editor[contenteditable="false"] { color: #1e293b; background-color: #fff; }
         #note-editor[contenteditable="true"] { background-color: #f8fafc; }
 
-        #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; }
+        /* 图片样式：上传中会有半透明效果 */
+        #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; transition: opacity 0.3s; }
+        .uploading-img { opacity: 0.5; border: 2px dashed #3b82f6 !important; }
+
         #note-editor table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
         #note-editor th, #note-editor td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
         #note-editor th { background-color: #f1f5f9; font-weight: bold; }
@@ -128,7 +131,6 @@
 <body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
-        <!-- Header -->
         <div class="bg-white rounded-2xl p-5 md:p-6 mb-8 shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-row justify-between items-center relative z-10 gap-4">
                 <div class="flex-1">
@@ -174,7 +176,6 @@
         </div>
     </div>
 
-    <!-- 笔记弹窗 -->
     <div id="note-modal" class="modal-overlay note-mode">
         <div class="modal-content note-mode">
             <div class="md:hidden w-full bg-white pt-2 pb-1 shrink-0" onclick="closeModal()">
@@ -197,7 +198,6 @@
             <div class="modal-footer bg-white px-4 py-3 border-t border-slate-100 flex justify-between items-center shrink-0 safe-area-bottom">
                 <div id="editor-tools" class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200">
                     <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
-                    <!-- 高亮按钮 -->
                     <button class="toolbar-btn" onclick="execCmd('backColor', '#fef08a')" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
@@ -216,7 +216,6 @@
         </div>
     </div>
 
-    <!-- 添加任务弹窗 -->
     <div id="add-task-modal" class="modal-overlay">
         <div class="modal-content add-task-modal bg-white">
             <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
@@ -240,7 +239,7 @@
 
     <script>
         // ================= 配置区 =================
-        const DEFAULT_SYNC_ID = "my-study-id"; 
+        const DEFAULT_SYNC_ID = "default"; // 默认ID设为 default
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         
@@ -332,17 +331,69 @@
                 }
             });
 
-            editor.addEventListener('paste', e => {
+            // ================== 核心修复：乐观 UI 图片上传 ==================
+            editor.addEventListener('paste', async e => {
                 const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                for (let i=0; i<items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = evt => document.execCommand('insertImage', false, evt.target.result);
-                        reader.readAsDataURL(items[i].getAsFile());
-                        e.preventDefault();
+                        e.preventDefault(); 
+                        
+                        const file = items[i].getAsFile();
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert("图片太大（超过5MB）！请压缩后上传。");
+                            return;
+                        }
+
+                        // 1. 立即显示本地图片 (乐观 UI)
+                        const blobUrl = URL.createObjectURL(file);
+                        const uniqueId = `img-${Date.now()}`;
+                        const loadingImgTag = `<br><img id="${uniqueId}" src="${blobUrl}" class="uploading-img"><br>`;
+                        document.execCommand('insertHTML', false, loadingImgTag);
+
+                        try {
+                            // 2. 后台默默上传
+                            const timestamp = new Date().getTime();
+                            const fileName = `img_${timestamp}_${Math.random().toString(36).slice(2)}.${file.type.split('/')[1]}`;
+                            
+                            const { data, error } = await supabaseClient
+                                .storage
+                                .from('note-images')
+                                .upload(fileName, file);
+
+                            if (error) throw error;
+
+                            const { data: publicUrlData } = supabaseClient
+                                .storage
+                                .from('note-images')
+                                .getPublicUrl(fileName);
+                            
+                            const cloudUrl = publicUrlData.publicUrl;
+
+                            // 3. 上传成功，替换链接
+                            const imgEl = document.getElementById(uniqueId);
+                            if (imgEl) {
+                                imgEl.src = cloudUrl; // 替换为永久链接
+                                imgEl.removeAttribute('id'); // 移除临时ID
+                                imgEl.classList.remove('uploading-img'); // 移除半透明样式
+                                
+                                // 4. 静默保存 (不退出编辑)
+                                state.notes[`d${curNoteDay}`] = editor.innerHTML;
+                                save(); 
+                            }
+
+                        } catch (err) {
+                            console.error('上传失败:', err);
+                            const imgEl = document.getElementById(uniqueId);
+                            if(imgEl) {
+                                imgEl.outerHTML = `<span style="color:red">[图片上传失败]</span>`;
+                            }
+                            alert(`图片上传失败，请重试。\n错误: ${err.message}`);
+                        }
                     }
                 }
             });
+            // ========================================================
+
             editor.addEventListener('change', e => {
                 if(e.target.tagName === 'INPUT') e.target.checked ? e.target.setAttribute('checked','') : e.target.removeAttribute('checked');
             });
@@ -380,11 +431,21 @@
             updateProgress(); localStorage.setItem('study_v2', JSON.stringify(state));
             if(isCloud) { updateStatus('syncing'); await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: state }); updateStatus('online'); }
         }
+        
         async function loadCloud() { 
             updateStatus('syncing');
             const {data} = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single(); 
             if(data?.data) { 
-                state = ensureStateStructure(data.data); 
+                // 自动修复旧格式: day_3 -> d3
+                let rawData = data.data;
+                if(rawData.notes) {
+                    Object.keys(rawData.notes).forEach(k => {
+                        if(k.startsWith('day_')) {
+                            rawData.notes[k.replace('day_', 'd')] = rawData.notes[k];
+                        }
+                    });
+                }
+                state = ensureStateStructure(rawData); 
                 refresh(); 
                 render(); 
                 updateStatus('online');
