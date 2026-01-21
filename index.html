@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>12月冲刺 Pro</title>
+    <title>冲刺计划 Pro</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,14 +24,50 @@
         .safe-area-top { padding-top: env(safe-area-inset-top); }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
+        /* === 核心：统一融合导航栏 === */
+        .month-nav {
+            display: flex; overflow-x: auto; gap: 8px; padding: 4px 0 12px 0; margin-bottom: 4px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center;
+        }
+        .month-nav::-webkit-scrollbar { display: none; }
+        
+        .nav-pill {
+            flex: 0 0 auto; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;
+            background: #fff; color: #64748b; border: 1px solid #e2e8f0; transition: all 0.2s; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .nav-pill:active { transform: scale(0.95); }
+        
+        /* 选中状态 */
+        .nav-pill.active {
+            background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* 年份胶囊特殊样式 */
+        .nav-pill.year-pill {
+            background: #f1f5f9; border-color: #cbd5e1; color: #475569;
+        }
+        .nav-pill.year-pill.active {
+            background: #0f172a; border-color: #0f172a; color: white; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
+        }
+        
+        .nav-separator { width: 1px; height: 20px; background: #cbd5e1; flex: 0 0 auto; margin: 0 2px; opacity: 0.5; }
+
+        /* 卡片容器 */
         .calendar-wrapper { display: grid; gap: 12px; grid-template-columns: 1fr; }
         @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, 1fr); gap: 8px; } }
 
         .day-card { background: white; border-radius: 12px; padding: 12px; min-height: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; transition: all 0.3s; }
         
-        .is-past { background-color: #f9fafb; opacity: 0.7; }
-        .is-past .task-item { opacity: 0.6; }
-        .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25); z-index: 10; transform: scale(1.01); }
+        .is-past { background-color: #f9fafb; opacity: 0.8; }
+        .is-past .task-item { opacity: 0.7; }
+        .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25); z-index: 10; transform: scale(1.01); border-color: #3b82f6; }
+        .is-holiday { background: #fff1f2; border-color: #fecdd3; } 
+
+        .holiday-tag {
+            position: absolute; right: 8px; top: 8px; font-size: 10px; font-weight: bold; color: #e11d48;
+            background: #ffe4e6; padding: 2px 6px; border-radius: 4px;
+        }
 
         .task-item { font-size: 0.85rem; padding: 8px 10px 8px 30px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; position: relative; transition: all 0.2s; font-weight: 500; line-height: 1.4; display: flex; align-items: center; justify-content: space-between; }
         .task-item::before { content: ''; position: absolute; left: 10px; width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.4; transition: all 0.2s; }
@@ -42,19 +78,23 @@
         .task-item:hover .delete-btn { opacity: 1; }
         .delete-btn:hover { color: #ef4444; }
 
+        /* 2025 专用分类色 */
         .t-pol { background: #fff1f2; color: #be123c; }
         .t-eng { background: #eff6ff; color: #1d4ed8; }
         .t-art { background: #fdf4ff; color: #86198f; }
         .t-the { background: #ecfdf5; color: #047857; }
+        
+        /* 2026 通用分类色 */
+        .t-work { background: #eff6ff; color: #1d4ed8; }
+        .t-study { background: #fdf4ff; color: #86198f; }
+        .t-life { background: #ecfdf5; color: #047857; }
+        .t-urgent { background: #fff1f2; color: #be123c; }
 
         .type-option { 
             width: 100%; padding: 12px; border-radius: 12px; text-align: center; font-size: 14px; font-weight: bold; cursor: pointer; 
             border: 2px solid transparent; transition: all 0.2s; background: #f8fafc; color: #64748b;
         }
-        .type-option[data-val="t-pol"].selected { background: #fef2f2; color: #be123c; border-color: #fca5a5; box-shadow: 0 4px 10px -2px rgba(239, 68, 68, 0.2); }
-        .type-option[data-val="t-eng"].selected { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; box-shadow: 0 4px 10px -2px rgba(59, 130, 246, 0.2); }
-        .type-option[data-val="t-art"].selected { background: #faf5ff; color: #7e22ce; border-color: #d8b4fe; box-shadow: 0 4px 10px -2px rgba(168, 85, 247, 0.2); }
-        .type-option[data-val="t-the"].selected { background: #f0fdf4; color: #15803d; border-color: #86efac; box-shadow: 0 4px 10px -2px rgba(34, 197, 94, 0.2); }
+        .type-option.selected { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
 
         .action-btn { opacity: 0.3; transition: 0.2s; padding: 4px; cursor: pointer; font-size: 14px; }
         .day-card:hover .action-btn { opacity: 1; }
@@ -85,22 +125,38 @@
 
         .add-task-modal { width: 85%; max-width: 320px; height: auto; border-radius: 16px; padding: 24px; }
 
+        /* 搜索弹窗样式 */
+        .search-modal { width: 90%; max-width: 600px; height: 70vh; max-height: 600px; padding: 0; border-radius: 20px; }
+        .search-header { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; }
+        .search-input { flex: 1; font-size: 16px; outline: none; color: #334155; }
+        .search-results { flex: 1; overflow-y: auto; padding: 10px; }
+        .search-item { padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; transition: 0.2s; border: 1px solid transparent; }
+        .search-item:hover { background: #f8fafc; border-color: #e2e8f0; }
+        .search-highlight { background: #fef08a; color: #854d0e; padding: 0 2px; rounded: 2px; }
+        .empty-state { text-align: center; color: #94a3b8; padding: 40px; font-size: 14px; }
+
+        /* ID 弹窗专用样式 */
+        .id-modal-content { height: auto !important; min-height: 200px; max-width: 320px !important; }
+
         @media (max-width: 768px) {
             .modal-overlay.note-mode { align-items: flex-end; padding-bottom: 0; }
             .modal-content.note-mode { width: 100%; max-width: 100%; border-radius: 24px 24px 0 0; margin: 0; transform: translateY(100%); height: 95vh; overscroll-behavior: contain; }
             .modal-overlay.open .modal-content.note-mode { transform: translateY(0); }
             .modal-content.note-mode .modal-header { padding-top: 16px; } 
             .modal-content.note-mode .modal-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+            .search-modal { width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0; }
+            /* 移动端保持 ID 弹窗小巧 */
+            .id-modal-content { width: 85% !important; max-width: 320px !important; height: auto !important; border-radius: 16px !important; transform: scale(0.95) !important; margin: auto !important; }
+            .modal-overlay.open .id-modal-content { transform: scale(1) !important; }
         }
         
         .editor-scroller { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; background: white; overscroll-behavior: contain; }
-        #note-editor { width: 100%; min-height: 100%; padding: 24px; outline: none; color: #334155; font-size: 16px; line-height: 1.7; }
+        #note-editor { width: 100%; min-height: 100%; padding: 24px; outline: none; color: #334155; font-size: 16px; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; }
         
         #note-editor[contenteditable="false"] { color: #1e293b; background-color: #fff; }
         #note-editor[contenteditable="true"] { background-color: #f8fafc; }
 
-        /* 图片样式：移除了 box-shadow，保留了圆角和边框 */
-        #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; transition: opacity 0.3s; }
+        #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; transition: opacity 0.3s; cursor: zoom-in; }
         .uploading-img { opacity: 0.5; border: 2px dashed #3b82f6 !important; }
 
         #note-editor table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
@@ -116,9 +172,6 @@
         
         .toolbar-btn { padding: 8px; border-radius: 6px; color: #64748b; transition: 0.2s; font-size: 1.1rem; }
         .toolbar-btn:hover { background-color: #eff6ff; color: #3b82f6; }
-        .hidden-tool { display: none; }
-
-        #install-btn { display: none; }
         
         .countdown-box { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); min-width: 100px; }
         .countdown-num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
@@ -126,12 +179,27 @@
         
         #sync-btn { cursor: pointer; transition: 0.2s; }
         #sync-btn:hover { opacity: 0.8; }
+
+        #img-zoom-modal { z-index: 200 !important; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; }
+        #zoomed-img { object-fit: contain; max-width: 95%; max-height: 95%; border-radius: 4px; transition: transform 0.2s; }
+
+        /* 行高控制 */
+        #note-editor.lh-tight, #note-editor.lh-tight * { line-height: 1.3 !important; }
+        #note-editor.lh-normal, #note-editor.lh-normal * { line-height: 1.75 !important; }
+        #note-editor.lh-loose, #note-editor.lh-loose * { line-height: 2.2 !important; }
+
+        /* 录音 */
+        .recording-active { color: #ef4444 !important; background-color: #fef2f2; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        audio { width: 100%; height: 40px; margin: 12px 0; border-radius: 9999px !important; background-color: #f1f5f9; }
+        .audio-wrapper { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 16px; border-radius: 9999px !important; border: 1px solid #e2e8f0; margin: 8px 0; }
+        .audio-icon { color: #3b82f6; font-size: 1.2rem; }
     </style>
 </head>
 <body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
-        <div class="bg-white rounded-2xl p-5 md:p-6 mb-8 shadow-sm border border-slate-100 relative overflow-hidden">
+        <div class="bg-white rounded-2xl p-5 md:p-6 mb-4 shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-row justify-between items-center relative z-10 gap-4">
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1.5">
@@ -140,26 +208,38 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 离线
                         </div>
                     </div>
+                    
+                    <!-- 标题 + 搜索 -->
                     <div class="flex items-center gap-3 mb-1">
-                        <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">12月冲刺</h1>
+                        <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight shrink-0" id="main-title">12月冲刺</h1>
+                        <div onclick="toggleSearch()" class="bg-slate-50 border border-slate-200 rounded-full px-5 py-1.5 text-xs text-slate-400 flex items-center gap-2 cursor-pointer hover:bg-slate-100 hover:border-blue-200 transition group shadow-sm active:scale-95">
+                            <i class="fas fa-search text-slate-300 group-hover:text-blue-500 transition"></i>
+                            <span class="font-bold">搜索</span>
+                        </div>
                     </div>
                     
-                    <div class="flex items-center gap-3 max-w-xs mt-2">
+                    <div class="flex items-center gap-3 max-w-xs mt-3">
                         <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden relative">
                             <div id="progress-fill" class="h-full bg-blue-500 rounded-full transition-all duration-700 relative overflow-hidden" style="width: 0%">
                                 <div class="progress-shimmer"></div>
                             </div>
                         </div>
                         <span id="progress-text" class="text-xs font-bold text-blue-600">0%</span>
+                        <span class="text-[10px] text-slate-400 ml-1" id="progress-label">进度</span>
                     </div>
                 </div>
 
                 <div class="countdown-box">
                     <div class="countdown-num" id="days-left">--</div>
-                    <div class="countdown-label">距离考试仅剩</div>
+                    <div class="countdown-label" id="days-label">剩余天数</div>
                 </div>
             </div>
             <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-50 -z-0 pointer-events-none"></div>
+        </div>
+
+        <!-- 统一的导航栏 (集成年份 + 月份) -->
+        <div class="month-nav" id="unified-nav">
+            <!-- JS 动态生成 -->
         </div>
 
         <div class="hidden md:grid grid-cols-7 text-center mb-3 text-xs font-bold text-slate-400 week-header px-2">
@@ -172,10 +252,43 @@
              <div id="sync-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-xs text-slate-500 font-bold shadow-sm hover:shadow-md" onclick="changeSyncID()">
                 <i class="fas fa-fingerprint text-blue-500"></i> 同步ID: <span id="sync-id-label" class="text-slate-800 font-mono">LOCAL</span> <i class="fas fa-pen text-[10px] ml-1 opacity-50"></i>
             </div>
-            <p class="text-[10px] text-slate-300 mt-2">点击上方 ID 可切换多设备同步</p>
+            <p class="text-[10px] text-slate-300 mt-2">ID 通用：自动合并 2025/2026 数据</p>
         </div>
     </div>
 
+    <!-- 搜索 Modal -->
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content search-modal bg-white flex flex-col">
+            <div class="search-header">
+                <i class="fas fa-search text-slate-400"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记或任务..." oninput="handleSearch(this.value)">
+                <button onclick="toggleSearch()" class="text-slate-400 hover:text-slate-600 text-sm font-bold">取消</button>
+            </div>
+            <div id="search-results" class="search-results">
+                <div class="empty-state">输入关键词开始搜索...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID 设置 Modal (新) -->
+    <div id="id-modal" class="modal-overlay">
+        <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
+            <h3 class="font-bold text-lg mb-4 text-slate-800">设置同步 ID</h3>
+            <p class="text-xs text-slate-400 mb-4">设置相同的 ID (如 "payen") 即可在手机和电脑间同步所有数据。</p>
+            <input type="text" id="sync-id-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono text-center tracking-wider" placeholder="输入 ID..." onkeydown="if(event.key === 'Enter') saveSyncID()">
+            <div class="flex gap-3">
+                <button onclick="closeIdModal()" class="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="saveSyncID()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片放大 Modal -->
+    <div id="img-zoom-modal" class="modal-overlay" onclick="this.classList.remove('open')">
+        <img id="zoomed-img" src="" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- 笔记 Modal -->
     <div id="note-modal" class="modal-overlay note-mode">
         <div class="modal-content note-mode">
             <div class="md:hidden w-full bg-white pt-2 pb-1 shrink-0" onclick="closeModal()">
@@ -192,16 +305,20 @@
             </div>
             
             <div class="editor-scroller">
-                <div id="note-editor" contenteditable="false" placeholder="点击下方“编辑”开始记录..."></div>
+                <div id="note-editor" contenteditable="false" class="lh-normal" placeholder="点击下方“编辑”开始记录..."></div>
             </div>
             
             <div class="modal-footer bg-white px-4 py-3 border-t border-slate-100 flex justify-between items-center shrink-0 safe-area-bottom">
-                <div id="editor-tools" class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200">
+                <div id="editor-tools" class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200 items-center">
                     <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('backColor', '#fef08a')" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
-                    <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
                     <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                    <button id="record-btn" class="toolbar-btn text-red-500" onclick="toggleRecording()" title="点击录音"><i class="fas fa-microphone-alt"></i></button>
+                    <input type="file" id="audio-upload-input" accept="audio/*" class="hidden" onchange="handleAudioUpload(this)">
+                    <button class="toolbar-btn text-blue-500" onclick="document.getElementById('audio-upload-input').click()" title="上传音频"><i class="fas fa-file-audio"></i></button>
+                    <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
                 </div>
 
                 <div class="flex gap-3">
@@ -216,18 +333,16 @@
         </div>
     </div>
 
+    <!-- 添加任务 Modal -->
     <div id="add-task-modal" class="modal-overlay">
         <div class="modal-content add-task-modal bg-white">
             <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
                 <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
             </h3>
-            <input type="text" id="new-task-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="例如：背诵肖四第一套..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
+            <input type="text" id="new-task-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
             
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="type-option" data-val="t-pol" onclick="selectType('t-pol', this)">政治</div>
-                <div class="type-option" data-val="t-eng" onclick="selectType('t-eng', this)">英语</div>
-                <div class="type-option" data-val="t-art" onclick="selectType('t-art', this)">手绘</div>
-                <div class="type-option" data-val="t-the" onclick="selectType('t-the', this)">工业设计史</div>
+            <div class="grid grid-cols-2 gap-3 mb-6" id="type-selector-container">
+                <!-- JS 动态生成分类 -->
             </div>
 
             <div class="flex gap-3">
@@ -239,27 +354,23 @@
 
     <script>
         // ================= 配置区 =================
-        const DEFAULT_SYNC_ID = "payen"; // 默认ID设default
+        const DEFAULT_SYNC_ID = "payen"; 
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         
-        const DEMO_DAY_OVERRIDE = 4; 
-        // =========================================
-
-        /* PWA Config */
-        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        const iconUrl = URL.createObjectURL(new Blob([iconSVG], {type: 'image/svg+xml'}));
-        document.getElementById('apple-icon').href = iconUrl;
+        // 2026 节假日 (补充完整版)
+        const HOLIDAYS_2026 = {
+            "1-1": "元旦", "1-2": "假期", "1-3": "假期",
+            "2-15": "假期", "2-16": "除夕", "2-17": "春节", "2-18": "初二", "2-19": "初三", "2-20": "初四", "2-21": "初五", "2-22": "初六", "2-23": "初七",
+            "4-5": "清明",
+            "5-1": "劳动节", "5-2": "假期", "5-3": "假期", "5-4": "假期", "5-5": "假期",
+            "6-19": "端午", "6-20": "假期", "6-21": "假期",
+            "9-25": "中秋", "9-26": "假期", "9-27": "假期",
+            "10-1": "国庆", "10-2": "假期", "10-3": "假期", "10-4": "假期", "10-5": "假期", "10-6": "假期", "10-7": "假期"
+        };
         
-        const currentPath = window.location.pathname + window.location.search;
-        const manifest = { name: "12月冲刺 Pro", short_name: "冲刺", start_url: currentPath, scope: "/", display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
-        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
-
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install', e => self.skipWaiting());self.addEventListener('fetch', e => {});`], {type: 'application/javascript'}))).catch(() => {});
-
-        // ================= Logic =================
-
-        const calendarData = [
+        // 2025 静态数据 (User Provided)
+        const CALENDAR_DATA_2025 = [
             { day: 1 }, { day: 2 }, 
             { day: 3, tasks: [{ id: "t3_1", text: "肖八1-3套错题二刷", type: "t-pol" }, { id: "t3_2", text: "工业设计史: 名词解释(流派)", type: "t-the" }, { id: "t3_3", text: "整理快题万能模板", type: "t-art" }]},
             { day: 4, tasks: [{ id: "t4_1", text: "肖八4-6套选择题", type: "t-pol" }, { id: "t4_2", text: "英语写作模板(图表)", type: "t-eng" }, { id: "t4_3", text: "工业设计史: 填空选择突击", type: "t-the" }]},
@@ -282,26 +393,214 @@
             { day: 21, note: "Day 2", special: true, tasks: [{ id: "t21_1", text: "上午: 工业设计史", type: "t-the" }, { id: "t21_2", text: "下午: 手绘", type: "t-art" }]}
         ];
 
-        let supabaseClient = null, isCloud = false, state = { done: [], notes: {}, customTasks: {} };
-        let MY_SYNC_ID = localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
+        /* PWA Config */
+        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconUrl = URL.createObjectURL(new Blob([iconSVG], {type: 'image/svg+xml'}));
+        document.getElementById('apple-icon').href = iconUrl;
+        
+        const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
+        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
 
-        // 核心日期逻辑
-        function updateDateStatus() {
-            const now = new Date();
-            let currentDay;
-            if (now.getFullYear() === 2025 && now.getMonth() === 11) {
-                currentDay = now.getDate();
-            } else {
-                currentDay = DEMO_DAY_OVERRIDE;
-            }
-            calendarData.forEach(d => {
-                d.past = false; d.today = false;
-                if (d.day < currentDay) d.past = true;
-                if (d.day === currentDay) d.today = true;
-            });
+        // ================= 全局状态 =================
+        let CURRENT_YEAR = 2025; // 默认为2025模式
+        let currentMonth2026 = new Date().getMonth();
+        let supabaseClient = null, isCloud = false;
+        
+        // 统一的大状态对象，包含所有年份
+        // 结构: { "2025": { done:[], notes:{}, ...}, "2026": { done:[], ...} }
+        let fullState = { 
+            "2025": { done: [], notes: {}, customTasks: {} }, 
+            "2026": { done: [], notes: {}, customTasks: {} } 
+        };
+        
+        // 指向当前年份数据的引用，简化代码
+        let currentState = fullState["2025"]; 
+        
+        let MY_SYNC_ID = localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
+        let lineHeightIdx = parseInt(localStorage.getItem('study_lh_idx')) || 1; 
+        const lhClasses = ['lh-tight', 'lh-normal', 'lh-loose'];
+
+        // ================= 初始化 =================
+        async function init() {
+            // 尝试恢复上次停留的年份
+            const lastYear = parseInt(localStorage.getItem('study_last_year'));
+            if(lastYear) CURRENT_YEAR = lastYear;
+            
+            updateSyncLabel();
+            applyLineHeight();
+            initEditorEvents();
+
+            if(SUPABASE_URL && SUPABASE_KEY) {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    isCloud = true; updateStatus('online'); await loadCloud();
+                } catch(e) { console.error(e); loadLocal(); }
+            } else loadLocal();
+            
+            // Render initial UI based on loaded year
+            switchYear(CURRENT_YEAR);
         }
 
-        // 确保数据结构完整
+        // ================= 核心逻辑：年份切换 =================
+        window.switchYear = (year) => {
+            CURRENT_YEAR = year;
+            localStorage.setItem('study_last_year', year);
+            
+            // 切换状态引用
+            currentState = fullState[year.toString()];
+            
+            // 渲染导航栏 (包含年份切换按钮)
+            renderNav();
+
+            if (year === 2025) {
+                document.getElementById('main-title').innerText = "12月冲刺";
+                document.getElementById('days-label').innerText = "距离考试仅剩";
+                render2025();
+                updateCountdown2025();
+            } else {
+                document.getElementById('main-title').innerText = `2026年 ${currentMonth2026 + 1}月`;
+                document.getElementById('days-label').innerText = "今年剩余天数";
+                render2026(currentMonth2026);
+                updateCountdown2026();
+            }
+            refresh(); // 刷新选中状态
+        }
+
+        // ================= 渲染：统一导航栏 (集成年份切换) =================
+        function renderNav() {
+            const nav = document.getElementById('unified-nav');
+            let html = '';
+
+            // 1. 年份切换胶囊
+            html += `
+                <div class="nav-pill year-pill ${CURRENT_YEAR === 2025 ? 'active' : ''}" onclick="switchYear(2025)">
+                    2025
+                </div>
+                <div class="nav-pill year-pill ${CURRENT_YEAR === 2026 ? 'active' : ''}" onclick="switchYear(2026)">
+                    2026
+                </div>
+                <div class="nav-separator"></div>
+            `;
+
+            // 2. 月份列表 (仅2026显示)
+            if (CURRENT_YEAR === 2026) {
+                const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                html += months.map((m, i) => 
+                    `<div class="nav-pill ${i === currentMonth2026 ? 'active' : ''}" onclick="currentMonth2026=${i};switchYear(2026)">${m}</div>`
+                ).join('');
+            } else {
+                html += `<div class="nav-pill active" style="opacity:0.5; pointer-events:none;">冲刺月</div>`;
+            }
+
+            nav.innerHTML = html;
+        }
+
+        // ================= 渲染：2025 冲刺 =================
+        function render2025() {
+            const root = document.getElementById('calendar-view'); root.innerHTML = '';
+            
+            // 补全到31天
+            for (let i = 1; i <= 31; i++) {
+                // 查找静态数据
+                let d = CALENDAR_DATA_2025.find(item => item.day === i);
+                
+                // 默认构造
+                const isPast = d ? (d.day < 4) : (i < 4); // Demo day
+                const isToday = d ? (d.day === 4) : (i === 4);
+                
+                const card = document.createElement('div');
+                card.className = `day-card ${isPast?'is-past':''} ${isToday?'is-today':''}`;
+                if(d && d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
+                card.id = `day-${i}`;
+                
+                const key = `d${i}`; // 2025使用简单的 d1, d2 key
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
+                let label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` + 
+                            (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') + 
+                            (d && d.note ? `<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>`:'');
+                
+                const hasNote = currentState.notes[key] ? 'has-note' : '';
+                
+                header.innerHTML = `<div>${label}</div> 
+                    <div class="flex gap-2 ${hasNote}">
+                        <i class="fas fa-plus action-btn text-slate-400" onclick="openAddTaskModal('${key}')"></i>
+                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="openNote('${key}')" id="icon-${key}"></i>
+                    </div>`;
+                card.appendChild(header);
+
+                // Tasks
+                const con = document.createElement('div'); con.className = 'task-container w-full';
+                if(d && d.tasks) d.tasks.forEach(t => con.appendChild(createEl(t, false, key)));
+                const custom = currentState.customTasks[key] || [];
+                custom.forEach(t => con.appendChild(createEl(t, true, key)));
+                
+                card.appendChild(con); root.appendChild(card);
+            }
+        }
+
+        // ================= 渲染：2026 全年 =================
+        function render2026(monthIdx) {
+            const root = document.getElementById('calendar-view'); root.innerHTML = '';
+            // Update title dynamically when rendering
+            document.getElementById('main-title').innerText = `2026年 ${monthIdx + 1}月`;
+            
+            const firstDay = new Date(2026, monthIdx, 1);
+            const daysInMonth = new Date(2026, monthIdx + 1, 0).getDate();
+            const today = new Date();
+            const isCurrMonth = today.getFullYear() === 2026 && today.getMonth() === monthIdx;
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateKey = `2026-${monthIdx+1}-${i}`;
+                const holiday = HOLIDAYS_2026[`${monthIdx+1}-${i}`];
+                
+                const isPast = isCurrMonth ? (i < today.getDate()) : (new Date() > new Date(2026, monthIdx, i));
+                const isToday = isCurrMonth && i === today.getDate();
+
+                const card = document.createElement('div');
+                card.className = `day-card ${isPast?'is-past':''} ${isToday?'is-today':''} ${holiday?'is-holiday':''}`;
+                
+                const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` + 
+                              (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
+                              (holiday ? `<span class="holiday-tag">${holiday}</span>` : '');
+                
+                const hasNote = currentState.notes[dateKey] ? 'has-note' : '';
+                
+                const header = document.createElement('div');
+                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
+                header.innerHTML = `<div>${label}</div> 
+                    <div class="flex gap-2 ${hasNote}">
+                        <i class="fas fa-plus action-btn text-slate-400" onclick="openAddTaskModal('${dateKey}')"></i>
+                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="openNote('${dateKey}')" id="icon-${dateKey}"></i>
+                    </div>`;
+                card.appendChild(header);
+
+                const con = document.createElement('div'); con.className = 'task-container w-full';
+                const tasks = currentState.customTasks[dateKey] || [];
+                tasks.forEach(t => con.appendChild(createEl(t, true, dateKey)));
+                
+                card.appendChild(con); root.appendChild(card);
+            }
+        }
+
+        function createEl(t, isCustom, key) {
+            const el = document.createElement('div');
+            el.className = `task-item ${t.type}`;
+            el.dataset.id = t.id;
+            el.innerHTML = `<span class="flex-1">${t.text}</span>`;
+            
+            if(isCustom) {
+                const del = document.createElement('i'); del.className = "fas fa-trash-alt delete-btn";
+                del.onclick = (e) => { e.stopPropagation(); deleteTask(key, t.id); };
+                el.appendChild(del);
+            }
+            el.onclick = (e) => { if(!e.target.classList.contains('delete-btn')) toggle(t.id); };
+            return el;
+        }
+
+        // ================= 数据存取 (统一ID逻辑) =================
         function ensureStateStructure(s) {
             if (!s) return { done: [], notes: {}, customTasks: {} };
             if (!s.done) s.done = [];
@@ -310,259 +609,137 @@
             return s;
         }
 
-        async function init() {
-            updateDateStatus();
-            render();
-            updateCountdown();
-            updateSyncLabel();
-            
-            const editor = document.getElementById('note-editor');
-            
-            // 点击空白处聚焦
-            document.querySelector('.editor-scroller').addEventListener('click', (e) => {
-                if (e.target.classList.contains('editor-scroller')) {
-                    editor.focus();
-                    const range = document.createRange();
-                    const sel = window.getSelection();
-                    range.selectNodeContents(editor);
-                    range.collapse(false);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
-            });
-
-            // ================== 核心修复：乐观 UI 图片上传 ==================
-            editor.addEventListener('paste', async e => {
-                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
-                        e.preventDefault(); 
-                        
-                        const file = items[i].getAsFile();
-                        if (file.size > 5 * 1024 * 1024) {
-                            alert("图片太大（超过5MB）！请压缩后上传。");
-                            return;
-                        }
-
-                        // 1. 立即显示本地图片 (乐观 UI)
-                        const blobUrl = URL.createObjectURL(file);
-                        const uniqueId = `img-${Date.now()}`;
-                        // 这里去掉了 box-shadow
-                        const loadingImgTag = `<br><img id="${uniqueId}" src="${blobUrl}" class="uploading-img" style="max-width:100%; border-radius:8px; margin:10px 0; border:1px solid #e2e8f0;"><br>`;
-                        document.execCommand('insertHTML', false, loadingImgTag);
-
-                        try {
-                            // 2. 后台默默上传
-                            const timestamp = new Date().getTime();
-                            const fileName = `img_${timestamp}_${Math.random().toString(36).slice(2)}.${file.type.split('/')[1]}`;
-                            
-                            const { data, error } = await supabaseClient
-                                .storage
-                                .from('note-images')
-                                .upload(fileName, file);
-
-                            if (error) throw error;
-
-                            const { data: publicUrlData } = supabaseClient
-                                .storage
-                                .from('note-images')
-                                .getPublicUrl(fileName);
-                            
-                            const cloudUrl = publicUrlData.publicUrl;
-
-                            // 3. 上传成功，替换链接
-                            const imgEl = document.getElementById(uniqueId);
-                            if (imgEl) {
-                                imgEl.src = cloudUrl; // 替换为永久链接
-                                imgEl.removeAttribute('id'); // 移除临时ID
-                                imgEl.classList.remove('uploading-img'); // 移除半透明样式
-                                
-                                // 4. 静默保存 (不退出编辑)
-                                state.notes[`d${curNoteDay}`] = editor.innerHTML;
-                                save(); 
-                            }
-
-                        } catch (err) {
-                            console.error('上传失败:', err);
-                            const imgEl = document.getElementById(uniqueId);
-                            if(imgEl) {
-                                imgEl.outerHTML = `<span style="color:red">[图片上传失败]</span>`;
-                            }
-                            alert(`图片上传失败，请重试。\n错误: ${err.message}`);
-                        }
-                    }
-                }
-            });
-            // ========================================================
-
-            editor.addEventListener('change', e => {
-                if(e.target.tagName === 'INPUT') e.target.checked ? e.target.setAttribute('checked','') : e.target.removeAttribute('checked');
-            });
-
-            if(SUPABASE_URL && SUPABASE_KEY) {
-                try {
-                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    isCloud = true; updateStatus('online'); await loadCloud();
-                } catch(e) { console.error(e); loadLocal(); }
-            } else loadLocal();
-        }
-
-        // 切换同步ID逻辑
-        window.changeSyncID = () => {
-            const newId = prompt("请输入同步暗号 (多设备需一致):", MY_SYNC_ID);
-            if (newId && newId.trim() !== "") {
-                MY_SYNC_ID = newId.trim();
-                localStorage.setItem('study_sync_id', MY_SYNC_ID);
-                updateSyncLabel();
-                // 重新加载数据
-                if(isCloud) {
-                    loadCloud();
-                } else {
-                    alert("云服务连接失败，仅保存ID到本地");
-                }
-            }
-        };
-
-        function updateSyncLabel() {
-            const display = MY_SYNC_ID === DEFAULT_SYNC_ID ? '默认' : MY_SYNC_ID;
-            document.getElementById('sync-id-label').innerText = display;
-        }
-
         async function save() {
-            updateProgress(); localStorage.setItem('study_v2', JSON.stringify(state));
-            if(isCloud) { updateStatus('syncing'); await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: state }); updateStatus('online'); }
+            updateProgress();
+            // 保存整个 fullState 到 study_v2 (覆盖更新，保持兼容)
+            localStorage.setItem('study_v2', JSON.stringify(fullState));
+            if(isCloud) { 
+                updateStatus('syncing'); 
+                // 使用唯一的 ID 存储所有年份数据
+                await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: fullState }); 
+                updateStatus('online'); 
+            }
         }
-        
+
         async function loadCloud() { 
             updateStatus('syncing');
-            const {data} = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single(); 
-            if(data?.data) { 
-                // 自动修复旧格式: day_3 -> d3
-                let rawData = data.data;
-                if(rawData.notes) {
-                    Object.keys(rawData.notes).forEach(k => {
-                        if(k.startsWith('day_')) {
-                            rawData.notes[k.replace('day_', 'd')] = rawData.notes[k];
-                        }
-                    });
-                }
-                state = ensureStateStructure(rawData); 
-                refresh(); 
-                render(); 
-                updateStatus('online');
-            } else {
-                console.log("New ID, starting fresh or local");
-                loadLocal(); 
-                updateStatus('online');
-            } 
-        }
-        function loadLocal() { 
-            const s=localStorage.getItem('study_v2'); 
-            if(s) { 
-                state = ensureStateStructure(JSON.parse(s)); 
-                refresh(); 
-                render(); 
-            } 
-        }
-        function updateStatus(s) { document.getElementById('cloud-status-badge').innerHTML = s==='online' ? `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> 云同步` : (s==='syncing' ? `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中` : `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 离线`); }
-
-        function render() {
-            const root = document.getElementById('calendar-view'); root.innerHTML = '';
-            calendarData.forEach(d => {
-                const card = document.createElement('div');
-                card.className = `day-card ${d.past?'is-past':''} ${d.today?'is-today':''}`;
-                if(d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
-                card.id = `day-${d.day}`;
-                
-                const header = document.createElement('div');
-                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
-                let label = `<span class="text-xl font-bold text-slate-700 font-mono">${d.day}</span>` + (d.today?`<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>`:'') + (d.note?`<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>`:'');
-                header.innerHTML = `<div>${label}</div> <div class="flex gap-2">
-                    <i class="fas fa-plus action-btn text-slate-400" onclick="openAddTaskModal(${d.day})" title="添加任务"></i>
-                    <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="openNote(${d.day})" id="icon-${d.day}" title="笔记"></i>
-                </div>`;
-                card.appendChild(header);
-
-                const con = document.createElement('div'); con.className = 'task-container w-full';
-                
-                // 1. Render Default Tasks
-                if(d.tasks) d.tasks.forEach(t => {
-                    const el = createEl(t, false, d.day);
-                    con.appendChild(el);
-                });
-
-                // 2. Render Custom Tasks
-                const custom = state.customTasks[`d${d.day}`] || [];
-                custom.forEach(t => {
-                    const el = createEl(t, true, d.day);
-                    con.appendChild(el);
-                });
-
-                card.appendChild(con); root.appendChild(card);
-            });
-            refresh(); 
-        }
-
-        function createEl(t, isCustom, day) {
-            const el = document.createElement('div'); 
-            el.className = `task-item ${t.type}`;
-            el.dataset.id = t.id; 
+            // 只读取一个 ID
+            const {data} = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
             
-            const span = document.createElement('span');
-            span.innerText = t.text;
-            span.className = "flex-1";
-            el.appendChild(span);
-
-            if(isCustom) {
-                const del = document.createElement('i');
-                del.className = "fas fa-trash-alt delete-btn";
-                del.onclick = (e) => { e.stopPropagation(); deleteTask(day, t.id); };
-                el.appendChild(del);
+            if(data?.data) {
+                const raw = data.data;
+                // 数据迁移逻辑：如果读取到的数据没有 "2025" 键，说明是旧数据
+                if (!raw["2025"] && !raw["2026"]) {
+                    // 旧数据结构 -> 迁移到 fullState["2025"]
+                    fullState["2025"] = ensureStateStructure(raw);
+                    // 2026 保持空初始状态
+                    fullState["2026"] = { done: [], notes: {}, customTasks: {} };
+                    console.log("Migrated legacy data to 2025 slot");
+                } else {
+                    // 新结构，直接加载
+                    if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
+                    if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                }
+            } else {
+                console.log("No cloud data found, using local or empty");
+                loadLocal(); // Fallback
             }
 
-            el.onclick = (e) => { 
-                if(e.target.classList.contains('delete-btn')) return;
-                toggle(t.id); 
-            };
-            return el;
+            // 更新当前引用
+            currentState = fullState[CURRENT_YEAR.toString()];
+            refresh();
+            switchYear(CURRENT_YEAR); // Re-render
+            updateStatus('online');
         }
 
+        function loadLocal() { 
+            // 读取本地 study_v2
+            const s = localStorage.getItem('study_v2');
+            if(s) {
+                const raw = JSON.parse(s);
+                // 检测是否已经是新结构
+                if (raw["2025"] || raw["2026"]) {
+                    if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
+                    if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                } else {
+                    // 还是旧结构，迁移到内存中的 2025 插槽
+                    fullState["2025"] = ensureStateStructure(raw);
+                }
+            }
+            
+            currentState = fullState[CURRENT_YEAR.toString()];
+            refresh();
+            switchYear(CURRENT_YEAR);
+        }
+
+        window.toggle = id => { const i = currentState.done.indexOf(id); i>-1 ? currentState.done.splice(i,1) : currentState.done.push(id); refresh(); save(); };
+
         function refresh() {
-            document.querySelectorAll('.task-item').forEach(el => state.done.includes(el.dataset.id) ? el.classList.add('done') : el.classList.remove('done'));
-            Object.keys(state.notes).forEach(k => {
-                const icon = document.getElementById(`icon-${k.replace('d','')}`);
-                if(icon && state.notes[k]) { icon.classList.add('text-orange-400', 'opacity-100'); icon.classList.remove('text-slate-400'); }
-                else if(icon) { icon.classList.remove('text-orange-400', 'opacity-100'); icon.classList.add('text-slate-400'); }
+            document.querySelectorAll('.task-item').forEach(el => currentState.done.includes(el.dataset.id) ? el.classList.add('done') : el.classList.remove('done'));
+            // 更新笔记图标颜色
+            const keys = Object.keys(currentState.notes);
+            keys.forEach(k => {
+                const icon = document.getElementById(`icon-${k}`);
+                if(icon) { icon.classList.add('text-orange-400', 'opacity-100'); icon.classList.remove('text-slate-400'); }
             });
             updateProgress();
         }
 
-        window.toggle = id => { const i = state.done.indexOf(id); i>-1 ? state.done.splice(i,1) : state.done.push(id); refresh(); save(); };
-
-        function updateCountdown() {
-            const target = new Date("2025-12-20T00:00:00").getTime();
-            const now = new Date().getTime();
-            const diff = target - now;
-            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('days-left').innerText = days > 0 ? days : 0;
+        function updateProgress() {
+            const total = document.querySelectorAll('.task-item').length;
+            let done = 0;
+            document.querySelectorAll('.task-item').forEach(el => { if(el.classList.contains('done')) done++; });
+            const p = total ? Math.round((done/total)*100) : 0;
+            document.getElementById('progress-text').innerText = p + '%';
+            document.getElementById('progress-fill').style.width = p + '%';
+        }
+        
+        function updateSyncLabel() {
+             const display = MY_SYNC_ID === DEFAULT_SYNC_ID ? 'LOCAL' : MY_SYNC_ID;
+             const el = document.getElementById('sync-id-label');
+             if(el) el.innerText = display;
         }
 
-        // --- Custom Tasks Logic ---
-        let addingDay = null;
-        let selectedType = 't-pol';
-        const taskModal = document.getElementById('add-task-modal');
-        const taskInput = document.getElementById('new-task-input');
+        // ================= 辅助逻辑 =================
+        function updateCountdown2025() {
+            const diff = new Date("2025-12-20T00:00:00").getTime() - new Date().getTime();
+            document.getElementById('days-left').innerText = Math.max(0, Math.ceil(diff / 86400000));
+        }
+        function updateCountdown2026() {
+            const diff = new Date("2026-12-31T23:59:59").getTime() - new Date().getTime();
+            document.getElementById('days-left').innerText = Math.max(0, Math.ceil(diff / 86400000));
+        }
 
-        window.openAddTaskModal = (d) => {
-            addingDay = d;
-            taskModal.classList.add('open');
-            taskInput.value = '';
-            // 默认选中第一个
-            selectType('t-pol', document.querySelector('.type-option[data-val="t-pol"]')); 
-            setTimeout(() => taskInput.focus(), 100);
+        // ================= 任务添加 =================
+        let addingKey = null;
+        let selectedType = 't-work'; // 默认
+        
+        window.openAddTaskModal = (key) => {
+            addingKey = key;
+            const modal = document.getElementById('add-task-modal');
+            const container = document.getElementById('type-selector-container');
+            
+            // 根据年份渲染不同的分类选项
+            if(CURRENT_YEAR === 2025) {
+                container.innerHTML = `
+                    <div class="type-option" data-val="t-pol" onclick="selectType('t-pol', this)">政治</div>
+                    <div class="type-option" data-val="t-eng" onclick="selectType('t-eng', this)">英语</div>
+                    <div class="type-option" data-val="t-art" onclick="selectType('t-art', this)">手绘</div>
+                    <div class="type-option" data-val="t-the" onclick="selectType('t-the', this)">史论</div>`;
+                 selectType('t-pol', container.children[0]);
+            } else {
+                container.innerHTML = `
+                    <div class="type-option" data-val="t-work" onclick="selectType('t-work', this)">工作</div>
+                    <div class="type-option" data-val="t-study" onclick="selectType('t-study', this)">学习</div>
+                    <div class="type-option" data-val="t-life" onclick="selectType('t-life', this)">生活</div>
+                    <div class="type-option" data-val="t-urgent" onclick="selectType('t-urgent', this)">紧急</div>`;
+                selectType('t-work', container.children[0]);
+            }
+            
+            modal.classList.add('open');
+            document.getElementById('new-task-input').value = '';
+            setTimeout(() => document.getElementById('new-task-input').focus(), 100);
         };
-
-        window.closeAddTaskModal = () => taskModal.classList.remove('open');
 
         window.selectType = (type, el) => {
             selectedType = type;
@@ -571,99 +748,208 @@
         };
 
         window.confirmAddTask = () => {
-            const text = taskInput.value.trim();
+            const text = document.getElementById('new-task-input').value.trim();
             if(!text) return;
-            
-            if(!state.customTasks) state.customTasks = {};
-            if(!state.customTasks[`d${addingDay}`]) state.customTasks[`d${addingDay}`] = [];
-            
-            const newTask = {
-                id: `custom-${Date.now()}`,
-                text: text,
-                type: selectedType
-            };
-            
-            state.customTasks[`d${addingDay}`].push(newTask);
-            
-            closeAddTaskModal();
-            render(); // Re-render to show new task
+            if(!currentState.customTasks[addingKey]) currentState.customTasks[addingKey] = [];
+            currentState.customTasks[addingKey].push({ id: `custom-${Date.now()}`, text: text, type: selectedType });
+            document.getElementById('add-task-modal').classList.remove('open');
+            refresh();
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
             save();
         };
 
-        window.deleteTask = (day, id) => {
-            if(!confirm("确定删除这个任务吗？")) return;
-            const key = `d${day}`;
-            if(state.customTasks[key]) {
-                state.customTasks[key] = state.customTasks[key].filter(t => t.id !== id);
-                render();
-                save();
-            }
+        window.deleteTask = (key, id) => {
+            if(!confirm("确定删除？")) return;
+            currentState.customTasks[key] = currentState.customTasks[key].filter(t => t.id !== id);
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            save();
         };
 
-        // Note Logic (View/Edit)
-        let curNoteDay = null;
-        let isEditMode = false;
-        const modal = document.getElementById('note-modal');
+        // ================= 笔记 & 高级功能 =================
+        let curNoteKey = null, isEditMode = false;
         const editor = document.getElementById('note-editor');
-        const tools = document.getElementById('editor-tools');
-        const editBtn = document.getElementById('edit-btn');
-        const saveBtn = document.getElementById('save-btn');
-        const badge = document.getElementById('mode-badge');
 
-        // Modify execCmd to support value argument for backColor
-        window.execCmd = (cmd, value = null) => { 
-            document.execCommand(cmd, false, value); 
-            editor.focus(); 
-        };
-
-        window.openNote = d => {
-            curNoteDay = d; isEditMode = false;
-            document.getElementById('modal-date-title').innerText = `12月${d}日`;
-            const content = state.notes[`d${d}`];
+        window.openNote = (key, highlight = null) => {
+            curNoteKey = key; isEditMode = false;
+            let title = key.startsWith('d') ? `12月${key.replace('d','')}` : key.split('-').slice(1).join('月') + '日';
+            document.getElementById('modal-date-title').innerText = title + '日';
+            
+            const content = currentState.notes[key];
             editor.innerHTML = content || '';
             
-            // Auto edit if empty
-            if(!content) { toggleEditMode(true); } else { setMode(false); }
+            if(!content) toggleEditMode(true); else setMode(false);
+            document.getElementById('note-modal').classList.add('open');
             
-            modal.classList.add('open'); document.body.style.overflow = 'hidden';
+            if(highlight) setTimeout(() => scrollToText(highlight), 300);
         };
 
-        window.toggleEditMode = (forceState) => {
-            setMode(typeof forceState === 'boolean' ? forceState : !isEditMode);
-        }
-
+        window.toggleEditMode = (force) => setMode(typeof force === 'boolean' ? force : !isEditMode);
         function setMode(edit) {
-            isEditMode = edit;
-            editor.contentEditable = edit;
+            isEditMode = edit; editor.contentEditable = edit;
+            const tools = document.getElementById('editor-tools');
+            const editBtn = document.getElementById('edit-btn');
+            const saveBtn = document.getElementById('save-btn');
+            
             if(edit) {
-                tools.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
-                editBtn.classList.add('hidden');
-                saveBtn.classList.remove('hidden');
-                badge.innerText = "EDIT"; badge.className = "text-[10px] px-2 py-0.5 rounded bg-blue-100 text-blue-600 font-bold tracking-wide";
-                setTimeout(() => editor.focus(), 50);
+                tools.classList.remove('opacity-0', 'pointer-events-none');
+                editBtn.classList.add('hidden'); saveBtn.classList.remove('hidden');
+                document.getElementById('mode-badge').innerText = "编辑中";
             } else {
-                tools.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
-                editBtn.classList.remove('hidden');
-                saveBtn.classList.add('hidden');
-                badge.innerText = "VIEW"; badge.className = "text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-bold tracking-wide";
+                tools.classList.add('opacity-0', 'pointer-events-none');
+                editBtn.classList.remove('hidden'); saveBtn.classList.add('hidden');
+                document.getElementById('mode-badge').innerText = "查看模式";
+            }
+        }
+        
+        window.saveNote = () => {
+            const v = editor.innerHTML;
+            if(v && v !== '<br>') currentState.notes[curNoteKey] = v; else delete currentState.notes[curNoteKey];
+            refresh(); save(); setMode(false);
+        };
+        window.closeModal = () => { document.querySelector('.modal-overlay.open').classList.remove('open'); if(isEditMode) saveNote(); };
+
+        // 搜索逻辑
+        window.toggleSearch = () => document.getElementById('search-modal').classList.toggle('open');
+        window.handleSearch = (q) => {
+            if(!q) return;
+            const res = [];
+            // 搜索当前选定年份的数据
+            const notes = currentState.notes;
+            const tasks = currentState.customTasks;
+            
+            Object.keys(notes).forEach(k => {
+                if(notes[k].toLowerCase().includes(q.toLowerCase())) res.push({k, type:'笔记', text: notes[k].replace(/<[^>]*>?/gm, '').substring(0,50)});
+            });
+            Object.keys(tasks).forEach(k => {
+                tasks[k].forEach(t => {
+                    if(t.text.toLowerCase().includes(q.toLowerCase())) res.push({k, type:'任务', text: t.text});
+                })
+            });
+            
+            document.getElementById('search-results').innerHTML = res.length ? res.map(r => `
+                <div class="search-item" onclick="jumpTo('${r.k}')">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>${r.k}</span><span>${r.type}</span>
+                    </div>
+                    <div class="text-sm font-bold text-slate-700">${r.text}</div>
+                </div>`).join('') : '<div class="empty-state">无结果</div>';
+        };
+        window.jumpTo = k => {
+            document.getElementById('search-modal').classList.remove('open');
+            openNote(k);
+        };
+
+        // 音频录制 (复用2025逻辑)
+        let mediaRecorder, audioChunks = [], isRecording = false;
+        window.toggleRecording = async () => {
+            if(!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(audioChunks, {type:'audio/webm'});
+                        await uploadAudio(blob, 'webm');
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                    mediaRecorder.start(); isRecording = true;
+                    document.getElementById('record-btn').classList.add('recording-active');
+                } catch(e) { alert("麦克风权限错误"); }
+            } else {
+                mediaRecorder.stop(); isRecording = false;
+                document.getElementById('record-btn').classList.remove('recording-active');
+            }
+        };
+
+        window.handleAudioUpload = (input) => {
+             if(input.files[0]) uploadAudio(input.files[0], 'upload');
+        };
+
+        async function uploadAudio(file, type) {
+            const id = `loading-${Date.now()}`;
+            document.execCommand('insertHTML', false, `<div id="${id}" style="color:blue">⏳ 上传中...</div>`);
+            try {
+                if(!supabaseClient) throw new Error("需连接云同步");
+                const name = `audio_${Date.now()}.${type==='webm'?'webm':'mp3'}`;
+                const {data, error} = await supabaseClient.storage.from('note-images').upload(name, file);
+                if(error) throw error;
+                const {data: url} = supabaseClient.storage.from('note-images').getPublicUrl(name);
+                document.getElementById(id).outerHTML = `<div class="audio-wrapper" contenteditable="false"><i class="fas fa-music audio-icon"></i><audio controls src="${url.publicUrl}"></audio></div><br>`;
+                saveNote();
+            } catch(e) { 
+                document.getElementById(id).innerHTML = `<span style="color:red">上传失败: ${e.message}</span>`;
             }
         }
 
-        window.closeModal = () => { modal.classList.remove('open'); document.body.style.overflow = ''; if(isEditMode) saveNote(); }; 
-        window.saveNote = () => {
-            const v = editor.innerHTML;
-            if(v && v !== '<br>') state.notes[`d${curNoteDay}`] = v; else delete state.notes[`d${curNoteDay}`];
-            refresh(); save(); setMode(false);
+        // 初始化编辑器事件 (Markdown, 图片点击)
+        function initEditorEvents() {
+            window.execCmd = (c, v) => { document.execCommand(c, false, v); editor.focus(); };
+            window.insertCheckbox = () => execCmd('insertHTML', `<input type="checkbox"> `);
+            window.cycleLineHeight = () => { lineHeightIdx=(lineHeightIdx+1)%3; localStorage.setItem('study_lh_idx', lineHeightIdx); applyLineHeight(); };
+            
+            editor.addEventListener('click', e => {
+                if(e.target.tagName === 'IMG') {
+                    document.getElementById('zoomed-img').src = e.target.src;
+                    document.getElementById('img-zoom-modal').classList.add('open');
+                }
+            });
+            // Markdown Trigger
+            editor.addEventListener('keyup', e => {
+                if(e.key === ' ') {
+                    const sel = window.getSelection();
+                    if(!sel.rangeCount) return;
+                    const txt = sel.anchorNode.textContent;
+                    if(txt.match(/^(\-|\*)\s$/)) { document.execCommand('delete',false); document.execCommand('delete',false); document.execCommand('insertUnorderedList'); }
+                    if(txt.match(/^1\.\s$/)) { document.execCommand('delete',false); document.execCommand('delete',false); document.execCommand('delete',false); document.execCommand('insertOrderedList'); }
+                }
+            });
+        }
+        function applyLineHeight() { 
+            lhClasses.forEach(c => editor.classList.remove(c)); 
+            editor.classList.add(lhClasses[lineHeightIdx]); 
+        }
+        function updateStatus(s) { document.getElementById('cloud-status-badge').innerHTML = s==='online' ? `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> 云同步` : (s==='syncing' ? `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中` : `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 离线`); }
+        
+        // ================= 核心修改：ID 弹窗逻辑 =================
+        window.changeSyncID = () => { 
+            document.getElementById('sync-id-input').value = MY_SYNC_ID;
+            document.getElementById('id-modal').classList.add('open');
+            setTimeout(() => document.getElementById('sync-id-input').focus(), 100);
+        };
+        
+        window.closeIdModal = () => document.getElementById('id-modal').classList.remove('open');
+        
+        window.saveSyncID = () => {
+            const val = document.getElementById('sync-id-input').value.trim();
+            if(val && val !== "") {
+                MY_SYNC_ID = val;
+                localStorage.setItem('study_sync_id', val);
+                updateSyncLabel();
+                if(isCloud) loadCloud();
+            }
+            closeIdModal();
         };
 
-        window.insertCheckbox = () => { document.execCommand('insertHTML', false, `<input type="checkbox"> `); editor.focus(); };
-
-        function updateProgress() {
-            const total = document.querySelectorAll('.task-item').length;
-            const done = state.done.length;
-            const p = total ? Math.round((done/total)*100) : 0;
-            document.getElementById('progress-text').innerText = p + '%';
-            document.getElementById('progress-fill').style.width = p + '%';
+        // Scroll highlight helper
+        function scrollToText(text) {
+            if (!text) return;
+            const editor = document.getElementById('note-editor');
+            const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.nodeValue.toLowerCase().includes(text.toLowerCase())) {
+                    const range = document.createRange();
+                    range.selectNodeContents(node);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    node.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    node.parentElement.style.backgroundColor = '#fef08a';
+                    setTimeout(() => node.parentElement.style.backgroundColor = '', 1500);
+                    break;
+                }
+            }
         }
 
         init();
