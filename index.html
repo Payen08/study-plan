@@ -24,7 +24,7 @@
         .safe-area-top { padding-top: env(safe-area-inset-top); }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-        /* === 核心：统一融合导航栏 === */
+        /* 导航栏 */
         .month-nav {
             display: flex; overflow-x: auto; gap: 8px; padding: 4px 0 12px 0; margin-bottom: 4px;
             -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center;
@@ -37,64 +37,62 @@
             display: flex; align-items: center; gap: 6px;
         }
         .nav-pill:active { transform: scale(0.95); }
-        
-        /* 选中状态 */
-        .nav-pill.active {
-            background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-        }
-        
-        /* 年份胶囊特殊样式 */
-        .nav-pill.year-pill {
-            background: #f1f5f9; border-color: #cbd5e1; color: #475569;
-        }
-        .nav-pill.year-pill.active {
-            background: #0f172a; border-color: #0f172a; color: white; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
-        }
-        
+        .nav-pill.active { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); }
+        .nav-pill.year-pill { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+        .nav-pill.year-pill.active { background: #0f172a; border-color: #0f172a; color: white; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3); }
         .nav-separator { width: 1px; height: 20px; background: #cbd5e1; flex: 0 0 auto; margin: 0 2px; opacity: 0.5; }
 
         /* 卡片容器 */
         .calendar-wrapper { display: grid; gap: 12px; grid-template-columns: 1fr; }
-        @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, 1fr); gap: 8px; } }
+        @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; } }
 
         .day-card { background: white; border-radius: 12px; padding: 12px; min-height: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; transition: all 0.3s; }
-        
         .is-past { background-color: #f9fafb; opacity: 0.8; }
         .is-past .task-item { opacity: 0.7; }
-        .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25); z-index: 10; transform: scale(1.01); border-color: #3b82f6; }
+        .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25); z-index: 10; transform: scale(1.01); border-color: #3b82f6; scroll-margin-top: 180px; }
         .is-holiday { background: #fff1f2; border-color: #fecdd3; } 
+        .holiday-tag { position: absolute; right: 8px; top: 8px; font-size: 10px; font-weight: bold; color: #e11d48; background: #ffe4e6; padding: 2px 6px; border-radius: 4px; }
 
-        .holiday-tag {
-            position: absolute; right: 8px; top: 8px; font-size: 10px; font-weight: bold; color: #e11d48;
-            background: #ffe4e6; padding: 2px 6px; border-radius: 4px;
+        /* === 任务条目样式 === */
+        .task-item { 
+            font-size: 0.9rem; padding: 0; margin-bottom: 8px; border-radius: 10px; position: relative; 
+            transition: all 0.2s; font-weight: 500; line-height: 1.5; display: flex; align-items: stretch; overflow: hidden;
+            background-color: white; border: 1px solid rgba(0,0,0,0.05); width: 100%; max-width: 100%;
         }
-
-        .task-item { font-size: 0.85rem; padding: 8px 10px 8px 30px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; position: relative; transition: all 0.2s; font-weight: 500; line-height: 1.4; display: flex; align-items: center; justify-content: space-between; }
-        .task-item::before { content: ''; position: absolute; left: 10px; width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.4; transition: all 0.2s; }
-        .task-item.done { background-color: #f3f4f6 !important; color: #9ca3af !important; border-color: transparent !important; text-decoration: line-through; transform: scale(0.98); }
-        .task-item.done::before { background-color: #9ca3af; border-color: #9ca3af; border: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E"); }
-
-        .delete-btn { opacity: 0; transition: 0.2s; color: #cbd5e1; padding: 4px; }
-        .task-item:hover .delete-btn { opacity: 1; }
-        .delete-btn:hover { color: #ef4444; }
-
-        /* 2025 专用分类色 */
-        .t-pol { background: #fff1f2; color: #be123c; }
-        .t-eng { background: #eff6ff; color: #1d4ed8; }
-        .t-art { background: #fdf4ff; color: #86198f; }
-        .t-the { background: #ecfdf5; color: #047857; }
         
-        /* 2026 通用分类色 */
-        .t-work { background: #eff6ff; color: #1d4ed8; }
-        .t-study { background: #fdf4ff; color: #86198f; }
-        .t-life { background: #ecfdf5; color: #047857; }
-        .t-urgent { background: #fff1f2; color: #be123c; }
-
-        .type-option { 
-            width: 100%; padding: 12px; border-radius: 12px; text-align: center; font-size: 14px; font-weight: bold; cursor: pointer; 
-            border: 2px solid transparent; transition: all 0.2s; background: #f8fafc; color: #64748b;
+        /* 左侧点击区：打勾专用 */
+        .task-check-zone {
+            width: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+            background-color: rgba(0,0,0,0.02); border-right: 1px solid rgba(0,0,0,0.03);
         }
-        .type-option.selected { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+        .task-checkbox {
+            width: 18px; height: 18px; border: 2px solid currentColor; border-radius: 6px; opacity: 0.5; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* 右侧点击区：内容与详情 */
+        .task-content-zone {
+            flex: 1; padding: 8px 10px; cursor: pointer; display: flex; align-items: center;
+            min-width: 0; overflow-wrap: anywhere; word-break: break-word;
+        }
+
+        /* 完成状态 */
+        .task-item.done { background-color: #f8fafc !important; color: #94a3b8 !important; border-color: transparent !important; }
+        .task-item.done .task-content-zone { text-decoration: line-through; opacity: 0.8; }
+        .task-item.done .task-checkbox { background-color: #94a3b8; border-color: #94a3b8; color: white; }
+        .task-item.done .task-checkbox::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 10px; }
+
+        .task-item::before { display: none !important; }
+
+        /* 分类颜色 */
+        .t-pol { color: #be123c; background: #fff1f2; border-color: #fecdd3; }
+        .t-eng { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+        .t-art { color: #86198f; background: #fdf4ff; border-color: #e9d5ff; }
+        .t-the { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+        .t-work { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+        .t-study { color: #7e22ce; background: #faf5ff; border-color: #e9d5ff; }
+        .t-life { color: #047857; background: #f0fdf4; border-color: #bbf7d0; }
+        .t-urgent { color: #be123c; background: #fef2f2; border-color: #fecaca; }
 
         .action-btn { opacity: 0.3; transition: 0.2s; padding: 4px; cursor: pointer; font-size: 14px; }
         .day-card:hover .action-btn { opacity: 1; }
@@ -122,6 +120,14 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; 
         }
         .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
+
+        /* 底部面板 */
+        .bottom-sheet-content {
+            position: absolute; bottom: 0; left: 0; right: 0; width: 100%; max-width: 100%; border-radius: 24px 24px 0 0;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); height: auto; max-height: 80vh;
+            padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }
+        .modal-overlay.open .bottom-sheet-content { transform: translateY(0); }
 
         .add-task-modal { width: 85%; max-width: 320px; height: auto; border-radius: 16px; padding: 24px; }
 
@@ -187,13 +193,6 @@
         #note-editor.lh-tight, #note-editor.lh-tight * { line-height: 1.3 !important; }
         #note-editor.lh-normal, #note-editor.lh-normal * { line-height: 1.75 !important; }
         #note-editor.lh-loose, #note-editor.lh-loose * { line-height: 2.2 !important; }
-
-        /* 录音 */
-        .recording-active { color: #ef4444 !important; background-color: #fef2f2; animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        audio { width: 100%; height: 40px; margin: 12px 0; border-radius: 9999px !important; background-color: #f1f5f9; }
-        .audio-wrapper { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 16px; border-radius: 9999px !important; border: 1px solid #e2e8f0; margin: 8px 0; }
-        .audio-icon { color: #3b82f6; font-size: 1.2rem; }
     </style>
 </head>
 <body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
@@ -256,6 +255,45 @@
         </div>
     </div>
 
+    <!-- 任务管理面板 (底部弹出) -->
+    <div id="task-manage-modal" class="modal-overlay">
+        <div class="modal-content bottom-sheet-content bg-white">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+                <i class="fas fa-sliders-h text-blue-500"></i> 管理任务
+            </h3>
+            
+            <textarea id="edit-task-input" rows="3" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"></textarea>
+            
+            <div class="flex gap-3 mb-2">
+                <button onclick="saveEditedTask()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">保存修改</button>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeTaskManage()" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="deleteCurrentTask()" class="flex-1 py-3 bg-red-50 text-red-500 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-100 transition">删除任务</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加任务 Modal -->
+    <div id="add-task-modal" class="modal-overlay">
+        <div class="modal-content bottom-sheet-content bg-white">
+            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+                <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
+            </h3>
+            <input type="text" id="new-task-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
+            
+            <div class="grid grid-cols-2 gap-3 mb-6" id="type-selector-container">
+                <!-- JS 动态生成分类 -->
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeAddTaskModal()" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="confirmAddTask()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">确认添加</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 搜索 Modal -->
     <div id="search-modal" class="modal-overlay">
         <div class="modal-content search-modal bg-white flex flex-col">
@@ -270,7 +308,7 @@
         </div>
     </div>
 
-    <!-- ID 设置 Modal (新) -->
+    <!-- ID 设置 Modal -->
     <div id="id-modal" class="modal-overlay">
         <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
             <h3 class="font-bold text-lg mb-4 text-slate-800">设置同步 ID</h3>
@@ -313,11 +351,9 @@
                     <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('backColor', '#fef08a')" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
                     <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
                     <div class="w-px h-5 bg-slate-200 mx-1"></div>
-                    <button id="record-btn" class="toolbar-btn text-red-500" onclick="toggleRecording()" title="点击录音"><i class="fas fa-microphone-alt"></i></button>
-                    <input type="file" id="audio-upload-input" accept="audio/*" class="hidden" onchange="handleAudioUpload(this)">
-                    <button class="toolbar-btn text-blue-500" onclick="document.getElementById('audio-upload-input').click()" title="上传音频"><i class="fas fa-file-audio"></i></button>
                     <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
                 </div>
 
@@ -329,25 +365,6 @@
                         <i class="fas fa-check"></i> 完成
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加任务 Modal -->
-    <div id="add-task-modal" class="modal-overlay">
-        <div class="modal-content add-task-modal bg-white">
-            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
-                <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
-            </h3>
-            <input type="text" id="new-task-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
-            
-            <div class="grid grid-cols-2 gap-3 mb-6" id="type-selector-container">
-                <!-- JS 动态生成分类 -->
-            </div>
-
-            <div class="flex gap-3">
-                <button onclick="closeAddTaskModal()" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
-                <button onclick="confirmAddTask()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">确认添加</button>
             </div>
         </div>
     </div>
@@ -393,6 +410,82 @@
             { day: 21, note: "Day 2", special: true, tasks: [{ id: "t21_1", text: "上午: 工业设计史", type: "t-the" }, { id: "t21_2", text: "下午: 手绘", type: "t-art" }]}
         ];
 
+        // 2026 预设学习计划 (自动注入)
+        const PLAN_2026_INIT = {
+            "2026-1-22": [
+                {id:"p1", text:"加试英语：背诵20个 Material Design 名词", type:"t-study"},
+                {id:"p2", text:"构成：手绘复健(平行线/同心圆)", type:"t-work"},
+                {id:"p3", text:"作品集：整理 Escape_App PRD", type:"t-work"}
+            ],
+            "2026-1-23": [
+                {id:"p4", text:"加试英语：翻译 Apple HIG 手势描述", type:"t-study"},
+                {id:"p5", text:"复试快题：临摹3个智能硬件线稿", type:"t-work"}
+            ],
+            "2026-1-24": [
+                {id:"p6", text:"上午：模拟构成基础(黑白-秩序与混沌)", type:"t-work"},
+                {id:"p7", text:"下午：Baichuan B端界面重绘", type:"t-work"},
+                {id:"p8", text:"晚上：复盘画作", type:"t-study"}
+            ],
+            "2026-1-25": [
+                {id:"p9", text:"上午：模拟产品快题(老年人辅助)", type:"t-work"},
+                {id:"p10", text:"下午：Escape_App User Flow (英文标注)", type:"t-work"},
+                {id:"p11", text:"晚上：整理下周计划", type:"t-life"}
+            ],
+            "2026-1-26": [
+                {id:"p12", text:"英语：积累 UX 心理学词汇", type:"t-study"},
+                {id:"p13", text:"构成：画12色相环", type:"t-work"}
+            ],
+            "2026-1-27": [
+                {id:"p14", text:"英语：Baichuan 项目背景英文介绍", type:"t-study"},
+                {id:"p15", text:"作品集：优化信息架构图", type:"t-work"}
+            ],
+            "2026-1-28": [
+                {id:"p16", text:"构成：命题练习“速度感”", type:"t-work"},
+                {id:"p17", text:"作品集：Escape_App 痛点分析排版", type:"t-work"}
+            ],
+            "2026-1-29": [
+                {id:"p18", text:"英语：阅读 AI + Design 短文", type:"t-study"},
+                {id:"p19", text:"快题：练习画爆炸图", type:"t-work"}
+            ],
+            "2026-1-30": [
+                {id:"p20", text:"复盘：整理错题/生词", type:"t-study"},
+                {id:"p21", text:"作品集：收尾未完成页面", type:"t-work"}
+            ],
+            "2026-1-31": [
+                {id:"p22", text:"上午：模拟构成基础(色彩-春夏秋冬)", type:"t-work"},
+                {id:"p23", text:"下午：作品集定稿冲刺", type:"t-work"}
+            ],
+            "2026-2-1": [
+                {id:"p24", text:"上午：模拟专业英语(论文互译)", type:"t-study"},
+                {id:"p25", text:"下午：作品集排版(InDesign/Figma)", type:"t-work"}
+            ],
+            "2026-2-3": [{id:"p26", text:"作品集导出 PDF，检查错别字", type:"t-work"}],
+            "2026-2-5": [{id:"p27", text:"准备面试常问问题(英文)", type:"t-study"}],
+            "2026-2-7": [
+                {id:"p28", text:"全真模拟：上午画快题", type:"t-urgent"},
+                {id:"p29", text:"全真模拟：下午英语阅读", type:"t-urgent"},
+                {id:"p30", text:"全真模拟：晚上背口语", type:"t-urgent"}
+            ],
+            "2026-2-8": [{id:"p31", text:"整理：查漏补缺/打印准考证/工具包", type:"t-life"}],
+            "2026-2-9": [{id:"p32", text:"浏览广工导师研究方向", type:"t-study"}],
+            "2026-2-10": [{id:"p33", text:"看1-2篇相关论文(面试谈资)", type:"t-study"}],
+            "2026-2-12": [{id:"p34", text:"听设计类播客 (Design Matters)", type:"t-study"}],
+            "2026-2-17": [{id:"p35", text:"利用工作间隙看英文设计文章", type:"t-study"}],
+            "2026-2-21": [{id:"p36", text:"手绘：画一张完整构成/产品快题", type:"t-work"}],
+            "2026-2-23": [{id:"p37", text:"心态建设：准备查分证件号", type:"t-life"}],
+            "2026-2-24": [{id:"p38", text:"🎯 出分日/决断日", type:"t-urgent"}]
+        };
+
+        // 自动填充 2.2 - 2.6 的每日重复任务
+        for(let d=2; d<=6; d++) {
+            const k = `2026-2-${d}`;
+            if(!PLAN_2026_INIT[k]) PLAN_2026_INIT[k] = [];
+            PLAN_2026_INIT[k].unshift(
+                {id:`rep1_${d}`, text:"每日口语：背诵自我介绍(20min)", type:"t-study"},
+                {id:`rep2_${d}`, text:"手绘保鲜：睡前小稿(30min)", type:"t-work"}
+            );
+        }
+
         /* PWA Config */
         const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const iconUrl = URL.createObjectURL(new Blob([iconSVG], {type: 'image/svg+xml'}));
@@ -422,10 +515,20 @@
 
         // ================= 初始化 =================
         async function init() {
-            // 尝试恢复上次停留的年份
-            const lastYear = parseInt(localStorage.getItem('study_last_year'));
-            if(lastYear) CURRENT_YEAR = lastYear;
-            
+            const now = new Date();
+            // 默认判断：如果是 2026 年，或者已经是 2025 年底但不是 demo 模式
+            if (now.getFullYear() === 2026) {
+                CURRENT_YEAR = 2026;
+                currentMonth2026 = now.getMonth();
+            } else if (now.getFullYear() === 2025 && now.getMonth() === 11) {
+                // 如果是 2025 年 12 月
+                CURRENT_YEAR = 2025;
+            } else {
+                // 回退到上次保存的年份，如果没有则默认 2025
+                const lastYear = parseInt(localStorage.getItem('study_last_year'));
+                if(lastYear) CURRENT_YEAR = lastYear;
+            }
+
             updateSyncLabel();
             applyLineHeight();
             initEditorEvents();
@@ -439,6 +542,29 @@
             
             // Render initial UI based on loaded year
             switchYear(CURRENT_YEAR);
+
+            // 点击遮罩关闭 (Click outside to close)
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', e => {
+                    if (e.target === overlay) {
+                        const id = overlay.id;
+                        if (id === 'note-modal') closeModal();
+                        else if (id === 'add-task-modal') closeAddTaskModal();
+                        else if (id === 'task-manage-modal') closeTaskManage();
+                        else if (id === 'search-modal') toggleSearch();
+                        else if (id === 'id-modal') closeIdModal();
+                        else overlay.classList.remove('open');
+                    }
+                });
+            });
+            
+            // 延时滚动到“今天”
+            setTimeout(() => {
+                const todayEl = document.querySelector('.is-today');
+                if (todayEl) {
+                    todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 800); // 稍微延时等待渲染完成
         }
 
         // ================= 核心逻辑：年份切换 =================
@@ -561,7 +687,8 @@
 
                 const card = document.createElement('div');
                 card.className = `day-card ${isPast?'is-past':''} ${isToday?'is-today':''} ${holiday?'is-holiday':''}`;
-                
+                if (isToday) card.classList.add('is-today'); // Ensure class is added for scrolling
+
                 const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` + 
                               (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
                               (holiday ? `<span class="holiday-tag">${holiday}</span>` : '');
@@ -585,20 +712,75 @@
             }
         }
 
+        // ================= 核心修改：左勾选，右详情 =================
         function createEl(t, isCustom, key) {
             const el = document.createElement('div');
             el.className = `task-item ${t.type}`;
             el.dataset.id = t.id;
-            el.innerHTML = `<span class="flex-1">${t.text}</span>`;
             
-            if(isCustom) {
-                const del = document.createElement('i'); del.className = "fas fa-trash-alt delete-btn";
-                del.onclick = (e) => { e.stopPropagation(); deleteTask(key, t.id); };
-                el.appendChild(del);
-            }
-            el.onclick = (e) => { if(!e.target.classList.contains('delete-btn')) toggle(t.id); };
+            // 左侧打勾区
+            const checkZone = document.createElement('div');
+            checkZone.className = 'task-check-zone';
+            checkZone.innerHTML = `<div class="task-checkbox"></div>`;
+            checkZone.onclick = (e) => {
+                e.stopPropagation(); // 阻止冒泡，只触发打勾
+                toggle(t.id);
+            };
+            
+            // 右侧内容区
+            const contentZone = document.createElement('div');
+            contentZone.className = 'task-content-zone';
+            contentZone.innerText = t.text;
+            contentZone.onclick = (e) => {
+                if(!isCustom) return; // 只有自定义任务可编辑
+                openTaskManage(key, t.id, t.text);
+            };
+            
+            el.appendChild(checkZone);
+            el.appendChild(contentZone);
             return el;
         }
+
+        // 任务管理面板逻辑
+        let editingTask = { key: null, id: null };
+        const manageModal = document.getElementById('task-manage-modal');
+        const editInput = document.getElementById('edit-task-input');
+
+        window.openTaskManage = (key, id, text) => {
+            editingTask = { key, id };
+            editInput.value = text;
+            manageModal.classList.add('open');
+            setTimeout(() => editInput.focus(), 100);
+        };
+
+        window.closeTaskManage = () => {
+            manageModal.classList.remove('open');
+            editingTask = { key: null, id: null };
+        };
+
+        window.saveEditedTask = () => {
+            const newText = editInput.value.trim();
+            if(newText && editingTask.id) {
+                const tasks = currentState.customTasks[editingTask.key];
+                const task = tasks.find(t => t.id === editingTask.id);
+                if(task) {
+                    task.text = newText;
+                    if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                    save();
+                }
+            }
+            closeTaskManage();
+        };
+
+        window.deleteCurrentTask = () => {
+            if(confirm("确定删除任务？")) {
+                const { key, id } = editingTask;
+                currentState.customTasks[key] = currentState.customTasks[key].filter(t => t.id !== id);
+                if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                save();
+                closeTaskManage();
+            }
+        };
 
         // ================= 数据存取 (统一ID逻辑) =================
         function ensureStateStructure(s) {
@@ -621,6 +803,25 @@
             }
         }
 
+        // 核心：注入初始计划
+        function inject2026Plan() {
+            // 如果 2026 任务为空，或者部分为空，我们尝试合并
+            // 这里我们采用“增量合并”策略：如果当天没有任务，或者任务不重复，就添加
+            const existing = fullState["2026"].customTasks;
+            
+            Object.keys(PLAN_2026_INIT).forEach(dateKey => {
+                if(!existing[dateKey]) existing[dateKey] = [];
+                
+                PLAN_2026_INIT[dateKey].forEach(initTask => {
+                    // 检查是否已存在相同文本的任务
+                    const exists = existing[dateKey].some(t => t.text === initTask.text);
+                    if(!exists) {
+                        existing[dateKey].push(initTask);
+                    }
+                });
+            });
+        }
+
         async function loadCloud() { 
             updateStatus('syncing');
             // 只读取一个 ID
@@ -630,22 +831,17 @@
                 const raw = data.data;
                 // 数据迁移逻辑：如果读取到的数据没有 "2025" 键，说明是旧数据
                 if (!raw["2025"] && !raw["2026"]) {
-                    // 旧数据结构 -> 迁移到 fullState["2025"]
                     fullState["2025"] = ensureStateStructure(raw);
-                    // 2026 保持空初始状态
                     fullState["2026"] = { done: [], notes: {}, customTasks: {} };
-                    console.log("Migrated legacy data to 2025 slot");
                 } else {
-                    // 新结构，直接加载
                     if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
                     if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
                 }
             } else {
-                console.log("No cloud data found, using local or empty");
                 loadLocal(); // Fallback
             }
 
-            // 更新当前引用
+            inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
             refresh();
             switchYear(CURRENT_YEAR); // Re-render
@@ -662,11 +858,11 @@
                     if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
                     if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
                 } else {
-                    // 还是旧结构，迁移到内存中的 2025 插槽
                     fullState["2025"] = ensureStateStructure(raw);
                 }
             }
             
+            inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
             refresh();
             switchYear(CURRENT_YEAR);
@@ -838,49 +1034,6 @@
             document.getElementById('search-modal').classList.remove('open');
             openNote(k);
         };
-
-        // 音频录制 (复用2025逻辑)
-        let mediaRecorder, audioChunks = [], isRecording = false;
-        window.toggleRecording = async () => {
-            if(!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
-                        const blob = new Blob(audioChunks, {type:'audio/webm'});
-                        await uploadAudio(blob, 'webm');
-                        stream.getTracks().forEach(t => t.stop());
-                    };
-                    mediaRecorder.start(); isRecording = true;
-                    document.getElementById('record-btn').classList.add('recording-active');
-                } catch(e) { alert("麦克风权限错误"); }
-            } else {
-                mediaRecorder.stop(); isRecording = false;
-                document.getElementById('record-btn').classList.remove('recording-active');
-            }
-        };
-
-        window.handleAudioUpload = (input) => {
-             if(input.files[0]) uploadAudio(input.files[0], 'upload');
-        };
-
-        async function uploadAudio(file, type) {
-            const id = `loading-${Date.now()}`;
-            document.execCommand('insertHTML', false, `<div id="${id}" style="color:blue">⏳ 上传中...</div>`);
-            try {
-                if(!supabaseClient) throw new Error("需连接云同步");
-                const name = `audio_${Date.now()}.${type==='webm'?'webm':'mp3'}`;
-                const {data, error} = await supabaseClient.storage.from('note-images').upload(name, file);
-                if(error) throw error;
-                const {data: url} = supabaseClient.storage.from('note-images').getPublicUrl(name);
-                document.getElementById(id).outerHTML = `<div class="audio-wrapper" contenteditable="false"><i class="fas fa-music audio-icon"></i><audio controls src="${url.publicUrl}"></audio></div><br>`;
-                saveNote();
-            } catch(e) { 
-                document.getElementById(id).innerHTML = `<span style="color:red">上传失败: ${e.message}</span>`;
-            }
-        }
 
         // 初始化编辑器事件 (Markdown, 图片点击)
         function initEditorEvents() {
