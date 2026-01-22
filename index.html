@@ -26,30 +26,19 @@
 
         /* 导航栏 */
         .month-nav {
-            display: flex; overflow-x: auto; gap: 8px; padding: 4px 0 12px 0; margin-bottom: 0; /* 修正：由 wrapper 控制间距 */
+            display: flex; overflow-x: auto; gap: 8px; padding: 4px 0 12px 0; margin-bottom: 0;
             -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center;
         }
         .month-nav::-webkit-scrollbar { display: none; }
         
-        /* === 新增：吸顶容器样式 === */
+        /* 吸顶容器 */
         .sticky-header-wrapper {
-            position: -webkit-sticky; /* Safari */
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            background-color: #f6f8fa; /* 背景色与 Body 一致 */
-            padding-top: 8px;
-            padding-bottom: 4px;
-            /* 修正左右边距，使其铺满 */
-            margin-left: -16px;
-            margin-right: -16px;
-            padding-left: 16px;
-            padding-right: 16px;
-            /* 吸顶时的视觉分隔 */
+            position: -webkit-sticky; position: sticky; top: 0; z-index: 30;
+            background-color: #f6f8fa; 
+            padding-top: 8px; padding-bottom: 4px;
+            margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px;
             border-bottom: 1px solid rgba(0,0,0,0.03); 
-            transition: box-shadow 0.2s;
         }
-        /* 当产生滚动时（可通过JS添加class，或者这就够了） */
 
         .nav-pill {
             flex: 0 0 auto; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;
@@ -64,12 +53,18 @@
 
         /* 卡片容器 */
         .calendar-wrapper { display: grid; gap: 12px; grid-template-columns: 1fr; }
-        @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; } }
+        /* 空白占位格 (Desktop Only) */
+        .empty-slot { visibility: hidden; }
+        @media (max-width: 800px) { 
+            .empty-slot { display: none; } /* 手机端隐藏空白格，变成流式列表 */
+        }
+        @media (min-width: 800px) { 
+            .calendar-wrapper { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; } 
+        }
 
         .day-card { background: white; border-radius: 12px; padding: 12px; min-height: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; transition: all 0.3s; }
         .is-past { background-color: #f9fafb; opacity: 0.8; }
         .is-past .task-item { opacity: 0.7; }
-        /* 调整 scroll-margin 防止吸顶遮挡 */
         .is-today { background: #ffffff; ring: 2px solid #3b82f6; box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25); z-index: 10; transform: scale(1.01); border-color: #3b82f6; scroll-margin-top: 140px; }
         .is-holiday { background: #fff1f2; border-color: #fecdd3; } 
         .holiday-tag { position: absolute; right: 8px; top: 8px; font-size: 10px; font-weight: bold; color: #e11d48; background: #ffe4e6; padding: 2px 6px; border-radius: 4px; }
@@ -81,7 +76,7 @@
             background-color: white; border: 1px solid rgba(0,0,0,0.05); width: 100%; max-width: 100%;
         }
         
-        /* 左侧点击区：打勾专用 */
+        /* 左侧点击区 */
         .task-check-zone {
             width: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
             background-color: rgba(0,0,0,0.02); border-right: 1px solid rgba(0,0,0,0.03);
@@ -91,13 +86,12 @@
             display: flex; align-items: center; justify-content: center;
         }
         
-        /* 右侧点击区：内容与详情 */
+        /* 右侧内容区 */
         .task-content-zone {
             flex: 1; padding: 8px 10px; cursor: pointer; display: flex; align-items: center;
             min-width: 0; overflow-wrap: anywhere; word-break: break-word;
         }
 
-        /* 完成状态 */
         .task-item.done { background-color: #f8fafc !important; color: #94a3b8 !important; border-color: transparent !important; }
         .task-item.done .task-content-zone { text-decoration: line-through; opacity: 0.8; }
         .task-item.done .task-checkbox { background-color: #94a3b8; border-color: #94a3b8; color: white; }
@@ -700,16 +694,28 @@
             }
         }
 
-        // ================= 渲染：2026 全年 =================
+        // ================= 渲染：2026 全年 (修复周对齐) =================
         function render2026(monthIdx) {
             const root = document.getElementById('calendar-view'); root.innerHTML = '';
-            // Update title dynamically when rendering
             document.getElementById('main-title').innerText = `2026年 ${monthIdx + 1}月`;
             
-            const firstDay = new Date(2026, monthIdx, 1);
+            const firstDayDate = new Date(2026, monthIdx, 1);
             const daysInMonth = new Date(2026, monthIdx + 1, 0).getDate();
             const today = new Date();
             const isCurrMonth = today.getFullYear() === 2026 && today.getMonth() === monthIdx;
+
+            // 计算该月第一天是周几 (0=Sun, 1=Mon...6=Sat)
+            // 我们的日历是从周一(Mon)开始的。
+            // 目标: Mon=0, Tue=1, ..., Sun=6
+            // 公式: (day + 6) % 7
+            const startOffset = (firstDayDate.getDay() + 6) % 7;
+
+            // 填充空白格
+            for(let j=0; j<startOffset; j++) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-slot';
+                root.appendChild(empty);
+            }
 
             for(let i=1; i<=daysInMonth; i++) {
                 const dateKey = `2026-${monthIdx+1}-${i}`;
@@ -720,7 +726,7 @@
 
                 const card = document.createElement('div');
                 card.className = `day-card ${isPast?'is-past':''} ${isToday?'is-today':''} ${holiday?'is-holiday':''}`;
-                if (isToday) card.classList.add('is-today'); // Ensure class is added for scrolling
+                if (isToday) card.classList.add('is-today'); 
 
                 const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` + 
                               (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
