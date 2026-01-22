@@ -993,8 +993,16 @@
 
         window.openNote = (key, highlight = null) => {
             curNoteKey = key; isEditMode = false;
-            let title = key.startsWith('d') ? `12月${key.replace('d','')}` : key.split('-').slice(1).join('月') + '日';
-            document.getElementById('modal-date-title').innerText = title + '日';
+            let title;
+            if (key.startsWith('d')) {
+                // 2025 format: d1, d2...
+                title = `12月${key.replace('d','')}日`;
+            } else {
+                // 2026 format: 2026-1-22
+                const parts = key.split('-');
+                title = `${parts[1]}月${parts[2]}日`;
+            }
+            document.getElementById('modal-date-title').innerText = title;
             
             const content = currentState.notes[key];
             editor.innerHTML = content || '';
