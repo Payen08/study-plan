@@ -53,14 +53,9 @@
 
         /* 卡片容器 */
         .calendar-wrapper { display: grid; gap: 12px; grid-template-columns: 1fr; }
-        /* 空白占位格 (Desktop Only) */
         .empty-slot { visibility: hidden; }
-        @media (max-width: 800px) { 
-            .empty-slot { display: none; } /* 手机端隐藏空白格，变成流式列表 */
-        }
-        @media (min-width: 800px) { 
-            .calendar-wrapper { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; } 
-        }
+        @media (max-width: 800px) { .empty-slot { display: none; } }
+        @media (min-width: 800px) { .calendar-wrapper { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; } }
 
         .day-card { background: white; border-radius: 12px; padding: 12px; min-height: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; position: relative; transition: all 0.3s; }
         .is-past { background-color: #f9fafb; opacity: 0.8; }
@@ -178,7 +173,6 @@
         #note-editor[contenteditable="true"] { background-color: #f8fafc; }
 
         #note-editor img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid #e2e8f0; transition: opacity 0.3s; cursor: zoom-in; }
-        .uploading-img { opacity: 0.5; border: 2px dashed #3b82f6 !important; }
 
         #note-editor table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
         #note-editor th, #note-editor td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
@@ -194,7 +188,14 @@
         .toolbar-btn { padding: 8px; border-radius: 6px; color: #64748b; transition: 0.2s; font-size: 1.1rem; }
         .toolbar-btn:hover { background-color: #eff6ff; color: #3b82f6; }
         
-        .countdown-box { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); min-width: 100px; }
+        /* 倒计时盒子新增 hover 和 点击 状态 */
+        .countdown-box { 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 12px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); 
+            min-width: 100px; position: relative; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .countdown-box:hover { transform: translateY(-2px); box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.4); }
+        .countdown-box:active { transform: scale(0.95); }
         .countdown-num { font-size: 1.8rem; font-weight: 900; line-height: 1; }
         .countdown-label { font-size: 0.65rem; opacity: 0.9; font-weight: 500; margin-top: 2px; }
         
@@ -243,9 +244,10 @@
                     </div>
                 </div>
 
-                <div class="countdown-box">
+                <!-- 倒计时区域变更为可点击设置 -->
+                <div class="countdown-box" onclick="openSettingsModal()" title="点击设置目标日">
                     <div class="countdown-num" id="days-left">--</div>
-                    <div class="countdown-label" id="days-label">剩余天数</div>
+                    <div class="countdown-label" id="days-label">距离考试仅剩</div>
                 </div>
             </div>
             <div class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-50 -z-0 pointer-events-none"></div>
@@ -329,11 +331,30 @@
     <div id="id-modal" class="modal-overlay">
         <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
             <h3 class="font-bold text-lg mb-4 text-slate-800">设置同步 ID</h3>
-            <p class="text-xs text-slate-400 mb-4">设置相同的 ID (如 "payen") 即可在手机和电脑间同步所有数据。</p>
+            <p class="text-xs text-slate-400 mb-4">设置相同的 ID 即可在手机和电脑间同步所有数据。</p>
             <input type="text" id="sync-id-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono text-center tracking-wider" placeholder="输入 ID..." onkeydown="if(event.key === 'Enter') saveSyncID()">
             <div class="flex gap-3">
                 <button onclick="closeIdModal()" class="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-bold text-sm hover:bg-slate-200 transition">取消</button>
                 <button onclick="saveSyncID()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 目标设置 Modal (新增) -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
+            <h3 class="font-bold text-lg mb-4 text-slate-800">设置目标日</h3>
+            <div class="mb-3">
+                <label class="block text-xs text-slate-500 mb-1 font-bold">目标名称 (如: 距离考研仅剩)</label>
+                <input type="text" id="target-name-input" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="距离考试仅剩">
+            </div>
+            <div class="mb-5">
+                <label class="block text-xs text-slate-500 mb-1 font-bold">目标日期</label>
+                <input type="date" id="target-date-input" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeSettingsModal()" class="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="saveSettings()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">确认</button>
             </div>
         </div>
     </div>
@@ -370,6 +391,7 @@
                     <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
                     <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
                     <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
                 </div>
 
@@ -387,7 +409,7 @@
 
     <script>
         // ================= 配置区 =================
-        const DEFAULT_SYNC_ID = "payen"; 
+        const DEFAULT_SYNC_ID = "default"; 
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         
@@ -399,7 +421,8 @@
             "5-1": "劳动节", "5-2": "假期", "5-3": "假期", "5-4": "假期", "5-5": "假期",
             "6-19": "端午", "6-20": "假期", "6-21": "假期",
             "9-25": "中秋", "9-26": "假期", "9-27": "假期",
-            "10-1": "国庆", "10-2": "假期", "10-3": "假期", "10-4": "假期", "10-5": "假期", "10-6": "假期", "10-7": "假期"
+            "10-1": "国庆", "10-2": "假期", "10-3": "假期", "10-4": "假期", "10-5": "假期", "10-6": "假期", "10-7": "假期",
+            "12-19": "考研Day1", "12-20": "考研Day2"
         };
         
         // 2025 静态数据 (User Provided)
@@ -515,11 +538,11 @@
         let currentMonth2026 = new Date().getMonth();
         let supabaseClient = null, isCloud = false;
         
-        // 统一的大状态对象，包含所有年份
-        // 结构: { "2025": { done:[], notes:{}, ...}, "2026": { done:[], ...} }
+        // 统一的大状态对象，包含所有年份和设置
         let fullState = { 
             "2025": { done: [], notes: {}, customTasks: {} }, 
-            "2026": { done: [], notes: {}, customTasks: {} } 
+            "2026": { done: [], notes: {}, customTasks: {} },
+            "settings": { targetDate: "2026-12-19", targetName: "距离考研仅剩" }
         };
         
         // 指向当前年份数据的引用，简化代码
@@ -569,6 +592,7 @@
                         else if (id === 'task-manage-modal') closeTaskManage();
                         else if (id === 'search-modal') toggleSearch();
                         else if (id === 'id-modal') closeIdModal();
+                        else if (id === 'settings-modal') closeSettingsModal();
                         else overlay.classList.remove('open');
                     }
                 });
@@ -596,15 +620,12 @@
 
             if (year === 2025) {
                 document.getElementById('main-title').innerText = "12月冲刺";
-                document.getElementById('days-label').innerText = "距离考试仅剩";
                 render2025();
-                updateCountdown2025();
             } else {
                 document.getElementById('main-title').innerText = `2026年 ${currentMonth2026 + 1}月`;
-                document.getElementById('days-label').innerText = "今年剩余天数";
                 render2026(currentMonth2026);
-                updateCountdown2026();
             }
+            updateCountdown();
             refresh(); // 刷新选中状态
         }
 
@@ -862,10 +883,14 @@
                 } else {
                     if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
                     if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                    if(raw["settings"]) fullState.settings = raw["settings"]; // 加载云端设置
                 }
             } else {
                 loadLocal(); // Fallback
             }
+
+            // 确保设置存在
+            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
 
             inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
@@ -883,11 +908,14 @@
                 if (raw["2025"] || raw["2026"]) {
                     if(raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
                     if(raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                    if(raw["settings"]) fullState.settings = raw["settings"];
                 } else {
                     fullState["2025"] = ensureStateStructure(raw);
                 }
             }
             
+            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
+
             inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
             refresh();
@@ -922,15 +950,45 @@
              if(el) el.innerText = display;
         }
 
-        // ================= 辅助逻辑 =================
-        function updateCountdown2025() {
-            const diff = new Date("2025-12-20T00:00:00").getTime() - new Date().getTime();
+        // ================= 自定义倒计时逻辑 =================
+        function updateCountdown() {
+            const targetStr = fullState.settings?.targetDate || "2026-12-19";
+            const nameStr = fullState.settings?.targetName || "距离考研仅剩";
+
+            const target = new Date(targetStr + "T00:00:00").getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+            
             document.getElementById('days-left').innerText = Math.max(0, Math.ceil(diff / 86400000));
+            document.getElementById('days-label').innerText = nameStr;
         }
-        function updateCountdown2026() {
-            const diff = new Date("2026-12-31T23:59:59").getTime() - new Date().getTime();
-            document.getElementById('days-left').innerText = Math.max(0, Math.ceil(diff / 86400000));
-        }
+
+        window.openSettingsModal = () => {
+            document.getElementById('target-name-input').value = fullState.settings?.targetName || "距离考研仅剩";
+            document.getElementById('target-date-input').value = fullState.settings?.targetDate || "2026-12-19";
+            document.getElementById('settings-modal').classList.add('open');
+        };
+
+        window.closeSettingsModal = () => {
+            document.getElementById('settings-modal').classList.remove('open');
+        };
+
+        window.saveSettings = () => {
+            const name = document.getElementById('target-name-input').value.trim() || "距离目标仅剩";
+            const date = document.getElementById('target-date-input').value || "2026-12-19";
+
+            if (!fullState.settings) fullState.settings = {};
+            fullState.settings.targetName = name;
+            fullState.settings.targetDate = date;
+            
+            updateCountdown();
+            save();
+            closeSettingsModal();
+        };
+
+        window.closeAddTaskModal = () => {
+            document.getElementById('add-task-modal').classList.remove('open');
+        };
 
         // ================= 任务添加 =================
         let addingKey = null;
