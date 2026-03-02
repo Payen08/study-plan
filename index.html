@@ -8,13 +8,12 @@
     <title>冲刺计划 Pro</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="冲刺计划">
-    <meta name="theme-color" content="#f6f8fa">
+    <meta name="theme-color" content="#3b82f6">
 
-    <link rel="apple-touch-icon" href="icon-512.png">
-    <link rel="manifest" href="manifest.json">
+    <link id="apple-icon" rel="apple-touch-icon" href="icon-512.png">
+    <link id="manifest-link" rel="manifest" href="manifest.json">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -59,7 +58,7 @@
             top: 0;
             z-index: 30;
             background-color: #f6f8fa;
-            padding-top: calc(env(safe-area-inset-top) + 8px);
+            padding-top: 8px;
             padding-bottom: 4px;
             margin-left: -16px;
             margin-right: -16px;
@@ -565,7 +564,7 @@
                 border-radius: 24px 24px 0 0;
                 margin: 0;
                 transform: translateY(100%);
-                height: 96vh;
+                height: 95vh;
                 overscroll-behavior: contain;
             }
 
@@ -574,7 +573,7 @@
             }
 
             .modal-content.note-mode .modal-header {
-                padding-top: max(16px, env(safe-area-inset-top));
+                padding-top: 16px;
             }
 
             .modal-content.note-mode .modal-footer {
@@ -718,6 +717,19 @@
         .toolbar-btn:hover {
             background-color: #eff6ff;
             color: #3b82f6;
+        }
+
+        .toolbar-btn {
+            flex-shrink: 0;
+        }
+
+        #editor-tools::-webkit-scrollbar {
+            display: none;
+        }
+
+        #note-editor a {
+            color: #3b82f6;
+            text-decoration: underline;
         }
 
         /* 倒计时盒子新增 hover 和 点击 状态 */
@@ -1257,7 +1269,7 @@
     </style>
 </head>
 
-<body class="safe-area-bottom pb-20 md:pb-10">
+<body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
         <div class="bg-white rounded-2xl p-5 md:p-6 mb-4 shadow-sm border border-slate-100 relative overflow-hidden">
@@ -1566,29 +1578,62 @@
             <div
                 class="modal-footer bg-white px-4 py-3 border-t border-slate-100 flex justify-between items-center shrink-0 safe-area-bottom">
                 <div id="editor-tools"
-                    class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200 items-center">
+                    class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200 items-center overflow-x-auto"
+                    style="scrollbar-width:none; -webkit-overflow-scrolling:touch;">
+                    <!-- 基础格式 -->
                     <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i
                             class="fas fa-bold"></i></button>
-                    <button class="toolbar-btn" onclick="execCmd('backColor', '#fef08a')" title="高亮"><i
+                    <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i
+                            class="fas fa-italic"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('underline')" title="下划线"><i
+                            class="fas fa-underline"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="删除线"><i
+                            class="fas fa-strikethrough"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 颜色 -->
+                    <button class="toolbar-btn relative" title="文字颜色"
+                        onclick="document.getElementById('text-color-input').click()"><i class="fas fa-font"
+                            style="color:#e11d48"></i></button>
+                    <input id="text-color-input" type="color" value="#e11d48" class="absolute w-0 h-0 opacity-0"
+                        oninput="execCmd('foreColor', this.value)">
+                    <button class="toolbar-btn" onclick="toggleHighlight()" title="高亮"><i
                             class="fas fa-highlighter text-yellow-500"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 列表 & 任务 -->
                     <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i
                             class="fas fa-list-ul"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i
                             class="fas fa-list-ol"></i></button>
                     <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i
                             class="far fa-check-square"></i></button>
-                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 对齐 & 缩进 -->
+                    <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="左对齐"><i
+                            class="fas fa-align-left"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="居中"><i
+                            class="fas fa-align-center"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="右对齐"><i
+                            class="fas fa-align-right"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('outdent')" title="减少缩进"><i
+                            class="fas fa-outdent"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('indent')" title="增加缩进"><i
+                            class="fas fa-indent"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 链接 & 行距 -->
+                    <button class="toolbar-btn" onclick="insertLink()" title="插入链接"><i class="fas fa-link"></i></button>
                     <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i
                             class="fas fa-text-height"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i
+                            class="fas fa-eraser"></i></button>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 shrink-0 ml-2">
                     <button id="edit-btn" onclick="toggleEditMode()"
-                        class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fas fa-pen"></i> 编辑
                     </button>
                     <button id="save-btn" onclick="saveNote()"
-                        class="hidden bg-slate-900 hover:bg-black text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition flex items-center gap-2">
+                        class="hidden bg-slate-900 hover:bg-black text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fas fa-check"></i> 完成
                     </button>
                 </div>
@@ -1714,7 +1759,13 @@
             );
         }
 
+        /* PWA Config */
+        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconUrl = URL.createObjectURL(new Blob([iconSVG], { type: 'image/svg+xml' }));
+        document.getElementById('apple-icon').href = iconUrl;
 
+        const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
+        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
 
         // ================= 全局状态 =================
         let CURRENT_YEAR = 2025; // 默认为2025模式
@@ -1810,9 +1861,14 @@
             switchYear(CURRENT_YEAR);
 
             // 点击遮罩关闭 (Click outside to close)
+            // 使用 mousedown+mouseup 防止选中文字时鼠标滑出导致误关
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', e => {
-                    if (e.target === overlay) {
+                let mouseDownOnOverlay = false;
+                overlay.addEventListener('mousedown', e => {
+                    mouseDownOnOverlay = (e.target === overlay);
+                });
+                overlay.addEventListener('mouseup', e => {
+                    if (mouseDownOnOverlay && e.target === overlay) {
                         const id = overlay.id;
                         if (id === 'note-modal') window.closeModal();
                         else if (id === 'add-task-modal') window.closeAddTaskModal();
@@ -1825,6 +1881,7 @@
                         else if (id === 'category-modal') window.closeCategoryModal();
                         else overlay.classList.remove('open');
                     }
+                    mouseDownOnOverlay = false;
                 });
             });
 
@@ -2374,8 +2431,49 @@
         // 初始化编辑器事件 (Markdown, 图片点击)
         function initEditorEvents() {
             window.execCmd = (c, v) => { document.execCommand(c, false, v); editor.focus(); updateWordCount(); };
+            window.toggleHighlight = () => {
+                const sel = window.getSelection();
+                if (!sel.rangeCount || sel.isCollapsed) { document.execCommand('backColor', false, '#fef08a'); editor.focus(); return; }
+                // 检查选区内是否已有高亮
+                let hasHighlight = false;
+                const range = sel.getRangeAt(0);
+                const container = document.createElement('div');
+                container.appendChild(range.cloneContents());
+                // 检查所有带背景色的 span/font
+                const highlighted = container.querySelectorAll('span[style*="background"], font[style*="background"]');
+                if (highlighted.length > 0) hasHighlight = true;
+                // 也检查父元素
+                let node = sel.anchorNode;
+                while (node && node !== editor) {
+                    if (node.nodeType === 1 && node.style && node.style.backgroundColor) { hasHighlight = true; break; }
+                    node = node.parentNode;
+                }
+                if (hasHighlight) {
+                    document.execCommand('backColor', false, 'transparent');
+                } else {
+                    document.execCommand('backColor', false, '#fef08a');
+                }
+                editor.focus();
+                updateWordCount();
+            };
             window.insertCheckbox = () => { window.execCmd('insertHTML', `<input type="checkbox"> `); updateWordCount(); };
             window.cycleLineHeight = () => { lineHeightIdx = (lineHeightIdx + 1) % 3; localStorage.setItem('study_lh_idx', lineHeightIdx); applyLineHeight(); };
+            window.insertLink = () => {
+                const sel = window.getSelection();
+                const hasText = sel && !sel.isCollapsed;
+                const url = prompt('输入链接地址：', 'https://');
+                if (!url) { editor.focus(); return; }
+                if (hasText) {
+                    document.execCommand('createLink', false, url);
+                } else {
+                    const label = prompt('输入链接文字：', url) || url;
+                    document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${label}</a>&nbsp;`);
+                }
+                // 新链接默认在新标签页打开
+                editor.querySelectorAll('a:not([target])').forEach(a => a.target = '_blank');
+                editor.focus();
+                updateWordCount();
+            };
 
             // 实时监听输入，更新字数
             editor.addEventListener('input', updateWordCount);
