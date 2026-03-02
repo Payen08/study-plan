@@ -59,7 +59,7 @@
             top: 0;
             z-index: 30;
             background-color: #f6f8fa;
-            padding-top: 8px;
+            padding-top: calc(env(safe-area-inset-top) + 8px);
             padding-bottom: 4px;
             margin-left: -16px;
             margin-right: -16px;
@@ -1257,7 +1257,7 @@
     </style>
 </head>
 
-<body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
+<body class="safe-area-bottom pb-20 md:pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
         <div class="bg-white rounded-2xl p-5 md:p-6 mb-4 shadow-sm border border-slate-100 relative overflow-hidden">
