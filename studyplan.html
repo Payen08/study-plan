@@ -1,0 +1,2837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>冲刺计划 Pro</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="冲刺计划">
+    <meta name="theme-color" content="#3b82f6">
+
+    <link id="apple-icon" rel="apple-touch-icon" href="icon-512.png">
+    <link id="manifest-link" rel="manifest" href="manifest.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f6f8fa;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* 导航栏 */
+        .month-nav {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 4px 0 12px 0;
+            margin-bottom: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            align-items: center;
+        }
+
+        .month-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 吸顶容器 */
+        .sticky-header-wrapper {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: #f6f8fa;
+            padding-top: 8px;
+            padding-bottom: 4px;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-pill {
+            flex: 0 0 auto;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            background: #fff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-pill:active {
+            transform: scale(0.95);
+        }
+
+        .nav-pill.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-pill.year-pill {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        .nav-pill.year-pill.active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
+        }
+
+        .nav-separator {
+            width: 1px;
+            height: 20px;
+            background: #cbd5e1;
+            flex: 0 0 auto;
+            margin: 0 2px;
+            opacity: 0.5;
+        }
+
+        /* 卡片容器 */
+        .calendar-wrapper {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+        }
+
+        .empty-slot {
+            visibility: hidden;
+        }
+
+        @media (max-width: 800px) {
+            .empty-slot {
+                display: none;
+            }
+        }
+
+        @media (min-width: 800px) {
+            .calendar-wrapper {
+                grid-template-columns: repeat(7, minmax(0, 1fr));
+                gap: 8px;
+            }
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 100px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .is-past {
+            background-color: #f9fafb;
+            opacity: 0.8;
+        }
+
+        .is-past .task-item {
+            opacity: 0.7;
+        }
+
+        .is-today {
+            background: #ffffff;
+            ring: 2px solid #3b82f6;
+            box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25);
+            z-index: 10;
+            transform: scale(1.01);
+            border-color: #3b82f6;
+            scroll-margin-top: 140px;
+        }
+
+        .is-holiday {
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+
+        .holiday-tag {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #e11d48;
+            background: #ffe4e6;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* === 任务条目样式 === */
+        .task-item {
+            font-size: 0.9rem;
+            padding: 0;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.2s;
+            font-weight: 500;
+            line-height: 1.5;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* 左侧点击区 */
+        .task-check-zone {
+            width: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-right: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid currentColor;
+            border-radius: 6px;
+            opacity: 0.5;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 右侧内容区 */
+        .task-content-zone {
+            flex: 1;
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .task-item.done {
+            background-color: #f8fafc !important;
+            color: #94a3b8 !important;
+            border-color: transparent !important;
+        }
+
+        .task-item.done .task-content-zone {
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .task-item.done .task-checkbox {
+            background-color: #94a3b8;
+            border-color: #94a3b8;
+            color: white;
+        }
+
+        .task-item.done .task-checkbox::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 10px;
+        }
+
+        .task-item::before {
+            display: none !important;
+        }
+
+        /* === 分类选项样式 (补回丢失的样式) === */
+        .type-option {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        .type-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        /* 分类颜色 */
+        .t-pol {
+            color: #be123c;
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+
+        .t-eng {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .t-art {
+            color: #86198f;
+            background: #fdf4ff;
+            border-color: #e9d5ff;
+        }
+
+        .t-the {
+            color: #047857;
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+
+        .t-work {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .t-study {
+            color: #7e22ce;
+            background: #faf5ff;
+            border-color: #e9d5ff;
+        }
+
+        .t-life {
+            color: #047857;
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .t-urgent {
+            color: #be123c;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .action-btn {
+            opacity: 0.3;
+            transition: 0.2s;
+            padding: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .day-card:hover .action-btn {
+            opacity: 1;
+        }
+
+        .has-note .note-trigger {
+            color: #f59e0b;
+            opacity: 1;
+        }
+
+        .action-btn:hover {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .progress-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .week-header {
+                display: none;
+            }
+
+            .day-card {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .day-header-mobile {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                border-bottom: 1px dashed #f3f4f6;
+                padding-bottom: 8px;
+            }
+
+            .task-container {
+                width: 100%;
+            }
+
+            .action-btn {
+                opacity: 0.6;
+                padding: 8px;
+            }
+
+            .delete-btn {
+                opacity: 1;
+            }
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            height: 95vh;
+            border-radius: 16px;
+            transform: scale(0.95) translateY(10px);
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* 底部面板 */
+        .bottom-sheet-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            height: auto;
+            max-height: 80vh;
+            padding: 24px;
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }
+
+        .modal-overlay.open .bottom-sheet-content {
+            transform: translateY(0);
+        }
+
+        .add-task-modal {
+            width: 85%;
+            max-width: 320px;
+            height: auto;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        /* 搜索弹窗样式 */
+        .search-modal {
+            width: 90%;
+            max-width: 600px;
+            height: 70vh;
+            max-height: 600px;
+            padding: 0;
+            border-radius: 20px;
+        }
+
+        .search-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            font-size: 16px;
+            outline: none;
+            color: #334155;
+        }
+
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .search-item {
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .search-item:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .search-highlight {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            rounded: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        /* ID 弹窗专用样式 */
+        .id-modal-content {
+            height: auto !important;
+            min-height: 200px;
+            max-width: 320px !important;
+        }
+
+        @media (max-width: 768px) {
+            .modal-overlay.note-mode {
+                align-items: flex-end;
+                padding-bottom: 0;
+            }
+
+            .modal-content.note-mode {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 24px 24px 0 0;
+                margin: 0;
+                transform: translateY(100%);
+                height: 95vh;
+                overscroll-behavior: contain;
+            }
+
+            .modal-overlay.open .modal-content.note-mode {
+                transform: translateY(0);
+            }
+
+            .modal-content.note-mode .modal-header {
+                padding-top: 16px;
+            }
+
+            .modal-content.note-mode .modal-footer {
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+
+            .search-modal {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+
+            /* 移动端保持 ID 弹窗小巧 */
+            .id-modal-content {
+                width: 85% !important;
+                max-width: 320px !important;
+                height: auto !important;
+                border-radius: 16px !important;
+                transform: scale(0.95) !important;
+                margin: auto !important;
+            }
+
+            .modal-overlay.open .id-modal-content {
+                transform: scale(1) !important;
+            }
+        }
+
+        .editor-scroller {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            background: white;
+            overscroll-behavior: contain;
+        }
+
+        #note-editor {
+            width: 100%;
+            min-height: 100%;
+            padding: 24px;
+            outline: none;
+            color: #334155;
+            font-size: 16px;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        #note-editor[contenteditable="false"] {
+            color: #1e293b;
+            background-color: #fff;
+        }
+
+        #note-editor[contenteditable="true"] {
+            background-color: #f8fafc;
+        }
+
+        #note-editor img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #e2e8f0;
+            transition: opacity 0.3s;
+            cursor: zoom-in;
+        }
+
+        #note-editor table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        #note-editor th,
+        #note-editor td {
+            border: 1px solid #cbd5e1;
+            padding: 6px;
+            text-align: left;
+        }
+
+        #note-editor th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+
+        #note-editor ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        #note-editor ol {
+            list-style-type: decimal;
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        #note-editor blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+            color: #64748b;
+            margin: 8px 0;
+            background: #f8fafc;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        #note-editor input[type="checkbox"] {
+            margin-right: 8px;
+            vertical-align: middle;
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        #note-editor[contenteditable="true"]:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 8px auto 0;
+        }
+
+        .toolbar-btn {
+            padding: 8px;
+            border-radius: 6px;
+            color: #64748b;
+            transition: 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .toolbar-btn:hover {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .toolbar-btn {
+            flex-shrink: 0;
+        }
+
+        #editor-tools::-webkit-scrollbar {
+            display: none;
+        }
+
+        #note-editor a {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+
+        /* 倒计时盒子新增 hover 和 点击 状态 */
+        .countdown-box {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+            min-width: 100px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .countdown-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.4);
+        }
+
+        .countdown-box:active {
+            transform: scale(0.95);
+        }
+
+        .countdown-num {
+            font-size: 1.8rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        #sync-btn {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #sync-btn:hover {
+            opacity: 0.8;
+        }
+
+        #img-zoom-modal {
+            z-index: 200 !important;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #zoomed-img {
+            object-fit: contain;
+            max-width: 95%;
+            max-height: 95%;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        /* 行高控制 */
+        #note-editor.lh-tight,
+        #note-editor.lh-tight * {
+            line-height: 1.3 !important;
+        }
+
+        #note-editor.lh-normal,
+        #note-editor.lh-normal * {
+            line-height: 1.75 !important;
+        }
+
+        #note-editor.lh-loose,
+        #note-editor.lh-loose * {
+            line-height: 2.2 !important;
+        }
+
+        /* === 导入/导出弹窗 === */
+        .import-modal {
+            width: 92%;
+            max-width: 520px;
+            height: auto;
+            max-height: 85vh;
+            border-radius: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .import-header {
+            padding: 20px 24px 0;
+        }
+
+        .import-body {
+            padding: 0 24px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .import-footer {
+            padding: 16px 24px 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .import-textarea {
+            width: 100%;
+            min-height: 160px;
+            max-height: 240px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 14px;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+            transition: border-color 0.2s;
+        }
+
+        .import-textarea:focus {
+            border-color: #3b82f6;
+            background: #fff;
+        }
+
+        .import-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        /* 预览区域 */
+        .preview-area {
+            margin-top: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .preview-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #e0f2fe;
+        }
+
+        .preview-date {
+            font-weight: 700;
+            color: #0369a1;
+            font-size: 14px;
+        }
+
+        .preview-count {
+            font-size: 12px;
+            color: #64748b;
+            background: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .preview-summary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #f0fdf4;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+
+        .preview-summary .icon {
+            font-size: 18px;
+        }
+
+        .preview-summary .text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #15803d;
+        }
+
+        /* 冲突模式切换 */
+        .conflict-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            padding: 10px 14px;
+            background: #fafafa;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background: #3b82f6;
+            border-radius: 11px;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.off {
+            background: #cbd5e1;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .toggle-switch.off::after {
+            transform: translateX(0);
+        }
+
+        .toggle-switch:not(.off)::after {
+            transform: translateX(18px);
+        }
+
+        /* 分类选择器(导入用) */
+        .cat-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .cat-chip {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .cat-chip.active {
+            border-color: #1e293b;
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* === 分类管理弹窗 === */
+        .category-modal {
+            width: 90%;
+            max-width: 400px;
+            height: auto;
+            max-height: 80vh;
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .cat-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .cat-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            transition: 0.2s;
+        }
+
+        .cat-row:hover {
+            background: #f1f5f9;
+        }
+
+        .cat-color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border: 2px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .cat-name-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            outline: none;
+        }
+
+        .cat-del-btn {
+            color: #e11d48;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+            padding: 4px;
+        }
+
+        .cat-del-btn:hover {
+            opacity: 1;
+        }
+
+        .cat-add-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+
+        .cat-add-row:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        /* 颜色选择面板 */
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            position: absolute;
+            z-index: 200;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.15s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.selected {
+            border-color: #1e293b;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #1e293b;
+        }
+
+        /* === Toast === */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            background: #1e293b;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 8px;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+            pointer-events: auto;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+        }
+
+        /* 导出弹窗 */
+        .export-modal {
+            width: 90%;
+            max-width: 480px;
+            height: auto;
+            max-height: 80vh;
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .export-textarea {
+            width: 100%;
+            min-height: 200px;
+            max-height: 300px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 13px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            font-family: 'Noto Sans SC', monospace;
+            color: #334155;
+        }
+
+        /* 斜杠命令下拉菜单 */
+        .slash-menu {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            padding: 6px;
+            z-index: 999;
+            min-width: 140px;
+            bottom: 100%;
+            left: 8px;
+            margin-bottom: 4px;
+            animation: slashIn 0.15s ease;
+        }
+
+        @keyframes slashIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slash-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.1s;
+        }
+
+        .slash-item:hover,
+        .slash-item.active {
+            background: #f1f5f9;
+        }
+
+        .slash-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .import-modal {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 24px 24px 0 0;
+                max-height: 85vh;
+                margin: 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+            }
+
+            /* 导入弹窗时 overlay 底部对齐 */
+            #import-modal {
+                align-items: flex-end;
+            }
+
+            .import-textarea {
+                min-height: 120px !important;
+                font-size: 13px;
+            }
+
+            .category-modal {
+                width: 95%;
+                max-height: 80vh;
+            }
+
+            .export-modal {
+                width: 95%;
+                max-height: 80vh;
+            }
+        }
+    </style>
+</head>
+
+<body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
+
+    <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
+        <div class="bg-white rounded-2xl p-5 md:p-6 mb-4 shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex flex-row justify-between items-center relative z-10 gap-4">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span
+                            class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 tracking-wider">Study
+                            Plan</span>
+                        <div id="cloud-status-badge"
+                            class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-slate-50 text-slate-400 border border-slate-100 cursor-pointer"
+                            onclick="changeSyncID()" title="点击修改同步ID">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 离线
+                        </div>
+                    </div>
+
+                    <!-- 标题 + 搜索 -->
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight shrink-0"
+                            id="main-title">12月冲刺</h1>
+                        <div onclick="toggleSearch()"
+                            class="bg-slate-50 border border-slate-200 rounded-full px-5 py-1.5 text-xs text-slate-400 flex items-center gap-2 cursor-pointer hover:bg-slate-100 hover:border-blue-200 transition group shadow-sm active:scale-95">
+                            <i class="fas fa-search text-slate-300 group-hover:text-blue-500 transition"></i>
+                            <span class="font-bold">搜索</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 max-w-xs mt-3">
+                        <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden relative">
+                            <div id="progress-fill"
+                                class="h-full bg-blue-500 rounded-full transition-all duration-700 relative overflow-hidden"
+                                style="width: 0%">
+                                <div class="progress-shimmer"></div>
+                            </div>
+                        </div>
+                        <span id="progress-text" class="text-xs font-bold text-blue-600">0%</span>
+                        <span class="text-[10px] text-slate-400 ml-1" id="progress-label">进度</span>
+                    </div>
+                </div>
+
+                <!-- 倒计时区域变更为可点击设置 -->
+                <div class="countdown-box" onclick="openSettingsModal()" title="点击设置目标日">
+                    <div class="countdown-num" id="days-left">--</div>
+                    <div class="countdown-label" id="days-label">距离考试仅剩</div>
+                </div>
+            </div>
+            <div
+                class="absolute right-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-50 -z-0 pointer-events-none">
+            </div>
+        </div>
+
+        <!-- 统一的导航栏 (集成年份 + 月份) 加上吸顶容器 -->
+        <div class="sticky-header-wrapper">
+            <div class="month-nav" id="unified-nav">
+                <!-- JS 动态生成 -->
+            </div>
+
+            <div class="hidden md:grid grid-cols-7 text-center mb-3 text-xs font-bold text-slate-400 week-header px-2">
+                <div>MON</div>
+                <div>TUE</div>
+                <div>WED</div>
+                <div>THU</div>
+                <div>FRI</div>
+                <div>SAT</div>
+                <div>SUN</div>
+            </div>
+        </div>
+
+        <div class="calendar-wrapper" id="calendar-view"></div>
+
+        <div class="mt-12 text-center pb-8">
+            <div id="sync-btn"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-xs text-slate-500 font-bold shadow-sm hover:shadow-md cursor-pointer mb-3"
+                onclick="changeSyncID()">
+                <i class="fas fa-fingerprint text-blue-500"></i> 同步ID: <span id="sync-id-label"
+                    class="text-slate-800 font-mono">LOCAL</span> <i class="fas fa-pen text-[10px] ml-1 opacity-50"></i>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-200 rounded-full text-[11px] text-blue-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
+                    onclick="openImportModal()">
+                    <i class="fas fa-file-import text-[10px]"></i> 导入
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-[11px] text-slate-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
+                    onclick="openExportModal()">
+                    <i class="fas fa-file-export text-green-500 text-[10px]"></i> 导出
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-[11px] text-slate-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
+                    onclick="openCategoryModal()">
+                    <i class="fas fa-tags text-purple-500 text-[10px]"></i> 分类
+                </div>
+            </div>
+            <p class="text-[10px] text-slate-300 mt-2">ID 通用：自动合并 2025/2026 数据</p>
+        </div>
+    </div>
+
+    <!-- 任务管理面板 (底部弹出) -->
+    <div id="task-manage-modal" class="modal-overlay">
+        <div class="modal-content bottom-sheet-content bg-white">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+                <i class="fas fa-sliders-h text-blue-500"></i> 管理任务
+            </h3>
+
+            <textarea id="edit-task-input" rows="3"
+                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"></textarea>
+
+            <div class="flex gap-3 mb-2">
+                <button onclick="saveEditedTask()"
+                    class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">保存修改</button>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeTaskManage()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="deleteCurrentTask()"
+                    class="flex-1 py-3 bg-red-50 text-red-500 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-100 transition">删除任务</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加任务 Modal -->
+    <div id="add-task-modal" class="modal-overlay">
+        <div class="modal-content bottom-sheet-content bg-white">
+            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+                <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
+            </h3>
+            <input type="text" id="new-task-input"
+                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
+
+            <div class="grid grid-cols-2 gap-3 mb-6" id="type-selector-container">
+                <!-- JS 动态生成分类 -->
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="window.closeAddTaskModal()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="confirmAddTask()"
+                    class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索 Modal -->
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content search-modal bg-white flex flex-col">
+            <div class="search-header">
+                <i class="fas fa-search text-slate-400"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记或任务..."
+                    oninput="handleSearch(this.value)">
+                <button onclick="toggleSearch()"
+                    class="text-slate-400 hover:text-slate-600 text-sm font-bold">取消</button>
+            </div>
+            <div id="search-results" class="search-results">
+                <div class="empty-state">输入关键词开始搜索...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID 设置 Modal -->
+    <div id="id-modal" class="modal-overlay">
+        <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
+            <h3 class="font-bold text-lg mb-4 text-slate-800">设置同步 ID</h3>
+            <p class="text-xs text-slate-400 mb-4">设置相同的 ID 即可在手机和电脑间同步所有数据。</p>
+            <input type="text" id="sync-id-input"
+                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono text-center tracking-wider"
+                placeholder="输入 ID..." onkeydown="if(event.key === 'Enter') saveSyncID()">
+            <div class="flex gap-3">
+                <button id="id-cancel-btn" onclick="window.closeIdModal()"
+                    class="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="saveSyncID()"
+                    class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 目标设置 Modal (新增) -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content id-modal-content bg-white flex flex-col justify-center p-6">
+            <h3 class="font-bold text-lg mb-4 text-slate-800">设置目标日</h3>
+            <div class="mb-3">
+                <label class="block text-xs text-slate-500 mb-1 font-bold">目标名称 (如: 距离考研仅剩)</label>
+                <input type="text" id="target-name-input"
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    placeholder="距离考试仅剩">
+            </div>
+            <div class="mb-5">
+                <label class="block text-xs text-slate-500 mb-1 font-bold">目标日期</label>
+                <input type="date" id="target-date-input"
+                    class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.closeSettingsModal()"
+                    class="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="saveSettings()"
+                    class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入计划 Modal -->
+    <div id="import-modal" class="modal-overlay">
+        <div class="modal-content import-modal bg-white">
+            <div class="import-header">
+                <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2 mb-1">
+                    <i class="fas fa-file-import text-blue-500"></i> 快捷导入学习计划
+                </h3>
+                <p class="text-xs text-slate-400 mb-5">每行一个任务，用日期行分隔</p>
+            </div>
+            <div class="import-body">
+                <!-- 分类标签条 -->
+                <div id="import-cat-chips" class="flex flex-wrap gap-2 mb-4"></div>
+
+                <textarea id="import-textarea" class="import-textarea"
+                    placeholder="示例：&#10;3月1日&#10;[英语]背诵单词50个&#10;[政治]马原原理复习&#10;练习手绘线稿&#10;&#10;3月2日&#10;[337]工业设计史复习&#10;&#10;💡 日期支持：3月1日、3/1、3-1"></textarea>
+
+                <div class="conflict-toggle">
+                    <div id="conflict-toggle-switch" class="toggle-switch" onclick="this.classList.toggle('off')"></div>
+                    <span>保留已有任务（关闭则替换当天全部任务）</span>
+                </div>
+            </div>
+            <div class="import-footer flex gap-3">
+                <button onclick="closeImportModal()"
+                    class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+                <button onclick="directImport()"
+                    class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-file-import"></i> 导入
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出计划 Modal -->
+    <div id="export-modal" class="modal-overlay">
+        <div class="modal-content export-modal bg-white">
+            <h3 class="font-bold text-lg mb-1 text-slate-800 flex items-center gap-2">
+                <i class="fas fa-file-export text-green-500"></i> 导出学习计划
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">复制以下内容，可以分享给同学或备份</p>
+            <textarea id="export-textarea" class="export-textarea" readonly></textarea>
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeExportModal()"
+                    class="flex-1 py-2.5 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">关闭</button>
+                <button onclick="copyExport()"
+                    class="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-green-200 hover:bg-green-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类管理 Modal -->
+    <div id="category-modal" class="modal-overlay">
+        <div class="modal-content category-modal bg-white">
+            <h3 class="font-bold text-lg mb-1 text-slate-800 flex items-center gap-2">
+                <i class="fas fa-tags text-purple-500"></i> 管理任务分类
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">自定义任务分类，会自动同步到云端</p>
+            <div class="cat-list" id="cat-list">
+                <!-- JS 动态生成 -->
+            </div>
+            <div class="cat-add-row" onclick="addCategory()">
+                <i class="fas fa-plus"></i> 添加分类
+            </div>
+            <div class="flex gap-3 mt-5">
+                <button onclick="closeCategoryModal()"
+                    class="flex-1 py-2.5 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">关闭</button>
+                <button onclick="saveCategorySettings()"
+                    class="flex-1 py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-200 hover:bg-purple-700 transition">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- 图片放大 Modal -->
+    <div id="img-zoom-modal" class="modal-overlay" onclick="this.classList.remove('open')">
+        <img id="zoomed-img" src="" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- 笔记 Modal -->
+    <div id="note-modal" class="modal-overlay note-mode">
+        <div class="modal-content note-mode">
+            <div class="md:hidden w-full bg-white pt-2 pb-1 shrink-0" onclick="closeModal()">
+                <div class="sheet-handle"></div>
+            </div>
+
+            <div
+                class="modal-header bg-white px-5 py-3 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-1 h-5 bg-blue-500 rounded-full"></span>
+                    <h3 class="font-bold text-slate-800 text-lg">📝 <span id="modal-date-title"></span></h3>
+                    <span id="mode-badge"
+                        class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">查看模式</span>
+                    <span id="word-count-badge"
+                        class="text-[10px] px-2 py-0.5 rounded bg-slate-50 text-slate-400 font-medium">0 字</span>
+                </div>
+                <button onclick="closeModal()"
+                    class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
+            </div>
+
+            <div class="editor-scroller">
+                <div id="note-editor" contenteditable="false" class="lh-normal" placeholder="点击下方“编辑”开始记录..."></div>
+            </div>
+
+            <div
+                class="modal-footer bg-white px-4 py-3 border-t border-slate-100 flex justify-between items-center shrink-0 safe-area-bottom">
+                <div id="editor-tools"
+                    class="flex gap-1 opacity-0 pointer-events-none transition-opacity duration-200 items-center overflow-x-auto"
+                    style="scrollbar-width:none; -webkit-overflow-scrolling:touch;">
+                    <!-- 基础格式 -->
+                    <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i
+                            class="fas fa-bold"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i
+                            class="fas fa-italic"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('underline')" title="下划线"><i
+                            class="fas fa-underline"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="删除线"><i
+                            class="fas fa-strikethrough"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 颜色 -->
+                    <button class="toolbar-btn relative" title="文字颜色"
+                        onclick="document.getElementById('text-color-input').click()"><i class="fas fa-font"
+                            style="color:#e11d48"></i></button>
+                    <input id="text-color-input" type="color" value="#e11d48" class="absolute w-0 h-0 opacity-0"
+                        oninput="execCmd('foreColor', this.value)">
+                    <button class="toolbar-btn" onclick="toggleHighlight()" title="高亮"><i
+                            class="fas fa-highlighter text-yellow-500"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 列表 & 任务 -->
+                    <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i
+                            class="fas fa-list-ul"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i
+                            class="fas fa-list-ol"></i></button>
+                    <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i
+                            class="far fa-check-square"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 对齐 & 缩进 -->
+                    <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="左对齐"><i
+                            class="fas fa-align-left"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="居中"><i
+                            class="fas fa-align-center"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="右对齐"><i
+                            class="fas fa-align-right"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('outdent')" title="减少缩进"><i
+                            class="fas fa-outdent"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('indent')" title="增加缩进"><i
+                            class="fas fa-indent"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <!-- 链接 & 行距 -->
+                    <button class="toolbar-btn" onclick="insertLink()" title="插入链接"><i class="fas fa-link"></i></button>
+                    <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i
+                            class="fas fa-text-height"></i></button>
+                    <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i
+                            class="fas fa-eraser"></i></button>
+                </div>
+
+                <div class="flex gap-3 shrink-0 ml-2">
+                    <button id="edit-btn" onclick="toggleEditMode()"
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-pen"></i> 编辑
+                    </button>
+                    <button id="save-btn" onclick="saveNote()"
+                        class="hidden bg-slate-900 hover:bg-black text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-check"></i> 完成
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= 配置区 =================
+        const DEFAULT_SYNC_ID = "default";
+        const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
+
+        // 2026 节假日 (补充完整版)
+        const HOLIDAYS_2026 = {
+            "1-1": "元旦", "1-2": "假期", "1-3": "假期",
+            "2-15": "假期", "2-16": "除夕", "2-17": "春节", "2-18": "初二", "2-19": "初三", "2-20": "初四", "2-21": "初五", "2-22": "初六", "2-23": "初七",
+            "4-5": "清明",
+            "5-1": "劳动节", "5-2": "假期", "5-3": "假期", "5-4": "假期", "5-5": "假期",
+            "6-19": "端午", "6-20": "假期", "6-21": "假期",
+            "9-25": "中秋", "9-26": "假期", "9-27": "假期",
+            "10-1": "国庆", "10-2": "假期", "10-3": "假期", "10-4": "假期", "10-5": "假期", "10-6": "假期", "10-7": "假期",
+            "12-19": "考研Day1", "12-20": "考研Day2"
+        };
+
+        // 2025 静态数据 (User Provided)
+        const CALENDAR_DATA_2025 = [
+            { day: 1 }, { day: 2 },
+            { day: 3, tasks: [{ id: "t3_1", text: "肖八1-3套错题二刷", type: "t-pol" }, { id: "t3_2", text: "工业设计史: 名词解释(流派)", type: "t-the" }, { id: "t3_3", text: "整理快题万能模板", type: "t-art" }] },
+            { day: 4, tasks: [{ id: "t4_1", text: "肖八4-6套选择题", type: "t-pol" }, { id: "t4_2", text: "英语写作模板(图表)", type: "t-eng" }, { id: "t4_3", text: "工业设计史: 填空选择突击", type: "t-the" }] },
+            { day: 5, tasks: [{ id: "t5_1", text: "肖八7-8套(可选)", type: "t-pol" }, { id: "t5_2", text: "英语写作模板(书信)", type: "t-eng" }, { id: "t5_3", text: "晚: 局部线稿x3", type: "t-art" }] },
+            { day: 6, tasks: [{ id: "t6_1", text: "手绘3小时模拟", type: "t-art" }, { id: "t6_2", text: "肖八全部错题复盘", type: "t-pol" }] },
+            { day: 7, tasks: [{ id: "t7_1", text: "工业设计史模考", type: "t-the" }, { id: "t7_2", text: "下午: 英语全真模拟", type: "t-eng" }] },
+            { day: 8, tasks: [{ id: "t8_1", text: "英语作文模板熟背", type: "t-eng" }, { id: "t8_2", text: "手绘复盘/改图", type: "t-art" }] },
+            { day: 9, tasks: [{ id: "t9_1", text: "工业设计史核心名词突击", type: "t-the" }, { id: "t9_2", text: "马原原理回顾", type: "t-pol" }] },
+            { day: 10, note: "肖四到货!", special: true, tasks: [{ id: "t10_1", text: "肖四卷1+卷2选择题", type: "t-pol" }, { id: "t10_2", text: "背肖四卷1大题(死背)", type: "t-pol" }] },
+            { day: 11, tasks: [{ id: "t11_1", text: "肖四卷3+卷4选择题", type: "t-pol" }, { id: "t11_2", text: "背肖四卷2大题", type: "t-pol" }] },
+            { day: 12, tasks: [{ id: "t12_1", text: "背肖四卷3大题", type: "t-pol" }, { id: "t12_2", text: "近3年阅读真题手感", type: "t-eng" }] },
+            { day: 13, tasks: [{ id: "t13_1", text: "背肖四卷4大题", type: "t-pol" }, { id: "t13_2", text: "二刷肖四全部选择题", type: "t-pol" }] },
+            { day: 14, tasks: [{ id: "t14_1", text: "最后一张完整快题", type: "t-art" }, { id: "t14_2", text: "工业设计史查漏补缺", type: "t-the" }] },
+            { day: 15, tasks: [{ id: "t15_1", text: "肖四大题第二轮", type: "t-pol" }, { id: "t15_2", text: "打印入场凭证", type: "t-pol" }] },
+            { day: 16, note: "建议请假", tasks: [{ id: "t16_1", text: "政治错题+时政死角", type: "t-pol" }, { id: "t16_2", text: "工业设计史死角扫除", type: "t-the" }] },
+            { day: 17, note: "建议请假", tasks: [{ id: "t17_1", text: "作文默写最后一遍", type: "t-eng" }, { id: "t17_2", text: "看优秀案例", type: "t-art" }] },
+            { day: 18, note: "建议请假", tasks: [{ id: "t18_1", text: "肖四滚瓜烂熟", type: "t-pol" }, { id: "t18_2", text: "全流程脑上演练", type: "t-art" }] },
+            { day: 19, tasks: [{ id: "t19_1", text: "踩点 / 酒店确认", type: "t-pol" }, { id: "t19_2", text: "22:00 休息", type: "t-pol" }] },
+            { day: 20, note: "Day 1", special: true, tasks: [{ id: "t20_1", text: "上午: 政治", type: "t-pol" }, { id: "t20_2", text: "下午: 英语", type: "t-eng" }] },
+            { day: 21, note: "Day 2", special: true, tasks: [{ id: "t21_1", text: "上午: 工业设计史", type: "t-the" }, { id: "t21_2", text: "下午: 手绘", type: "t-art" }] }
+        ];
+
+        // 2026 预设学习计划 (自动注入)
+        const PLAN_2026_INIT = {
+            "2026-1-22": [
+                { id: "p1", text: "加试英语：背诵20个 Material Design 名词", type: "t-study" },
+                { id: "p2", text: "构成：手绘复健(平行线/同心圆)", type: "t-work" },
+                { id: "p3", text: "作品集：整理 Escape_App PRD", type: "t-work" }
+            ],
+            "2026-1-23": [
+                { id: "p4", text: "加试英语：翻译 Apple HIG 手势描述", type: "t-study" },
+                { id: "p5", text: "复试快题：临摹3个智能硬件线稿", type: "t-work" }
+            ],
+            "2026-1-24": [
+                { id: "p6", text: "上午：模拟构成基础(黑白-秩序与混沌)", type: "t-work" },
+                { id: "p7", text: "下午：Baichuan B端界面重绘", type: "t-work" },
+                { id: "p8", text: "晚上：复盘画作", type: "t-study" }
+            ],
+            "2026-1-25": [
+                { id: "p9", text: "上午：模拟产品快题(老年人辅助)", type: "t-work" },
+                { id: "p10", text: "下午：Escape_App User Flow (英文标注)", type: "t-work" },
+                { id: "p11", text: "晚上：整理下周计划", type: "t-life" }
+            ],
+            "2026-1-26": [
+                { id: "p12", text: "英语：积累 UX 心理学词汇", type: "t-study" },
+                { id: "p13", text: "构成：画12色相环", type: "t-work" }
+            ],
+            "2026-1-27": [
+                { id: "p14", text: "英语：Baichuan 项目背景英文介绍", type: "t-study" },
+                { id: "p15", text: "作品集：优化信息架构图", type: "t-work" }
+            ],
+            "2026-1-28": [
+                { id: "p16", text: "构成：命题练习“速度感”", type: "t-work" },
+                { id: "p17", text: "作品集：Escape_App 痛点分析排版", type: "t-work" }
+            ],
+            "2026-1-29": [
+                { id: "p18", text: "英语：阅读 AI + Design 短文", type: "t-study" },
+                { id: "p19", text: "快题：练习画爆炸图", type: "t-work" }
+            ],
+            "2026-1-30": [
+                { id: "p20", text: "复盘：整理错题/生词", type: "t-study" },
+                { id: "p21", text: "作品集：收尾未完成页面", type: "t-work" }
+            ],
+            "2026-1-31": [
+                { id: "p22", text: "上午：模拟构成基础(色彩-春夏秋冬)", type: "t-work" },
+                { id: "p23", text: "下午：作品集定稿冲刺", type: "t-work" }
+            ],
+            "2026-2-1": [
+                { id: "p24", text: "上午：模拟专业英语(论文互译)", type: "t-study" },
+                { id: "p25", text: "下午：作品集排版(InDesign/Figma)", type: "t-work" }
+            ],
+            "2026-2-3": [{ id: "p26", text: "作品集导出 PDF，检查错别字", type: "t-work" }],
+            "2026-2-5": [{ id: "p27", text: "准备面试常问问题(英文)", type: "t-study" }],
+            "2026-2-7": [
+                { id: "p28", text: "全真模拟：上午画快题", type: "t-urgent" },
+                { id: "p29", text: "全真模拟：下午英语阅读", type: "t-urgent" },
+                { id: "p30", text: "全真模拟：晚上背口语", type: "t-urgent" }
+            ],
+            "2026-2-8": [{ id: "p31", text: "整理：查漏补缺/打印准考证/工具包", type: "t-life" }],
+            "2026-2-9": [{ id: "p32", text: "浏览广工导师研究方向", type: "t-study" }],
+            "2026-2-10": [{ id: "p33", text: "看1-2篇相关论文(面试谈资)", type: "t-study" }],
+            "2026-2-12": [{ id: "p34", text: "听设计类播客 (Design Matters)", type: "t-study" }],
+            "2026-2-17": [{ id: "p35", text: "利用工作间隙看英文设计文章", type: "t-study" }],
+            "2026-2-21": [{ id: "p36", text: "手绘：画一张完整构成/产品快题", type: "t-work" }],
+            "2026-2-23": [{ id: "p37", text: "心态建设：准备查分证件号", type: "t-life" }],
+            "2026-2-24": [{ id: "p38", text: "🎯 出分日/决断日", type: "t-urgent" }]
+        };
+
+        // 自动填充 2.2 - 2.6 的每日重复任务
+        for (let d = 2; d <= 6; d++) {
+            const k = `2026-2-${d}`;
+            if (!PLAN_2026_INIT[k]) PLAN_2026_INIT[k] = [];
+            PLAN_2026_INIT[k].unshift(
+                { id: `rep1_${d}`, text: "每日口语：背诵自我介绍(20min)", type: "t-study" },
+                { id: `rep2_${d}`, text: "手绘保鲜：睡前小稿(30min)", type: "t-work" }
+            );
+        }
+
+        /* PWA Config */
+        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconUrl = URL.createObjectURL(new Blob([iconSVG], { type: 'image/svg+xml' }));
+        document.getElementById('apple-icon').href = iconUrl;
+
+        const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
+        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+
+        // ================= 全局状态 =================
+        let CURRENT_YEAR = 2025; // 默认为2025模式
+        let currentMonth2026 = new Date().getMonth();
+        let supabaseClient = null, isCloud = false;
+
+        // 统一的大状态对象，包含所有年份和设置
+        // 默认分类列表
+        const DEFAULT_CATEGORIES = [
+            { name: '手绘', type: 'cat-0', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+            { name: '政治', type: 'cat-1', color: '#be123c', bg: '#fff1f2', border: '#fecdd3' },
+            { name: '英语', type: 'cat-2', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+            { name: '337', type: 'cat-3', color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
+            { name: '学习', type: 'cat-4', color: '#7e22ce', bg: '#faf5ff', border: '#e9d5ff' },
+            { name: '生活', type: 'cat-5', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+            { name: '紧急', type: 'cat-6', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+        ];
+
+        let fullState = {
+            "2025": { done: [], notes: {}, customTasks: {} },
+            "2026": { done: [], notes: {}, customTasks: {} },
+            "settings": { targetDate: "2026-12-19", targetName: "距离考研仅剩", categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)) }
+        };
+
+        // 获取当前分类列表
+        function getCategories() {
+            return fullState.settings?.categories || DEFAULT_CATEGORIES;
+        }
+
+        // 通过 type 获取分类颜色信息，兼容老的硬编码 t-pol 等
+        function getCatStyle(type) {
+            const cats = getCategories();
+            const cat = cats.find(c => c.type === type);
+            if (cat) return cat;
+            // 兼容旧数据中的颜色类
+            const legacyMap = {
+                't-pol': { color: '#be123c', bg: '#fff1f2', border: '#fecdd3' },
+                't-eng': { color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+                't-art': { color: '#86198f', bg: '#fdf4ff', border: '#e9d5ff' },
+                't-the': { color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
+                't-work': { color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+                't-study': { color: '#7e22ce', bg: '#faf5ff', border: '#e9d5ff' },
+                't-life': { color: '#047857', bg: '#f0fdf4', border: '#bbf7d0' },
+                't-urgent': { color: '#be123c', bg: '#fef2f2', border: '#fecaca' },
+            };
+            return legacyMap[type] || { color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' };
+        }
+
+        // 指向当前年份数据的引用，简化代码
+        let currentState = fullState["2025"];
+
+        let MY_SYNC_ID = localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
+        let lineHeightIdx = parseInt(localStorage.getItem('study_lh_idx')) || 1;
+        const lhClasses = ['lh-tight', 'lh-normal', 'lh-loose'];
+
+
+        // ================= 初始化 =================
+        async function init() {
+            const now = new Date();
+            // 默认判断：如果是 2026 年，或者已经是 2025 年底但不是 demo 模式
+            if (now.getFullYear() === 2026) {
+                CURRENT_YEAR = 2026;
+                currentMonth2026 = now.getMonth();
+            } else if (now.getFullYear() === 2025 && now.getMonth() === 11) {
+                // 如果是 2025 年 12 月
+                CURRENT_YEAR = 2025;
+            } else {
+                // 回退到上次保存的年份，如果没有则默认 2025
+                const lastYear = parseInt(localStorage.getItem('study_last_year'));
+                if (lastYear) CURRENT_YEAR = lastYear;
+            }
+
+            updateSyncLabel();
+            applyLineHeight();
+            initEditorEvents();
+
+            // 首次访问：强制设置同步 ID
+            if (!localStorage.getItem('study_sync_id')) {
+                document.getElementById('id-cancel-btn').style.display = 'none';
+                document.getElementById('sync-id-input').value = '';
+                document.getElementById('id-modal').classList.add('open');
+                setTimeout(() => document.getElementById('sync-id-input').focus(), 200);
+            }
+
+            if (SUPABASE_URL && SUPABASE_KEY) {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    isCloud = true; updateStatus('online'); await loadCloud();
+                } catch (e) { console.error(e); loadLocal(); }
+            } else loadLocal();
+
+            // Render initial UI based on loaded year
+            switchYear(CURRENT_YEAR);
+
+            // 点击遮罩关闭 (Click outside to close)
+            // 使用 mousedown+mouseup 防止选中文字时鼠标滑出导致误关
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                let mouseDownOnOverlay = false;
+                overlay.addEventListener('mousedown', e => {
+                    mouseDownOnOverlay = (e.target === overlay);
+                });
+                overlay.addEventListener('mouseup', e => {
+                    if (mouseDownOnOverlay && e.target === overlay) {
+                        const id = overlay.id;
+                        if (id === 'note-modal') window.closeModal();
+                        else if (id === 'add-task-modal') window.closeAddTaskModal();
+                        else if (id === 'task-manage-modal') window.closeTaskManage();
+                        else if (id === 'search-modal') window.toggleSearch();
+                        else if (id === 'id-modal') window.closeIdModal();
+                        else if (id === 'settings-modal') window.closeSettingsModal();
+                        else if (id === 'import-modal') window.closeImportModal();
+                        else if (id === 'export-modal') window.closeExportModal();
+                        else if (id === 'category-modal') window.closeCategoryModal();
+                        else overlay.classList.remove('open');
+                    }
+                    mouseDownOnOverlay = false;
+                });
+            });
+
+            // 延时滚动到“今天”
+            setTimeout(() => {
+                const todayEl = document.querySelector('.is-today');
+                if (todayEl) {
+                    todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 800); // 稍微延时等待渲染完成
+        }
+
+        // ================= 核心逻辑：年份切换 =================
+        window.switchYear = (year) => {
+            CURRENT_YEAR = year;
+            localStorage.setItem('study_last_year', year);
+
+            // 切换状态引用
+            currentState = fullState[year.toString()];
+
+            // 渲染导航栏 (包含年份切换按钮)
+            renderNav();
+
+            if (year === 2025) {
+                document.getElementById('main-title').innerText = "12月冲刺";
+                render2025();
+            } else {
+                document.getElementById('main-title').innerText = `2026年 ${currentMonth2026 + 1}月`;
+                render2026(currentMonth2026);
+            }
+            updateCountdown();
+            refresh(); // 刷新选中状态
+        }
+
+        // ================= 渲染：统一导航栏 (集成年份切换) =================
+        function renderNav() {
+            const nav = document.getElementById('unified-nav');
+            let html = '';
+
+            // 1. 年份切换胶囊
+            html += `
+                <div class="nav-pill year-pill ${CURRENT_YEAR === 2025 ? 'active' : ''}" onclick="switchYear(2025)">
+                    2025
+                </div>
+                <div class="nav-pill year-pill ${CURRENT_YEAR === 2026 ? 'active' : ''}" onclick="switchYear(2026)">
+                    2026
+                </div>
+                <div class="nav-separator"></div>
+            `;
+
+            // 2. 月份列表 (仅2026显示)
+            if (CURRENT_YEAR === 2026) {
+                const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                html += months.map((m, i) =>
+                    `<div class="nav-pill ${i === currentMonth2026 ? 'active' : ''}" onclick="currentMonth2026=${i};switchYear(2026)">${m}</div>`
+                ).join('');
+            } else {
+                html += `<div class="nav-pill active" style="opacity:0.5; pointer-events:none;">冲刺月</div>`;
+            }
+
+            nav.innerHTML = html;
+        }
+
+        // ================= 渲染：2025 冲刺 =================
+        function render2025() {
+            const root = document.getElementById('calendar-view'); root.innerHTML = '';
+
+            // 补全到31天
+            for (let i = 1; i <= 31; i++) {
+                // 查找静态数据
+                let d = CALENDAR_DATA_2025.find(item => item.day === i);
+
+                // 默认构造
+                const isPast = d ? (d.day < 4) : (i < 4); // Demo day
+                const isToday = d ? (d.day === 4) : (i === 4);
+
+                const card = document.createElement('div');
+                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''}`;
+                if (d && d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
+                card.id = `day-${i}`;
+
+                const key = `d${i}`; // 2025使用简单的 d1, d2 key
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
+                let label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
+                    (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
+                    (d && d.note ? `<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>` : '');
+
+                const hasNote = currentState.notes[key] ? 'has-note' : '';
+
+                header.innerHTML = `<div>${label}</div> 
+                    <div class="flex gap-2 ${hasNote}">
+                        <i class="fas fa-plus action-btn text-slate-400" onclick="window.openAddTaskModal('${key}')"></i>
+                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="window.openNote('${key}')" id="icon-${key}"></i>
+                    </div>`;
+                card.appendChild(header);
+
+                // Tasks
+                const con = document.createElement('div'); con.className = 'task-container w-full';
+                if (d && d.tasks) d.tasks.forEach(t => con.appendChild(createEl(t, false, key)));
+                const custom = currentState.customTasks[key] || [];
+                custom.forEach(t => con.appendChild(createEl(t, true, key)));
+
+                card.appendChild(con); root.appendChild(card);
+            }
+        }
+
+        // ================= 渲染：2026 全年 =================
+        function render2026(monthIdx) {
+            const root = document.getElementById('calendar-view'); root.innerHTML = '';
+            // Update title dynamically when rendering
+            document.getElementById('main-title').innerText = `2026年 ${monthIdx + 1}月`;
+
+            const firstDay = new Date(2026, monthIdx, 1);
+            const daysInMonth = new Date(2026, monthIdx + 1, 0).getDate();
+            const today = new Date();
+            const isCurrMonth = today.getFullYear() === 2026 && today.getMonth() === monthIdx;
+
+            // 计算该月第一天是周几 (0=Sun, 1=Mon...6=Sat)
+            const startOffset = (firstDay.getDay() + 6) % 7;
+
+            // 填充空白格
+            for (let j = 0; j < startOffset; j++) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-slot';
+                root.appendChild(empty);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateKey = `2026-${monthIdx + 1}-${i}`;
+                const holiday = HOLIDAYS_2026[`${monthIdx + 1}-${i}`];
+
+                const isPast = isCurrMonth ? (i < today.getDate()) : (new Date() > new Date(2026, monthIdx, i));
+                const isToday = isCurrMonth && i === today.getDate();
+
+                const card = document.createElement('div');
+                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''}`;
+                if (isToday) card.classList.add('is-today');
+
+                const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
+                    (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
+                    (holiday ? `<span class="holiday-tag">${holiday}</span>` : '');
+
+                const hasNote = currentState.notes[dateKey] ? 'has-note' : '';
+
+                const header = document.createElement('div');
+                header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
+                header.innerHTML = `<div>${label}</div> 
+                    <div class="flex gap-2 ${hasNote}">
+                        <i class="fas fa-plus action-btn text-slate-400" onclick="window.openAddTaskModal('${dateKey}')"></i>
+                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="window.openNote('${dateKey}')" id="icon-${dateKey}"></i>
+                    </div>`;
+                card.appendChild(header);
+
+                const con = document.createElement('div'); con.className = 'task-container w-full';
+                const tasks = currentState.customTasks[dateKey] || [];
+                tasks.forEach(t => con.appendChild(createEl(t, true, dateKey)));
+
+                card.appendChild(con); root.appendChild(card);
+            }
+        }
+
+        // ================= 核心修改：左勾选，右详情 =================
+        function createEl(t, isCustom, key) {
+            const el = document.createElement('div');
+            el.className = 'task-item';
+            el.dataset.id = t.id;
+            // 动态样式：优先使用自定义分类颜色，兼容老的 CSS class
+            const style = getCatStyle(t.type);
+            el.style.color = style.color;
+            el.style.backgroundColor = style.bg;
+            el.style.borderColor = style.border;
+
+            // 左侧打勾区
+            const checkZone = document.createElement('div');
+            checkZone.className = 'task-check-zone';
+            checkZone.innerHTML = `<div class="task-checkbox"></div>`;
+            checkZone.onclick = (e) => {
+                e.stopPropagation();
+                window.toggle(t.id);
+            };
+
+            // 右侧内容区
+            const contentZone = document.createElement('div');
+            contentZone.className = 'task-content-zone';
+            contentZone.innerText = t.text;
+            contentZone.onclick = (e) => {
+                if (!isCustom) return;
+                window.openTaskManage(key, t.id, t.text);
+            };
+
+            el.appendChild(checkZone);
+            el.appendChild(contentZone);
+            return el;
+        }
+
+        // 任务管理面板逻辑
+        let editingTask = { key: null, id: null };
+        const manageModal = document.getElementById('task-manage-modal');
+        const editInput = document.getElementById('edit-task-input');
+
+        window.openTaskManage = (key, id, text) => {
+            editingTask = { key, id };
+            editInput.value = text;
+            manageModal.classList.add('open');
+            setTimeout(() => editInput.focus(), 100);
+        };
+
+        window.closeTaskManage = () => {
+            manageModal.classList.remove('open');
+            editingTask = { key: null, id: null };
+        };
+
+        window.saveEditedTask = () => {
+            const newText = editInput.value.trim();
+            if (newText && editingTask.id) {
+                const tasks = currentState.customTasks[editingTask.key];
+                const task = tasks.find(t => t.id === editingTask.id);
+                if (task) {
+                    task.text = newText;
+                    if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                    save();
+                }
+            }
+            window.closeTaskManage();
+        };
+
+        window.deleteCurrentTask = () => {
+            if (confirm("确定删除任务？")) {
+                const { key, id } = editingTask;
+                currentState.customTasks[key] = currentState.customTasks[key].filter(t => t.id !== id);
+                if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                save();
+                window.closeTaskManage();
+            }
+        };
+
+        // ================= 数据存取 (统一ID逻辑) =================
+        function ensureStateStructure(s) {
+            if (!s) return { done: [], notes: {}, customTasks: {} };
+            if (!s.done) s.done = [];
+            if (!s.notes) s.notes = {};
+            if (!s.customTasks) s.customTasks = {};
+            return s;
+        }
+
+        async function save() {
+            updateProgress();
+            // 保存整个 fullState 到 study_v2 (覆盖更新，保持兼容)
+            localStorage.setItem('study_v2', JSON.stringify(fullState));
+            if (isCloud) {
+                updateStatus('syncing');
+                // 使用唯一的 ID 存储所有年份数据
+                await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: fullState });
+                updateStatus('online');
+            }
+        }
+
+        // 核心：注入初始计划
+        function inject2026Plan() {
+            // 如果 2026 任务为空，或者部分为空，我们尝试合并
+            // 这里我们采用“增量合并”策略：如果当天没有任务，或者任务不重复，就添加
+            const existing = fullState["2026"].customTasks;
+
+            Object.keys(PLAN_2026_INIT).forEach(dateKey => {
+                if (!existing[dateKey]) existing[dateKey] = [];
+
+                PLAN_2026_INIT[dateKey].forEach(initTask => {
+                    // 检查是否已存在相同文本的任务
+                    const exists = existing[dateKey].some(t => t.text === initTask.text);
+                    if (!exists) {
+                        existing[dateKey].push(initTask);
+                    }
+                });
+            });
+        }
+
+        async function loadCloud() {
+            updateStatus('syncing');
+            // 只读取一个 ID
+            const { data } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
+
+            if (data?.data) {
+                const raw = data.data;
+                // 数据迁移逻辑：如果读取到的数据没有 "2025" 键，说明是旧数据
+                if (!raw["2025"] && !raw["2026"]) {
+                    fullState["2025"] = ensureStateStructure(raw);
+                    fullState["2026"] = { done: [], notes: {}, customTasks: {} };
+                } else {
+                    if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
+                    if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                    if (raw["settings"]) fullState.settings = raw["settings"]; // 加载云端设置
+                }
+            } else {
+                loadLocal(); // Fallback
+            }
+
+            // 确保设置存在
+            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
+            // 确保分类存在，如果云端没有，则使用默认
+            if (!fullState.settings.categories || fullState.settings.categories.length === 0) {
+                fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+            }
+
+
+            inject2026Plan(); // 注入计划
+            currentState = fullState[CURRENT_YEAR.toString()];
+            refresh();
+            window.switchYear(CURRENT_YEAR); // Re-render
+            updateStatus('online');
+        }
+
+        function loadLocal() {
+            // 读取本地 study_v2
+            const s = localStorage.getItem('study_v2');
+            if (s) {
+                const raw = JSON.parse(s);
+                // 检测是否已经是新结构
+                if (raw["2025"] || raw["2026"]) {
+                    if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
+                    if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                    if (raw["settings"]) fullState.settings = raw["settings"];
+                } else {
+                    fullState["2025"] = ensureStateStructure(raw);
+                }
+            }
+
+            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
+            // 确保分类存在，如果本地没有，则使用默认
+            if (!fullState.settings.categories || fullState.settings.categories.length === 0) {
+                fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+            }
+
+            inject2026Plan(); // 注入计划
+            currentState = fullState[CURRENT_YEAR.toString()];
+            refresh();
+            window.switchYear(CURRENT_YEAR);
+        }
+
+        window.toggle = id => { const i = currentState.done.indexOf(id); i > -1 ? currentState.done.splice(i, 1) : currentState.done.push(id); refresh(); save(); };
+
+        function refresh() {
+            document.querySelectorAll('.task-item').forEach(el => currentState.done.includes(el.dataset.id) ? el.classList.add('done') : el.classList.remove('done'));
+            // 更新笔记图标颜色
+            const keys = Object.keys(currentState.notes);
+            keys.forEach(k => {
+                const icon = document.getElementById(`icon-${k}`);
+                if (icon) { icon.classList.add('text-orange-400', 'opacity-100'); icon.classList.remove('text-slate-400'); }
+            });
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.task-item').length;
+            let done = 0;
+            document.querySelectorAll('.task-item').forEach(el => { if (el.classList.contains('done')) done++; });
+            const p = total ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progress-text').innerText = p + '%';
+            document.getElementById('progress-fill').style.width = p + '%';
+        }
+
+        function updateSyncLabel() {
+            const display = MY_SYNC_ID === DEFAULT_SYNC_ID ? 'LOCAL' : MY_SYNC_ID;
+            const el = document.getElementById('sync-id-label');
+            if (el) el.innerText = display;
+        }
+
+        // ================= 自定义倒计时逻辑 =================
+        function updateCountdown() {
+            const targetStr = fullState.settings?.targetDate || "2026-12-19";
+            const nameStr = fullState.settings?.targetName || "距离考研仅剩";
+
+            const target = new Date(targetStr + "T00:00:00").getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+
+            document.getElementById('days-left').innerText = Math.max(0, Math.ceil(diff / 86400000));
+            document.getElementById('days-label').innerText = nameStr;
+        }
+
+        window.openSettingsModal = () => {
+            document.getElementById('target-name-input').value = fullState.settings?.targetName || "距离考研仅剩";
+            document.getElementById('target-date-input').value = fullState.settings?.targetDate || "2026-12-19";
+            document.getElementById('settings-modal').classList.add('open');
+        };
+
+        window.closeSettingsModal = () => {
+            document.getElementById('settings-modal').classList.remove('open');
+        };
+
+        window.saveSettings = () => {
+            const name = document.getElementById('target-name-input').value.trim() || "距离目标仅剩";
+            const date = document.getElementById('target-date-input').value || "2026-12-19";
+
+            if (!fullState.settings) fullState.settings = {};
+            fullState.settings.targetName = name;
+            fullState.settings.targetDate = date;
+
+            updateCountdown();
+            save();
+            window.closeSettingsModal();
+        };
+
+        window.closeAddTaskModal = () => {
+            document.getElementById('add-task-modal').classList.remove('open');
+        };
+
+        // ================= 任务添加 =================
+        let addingKey = null;
+        let selectedType = 't-work'; // 默认
+
+        window.openAddTaskModal = (key) => {
+            addingKey = key;
+            const modal = document.getElementById('add-task-modal');
+            const container = document.getElementById('type-selector-container');
+
+            // 使用动态分类列表
+            const cats = getCategories();
+            container.innerHTML = cats.map(c =>
+                `<div class="type-option" data-val="${c.type}" onclick="window.selectType('${c.type}', this)" style="color:${c.color};background:${c.bg};border-color:${c.border}">${c.name}</div>`
+            ).join('');
+            if (cats.length > 0) window.selectType(cats[0].type, container.children[0]);
+
+            modal.classList.add('open');
+            document.getElementById('new-task-input').value = '';
+            setTimeout(() => document.getElementById('new-task-input').focus(), 100);
+        };
+
+        window.selectType = (type, el) => {
+            selectedType = type;
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+        };
+
+        window.confirmAddTask = () => {
+            const text = document.getElementById('new-task-input').value.trim();
+            if (!text) return;
+            if (!currentState.customTasks[addingKey]) currentState.customTasks[addingKey] = [];
+            currentState.customTasks[addingKey].push({ id: `custom-${Date.now()}`, text: text, type: selectedType });
+            document.getElementById('add-task-modal').classList.remove('open');
+            refresh();
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            save();
+        };
+
+        window.deleteTask = (key, id) => {
+            if (!confirm("确定删除？")) return;
+            currentState.customTasks[key] = currentState.customTasks[key].filter(t => t.id !== id);
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            save();
+        };
+
+        // ================= 笔记 & 高级功能 =================
+        let curNoteKey = null, isEditMode = false;
+        const editor = document.getElementById('note-editor');
+
+        // 字数统计辅助函数
+        function updateWordCount() {
+            const text = editor.innerText || "";
+            // 去除空白字符（空格、换行等）后统计实际字数
+            const count = text.replace(/\s/g, '').length;
+            document.getElementById('word-count-badge').innerText = `${count} 字`;
+        }
+
+        window.openNote = (key, highlight = null) => {
+            curNoteKey = key; isEditMode = false;
+            let title;
+            if (key.startsWith('d')) {
+                // 2025 format: d1, d2...
+                title = `12月${key.replace('d', '')}日`;
+            } else {
+                // 2026 format: 2026-1-22
+                const parts = key.split('-');
+                title = `${parts[1]}月${parts[2]}日`;
+            }
+            document.getElementById('modal-date-title').innerText = title;
+
+            const content = currentState.notes[key];
+            editor.innerHTML = content || '';
+
+            updateWordCount(); // 初始化时统计字数
+
+            if (!content) toggleEditMode(true); else setMode(false);
+            document.getElementById('note-modal').classList.add('open');
+
+            if (highlight) setTimeout(() => scrollToText(highlight), 300);
+        };
+
+        window.toggleEditMode = (force) => setMode(typeof force === 'boolean' ? force : !isEditMode);
+        function setMode(edit) {
+            isEditMode = edit; editor.contentEditable = edit;
+            const tools = document.getElementById('editor-tools');
+            const editBtn = document.getElementById('edit-btn');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (edit) {
+                tools.classList.remove('opacity-0', 'pointer-events-none');
+                editBtn.classList.add('hidden'); saveBtn.classList.remove('hidden');
+                document.getElementById('mode-badge').innerText = "编辑中";
+            } else {
+                tools.classList.add('opacity-0', 'pointer-events-none');
+                editBtn.classList.remove('hidden'); saveBtn.classList.add('hidden');
+                document.getElementById('mode-badge').innerText = "查看模式";
+            }
+        }
+
+        window.saveNote = () => {
+            const v = editor.innerHTML;
+            if (v && v !== '<br>') currentState.notes[curNoteKey] = v; else delete currentState.notes[curNoteKey];
+            refresh(); save(); setMode(false);
+        };
+        window.closeModal = () => { document.querySelector('.modal-overlay.open').classList.remove('open'); if (isEditMode) saveNote(); };
+
+        // 搜索逻辑
+        window.toggleSearch = () => document.getElementById('search-modal').classList.toggle('open');
+        window.handleSearch = (q) => {
+            if (!q) return;
+            const res = [];
+            // 搜索当前选定年份的数据
+            const notes = currentState.notes;
+            const tasks = currentState.customTasks;
+
+            Object.keys(notes).forEach(k => {
+                if (notes[k].toLowerCase().includes(q.toLowerCase())) res.push({ k, type: '笔记', text: notes[k].replace(/<[^>]*>?/gm, '').substring(0, 50) });
+            });
+            Object.keys(tasks).forEach(k => {
+                tasks[k].forEach(t => {
+                    if (t.text.toLowerCase().includes(q.toLowerCase())) res.push({ k, type: '任务', text: t.text });
+                })
+            });
+
+            document.getElementById('search-results').innerHTML = res.length ? res.map(r => `
+                <div class="search-item" onclick="window.jumpTo('${r.k}')">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>${r.k}</span><span>${r.type}</span>
+                    </div>
+                    <div class="text-sm font-bold text-slate-700">${r.text}</div>
+                </div>`).join('') : '<div class="empty-state">无结果</div>';
+        };
+        window.jumpTo = k => {
+            document.getElementById('search-modal').classList.remove('open');
+            window.openNote(k);
+        };
+
+        // 初始化编辑器事件 (Markdown, 图片点击)
+        function initEditorEvents() {
+            window.execCmd = (c, v) => { document.execCommand(c, false, v); editor.focus(); updateWordCount(); };
+            window.toggleHighlight = () => {
+                const sel = window.getSelection();
+                if (!sel.rangeCount || sel.isCollapsed) { document.execCommand('backColor', false, '#fef08a'); editor.focus(); return; }
+                // 检查选区内是否已有高亮
+                let hasHighlight = false;
+                const range = sel.getRangeAt(0);
+                const container = document.createElement('div');
+                container.appendChild(range.cloneContents());
+                // 检查所有带背景色的 span/font
+                const highlighted = container.querySelectorAll('span[style*="background"], font[style*="background"]');
+                if (highlighted.length > 0) hasHighlight = true;
+                // 也检查父元素
+                let node = sel.anchorNode;
+                while (node && node !== editor) {
+                    if (node.nodeType === 1 && node.style && node.style.backgroundColor) { hasHighlight = true; break; }
+                    node = node.parentNode;
+                }
+                if (hasHighlight) {
+                    document.execCommand('backColor', false, 'transparent');
+                } else {
+                    document.execCommand('backColor', false, '#fef08a');
+                }
+                editor.focus();
+                updateWordCount();
+            };
+            window.insertCheckbox = () => { window.execCmd('insertHTML', `<input type="checkbox"> `); updateWordCount(); };
+            window.cycleLineHeight = () => { lineHeightIdx = (lineHeightIdx + 1) % 3; localStorage.setItem('study_lh_idx', lineHeightIdx); applyLineHeight(); };
+            window.insertLink = () => {
+                const sel = window.getSelection();
+                const hasText = sel && !sel.isCollapsed;
+                const url = prompt('输入链接地址：', 'https://');
+                if (!url) { editor.focus(); return; }
+                if (hasText) {
+                    document.execCommand('createLink', false, url);
+                } else {
+                    const label = prompt('输入链接文字：', url) || url;
+                    document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${label}</a>&nbsp;`);
+                }
+                // 新链接默认在新标签页打开
+                editor.querySelectorAll('a:not([target])').forEach(a => a.target = '_blank');
+                editor.focus();
+                updateWordCount();
+            };
+
+            // 实时监听输入，更新字数
+            editor.addEventListener('input', updateWordCount);
+
+            editor.addEventListener('click', e => {
+                if (e.target.tagName === 'IMG') {
+                    document.getElementById('zoomed-img').src = e.target.src;
+                    document.getElementById('img-zoom-modal').classList.add('open');
+                }
+            });
+            // Markdown Trigger
+            editor.addEventListener('keyup', e => {
+                if (e.key === ' ') {
+                    const sel = window.getSelection();
+                    if (!sel.rangeCount) return;
+                    const txt = sel.anchorNode.textContent;
+                    if (txt.match(/^(\-|\*)\s$/)) { document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('insertUnorderedList'); }
+                    if (txt.match(/^1\.\s$/)) { document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('insertOrderedList'); }
+                }
+            });
+        }
+        function applyLineHeight() {
+            lhClasses.forEach(c => editor.classList.remove(c));
+            editor.classList.add(lhClasses[lineHeightIdx]);
+        }
+        function updateStatus(s) { document.getElementById('cloud-status-badge').innerHTML = s === 'online' ? `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> 云同步` : (s === 'syncing' ? `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中` : `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 离线`); }
+
+        // ================= 核心修改：ID 弹窗逻辑 =================
+        window.changeSyncID = () => {
+            document.getElementById('id-cancel-btn').style.display = '';
+            document.getElementById('sync-id-input').value = MY_SYNC_ID;
+            document.getElementById('id-modal').classList.add('open');
+            setTimeout(() => document.getElementById('sync-id-input').focus(), 100);
+        };
+
+        window.closeIdModal = () => {
+            // 首次访问未设置 ID 时不允许关闭
+            if (!localStorage.getItem('study_sync_id')) return;
+            document.getElementById('id-modal').classList.remove('open');
+        };
+
+        window.saveSyncID = () => {
+            const val = document.getElementById('sync-id-input').value.trim();
+            if (!val) {
+                showToast('⚠️ 请输入同步 ID');
+                return;
+            }
+            MY_SYNC_ID = val;
+            localStorage.setItem('study_sync_id', val);
+            updateSyncLabel();
+            document.getElementById('id-cancel-btn').style.display = '';
+            document.getElementById('id-modal').classList.remove('open');
+            if (isCloud) loadCloud();
+        };
+
+        // Scroll highlight helper
+        function scrollToText(text) {
+            if (!text) return;
+            const editor = document.getElementById('note-editor');
+            const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.nodeValue.toLowerCase().includes(text.toLowerCase())) {
+                    const range = document.createRange();
+                    range.selectNodeContents(node);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    node.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    node.parentElement.style.backgroundColor = '#fef08a';
+                    setTimeout(() => node.parentElement.style.backgroundColor = '', 1500);
+                    break;
+                }
+            }
+        }
+
+        // ================= 自定义分类管理 =================
+        const PALETTE_COLORS = [
+            '#be123c', '#dc2626', '#ea580c', '#d97706', '#ca8a04',
+            '#65a30d', '#16a34a', '#047857', '#0891b2', '#0284c7',
+            '#1d4ed8', '#4f46e5', '#7c3aed', '#9333ea', '#c026d3',
+            '#db2777', '#64748b', '#334155'
+        ];
+
+        window.openCategoryModal = () => {
+            renderCatList();
+            document.getElementById('category-modal').classList.add('open');
+        };
+        window.closeCategoryModal = () => document.getElementById('category-modal').classList.remove('open');
+
+        function renderCatList() {
+            const cats = getCategories();
+            const list = document.getElementById('cat-list');
+            list.innerHTML = cats.map((c, i) => `
+                <div class="cat-row" data-idx="${i}">
+                    <div class="cat-color-dot" style="background:${c.color}" onclick="toggleColorPicker(${i}, this)"></div>
+                    <input class="cat-name-input" value="${c.name}" data-idx="${i}" onchange="updateCatName(${i}, this.value)">
+                    <i class="fas fa-trash-alt cat-del-btn" onclick="deleteCategory(${i})"></i>
+                </div>
+            `).join('');
+        }
+
+        window.addCategory = () => {
+            const cats = getCategories();
+            const idx = cats.length;
+            const color = PALETTE_COLORS[idx % PALETTE_COLORS.length];
+            cats.push({ name: '新分类', type: `cat-${Date.now()}`, color: color, bg: color + '15', border: color + '40' });
+            renderCatList();
+        };
+
+        window.deleteCategory = (idx) => {
+            const cats = getCategories();
+            if (cats.length <= 1) { showToast('⚠️ 至少保留一个分类'); return; }
+            cats.splice(idx, 1);
+            renderCatList();
+        };
+
+        window.updateCatName = (idx, name) => {
+            getCategories()[idx].name = name.trim() || '未命名';
+        };
+
+        window.toggleColorPicker = (idx, dotEl) => {
+            // 移除已有的调色板
+            document.querySelectorAll('.color-palette').forEach(p => p.remove());
+            const palette = document.createElement('div');
+            palette.className = 'color-palette';
+            palette.innerHTML = PALETTE_COLORS.map(c =>
+                `<div class="color-swatch ${c === getCategories()[idx].color ? 'selected' : ''}" style="background:${c}" onclick="pickColor(${idx},'${c}', this)"></div>`
+            ).join('');
+            dotEl.parentElement.appendChild(palette);
+            // 点击外部关闭
+            setTimeout(() => {
+                const handler = (e) => { if (!palette.contains(e.target) && e.target !== dotEl) { palette.remove(); document.removeEventListener('click', handler); } };
+                document.addEventListener('click', handler);
+            }, 10);
+        };
+
+        window.pickColor = (idx, color, swatchEl) => {
+            const cat = getCategories()[idx];
+            cat.color = color;
+            cat.bg = color + '15';
+            cat.border = color + '40';
+            // 更新 UI
+            const row = swatchEl.closest('.cat-row');
+            row.querySelector('.cat-color-dot').style.background = color;
+            swatchEl.closest('.color-palette').remove();
+        };
+
+        window.saveCategorySettings = () => {
+            // 从 input 收集最新名称
+            document.querySelectorAll('.cat-name-input').forEach(inp => {
+                const idx = parseInt(inp.dataset.idx);
+                if (!isNaN(idx)) getCategories()[idx].name = inp.value.trim() || '未命名';
+            });
+            save();
+            closeCategoryModal();
+            // 重新渲染当前页面
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            showToast('✅ 分类已保存');
+        };
+
+        // ================= 快捷导入 =================
+        window.openImportModal = () => {
+            document.getElementById('import-textarea').value = '';
+            document.getElementById('conflict-toggle-switch').classList.remove('off');
+
+            // 渲染分类标签条
+            const cats = getCategories();
+            const chips = document.getElementById('import-cat-chips');
+            chips.innerHTML = cats.map(c =>
+                `<span style="color:${c.color};background:${c.bg};border:1px solid ${c.border}" class="px-2 py-0.5 rounded-full text-[11px] font-bold cursor-pointer active:scale-95 transition" onclick="insertCatTag('${c.name}')">${c.name}</span>`
+            ).join('');
+
+            document.getElementById('import-modal').classList.add('open');
+            setTimeout(() => document.getElementById('import-textarea').focus(), 100);
+        };
+
+        window.closeImportModal = () => {
+            document.getElementById('import-modal').classList.remove('open');
+        };
+
+        // 在光标位置插入【分类名】
+        window.insertCatTag = (catName) => {
+            const ta = document.getElementById('import-textarea');
+            const start = ta.selectionStart;
+            const before = ta.value.substring(0, start);
+            const after = ta.value.substring(ta.selectionEnd);
+            const tag = `[${catName}]`;
+
+            // 如果光标前有内容且不是换行符开头，先加换行
+            let prefix = '';
+            if (before.length > 0 && before[before.length - 1] !== '\n') {
+                prefix = '\n';
+            }
+
+            ta.value = before + prefix + tag;
+            // 如果后面没内容或不以换行开头，保持光标在 tag 后方便继续输入任务
+            const newPos = before.length + prefix.length + tag.length;
+            if (after.length === 0 || after[0] === '\n') {
+                ta.value = before + prefix + tag + after;
+            } else {
+                ta.value = before + prefix + tag + after;
+            }
+            ta.selectionStart = ta.selectionEnd = newPos;
+            ta.focus();
+        };
+
+        // 一键导入
+        window.directImport = () => {
+            const text = document.getElementById('import-textarea').value.trim();
+            if (!text) { showToast('⚠️ 请输入计划内容'); return; }
+
+            const parsed = parseNaturalText(text);
+            const keys = Object.keys(parsed);
+            if (keys.length === 0) {
+                showToast('⚠️ 未识别到日期，请以日期开头如"3月1日"或"3-1"');
+                return;
+            }
+            const totalTasks = keys.reduce((sum, k) => sum + parsed[k].length, 0);
+            if (totalTasks === 0) {
+                showToast('⚠️ 已识别日期但没有任务，请在日期下方换行写任务');
+                return;
+            }
+
+            const keepExisting = !document.getElementById('conflict-toggle-switch').classList.contains('off');
+            let totalAdded = 0;
+            keys.forEach(dateKey => {
+                const tasks = parsed[dateKey];
+                if (tasks.length === 0) return;
+                if (!keepExisting) currentState.customTasks[dateKey] = [];
+                if (!currentState.customTasks[dateKey]) currentState.customTasks[dateKey] = [];
+                tasks.forEach(task => {
+                    if (!currentState.customTasks[dateKey].some(t => t.text === task.text)) {
+                        currentState.customTasks[dateKey].push({
+                            id: `import-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                            text: task.text, type: task.type
+                        });
+                        totalAdded++;
+                    }
+                });
+            });
+
+            save();
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            refresh();
+            closeImportModal();
+            showToast(`✅ 已导入 ${keys.length} 天共 ${totalAdded} 个任务`);
+        };
+
+        // 智能解析自然文本
+        function parseNaturalText(text) {
+            const lines = text.split('\n');
+            const result = {};
+            let currentDate = null;
+            const year = CURRENT_YEAR;
+            const defaultType = getCategories()[0]?.type || 'cat-0';
+            const cats = getCategories();
+            const datePatterns = [
+                /^(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]?\s*$/,
+                /^(\d{1,2})[\/\-\.](\d{1,2})\s*$/,
+                /^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})\s*$/,
+            ];
+            const catTagPattern = /^[【\[](.*?)[】\]]\s*(.+)$/;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                let isDate = false;
+                for (const pattern of datePatterns) {
+                    const m = line.match(pattern);
+                    if (m) {
+                        currentDate = m.length === 4
+                            ? `${m[1]}-${parseInt(m[2])}-${parseInt(m[3])}`
+                            : `${year}-${parseInt(m[1])}-${parseInt(m[2])}`;
+                        if (!result[currentDate]) result[currentDate] = [];
+                        isDate = true;
+                        break;
+                    }
+                }
+                if (!isDate && currentDate) {
+                    const tagMatch = line.match(catTagPattern);
+                    let taskType = defaultType, taskText = line;
+                    if (tagMatch) {
+                        const tagName = tagMatch[1].trim();
+                        taskText = tagMatch[2].trim();
+                        const matchedCat = cats.find(c => c.name === tagName);
+                        if (matchedCat) taskType = matchedCat.type;
+                    }
+                    result[currentDate].push({ text: taskText, type: taskType });
+                }
+            }
+            return result;
+        }
+
+        // ================= 导出 =================
+        window.openExportModal = () => {
+            const tasks = currentState.customTasks;
+            const keys = Object.keys(tasks).sort((a, b) => {
+                // 排序日期
+                const pa = a.split('-').map(Number);
+                const pb = b.split('-').map(Number);
+                return (pa[1] || 0) * 100 + (pa[2] || 0) - (pb[1] || 0) * 100 - (pb[2] || 0);
+            });
+
+            let text = '';
+            keys.forEach(k => {
+                if (!tasks[k] || tasks[k].length === 0) return;
+                const parts = k.split('-');
+                if (parts.length >= 3) {
+                    text += `${parts[1]}月${parts[2]}日\n`;
+                } else {
+                    text += `12月${k.replace('d', '')}日\n`;
+                }
+                tasks[k].forEach(t => { text += `${t.text}\n`; });
+                text += '\n';
+            });
+
+            document.getElementById('export-textarea').value = text.trim();
+            document.getElementById('export-modal').classList.add('open');
+        };
+
+        window.closeExportModal = () => document.getElementById('export-modal').classList.remove('open');
+
+        window.copyExport = async () => {
+            const text = document.getElementById('export-textarea').value;
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('✅ 已复制到剪贴板');
+            } catch (e) {
+                // Fallback
+                document.getElementById('export-textarea').select();
+                document.execCommand('copy');
+                showToast('✅ 已复制');
+            }
+        };
+
+        // ================= Toast =================
+        window.showToast = (msg) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2600);
+        };
+
+        init();
+    </script>
+    <!-- PWA Service Worker 注册 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('✅ SW registered:', reg.scope))
+                    .catch(err => console.warn('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

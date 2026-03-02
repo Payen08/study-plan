@@ -1,8 +1,9 @@
 // Study Plan PWA Service Worker
-const CACHE_NAME = 'study-plan-v1';
+const CACHE_NAME = 'study-plan-v20260303';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './studyplan.html',
   './manifest.json',
   './icon-512.png'
 ];
