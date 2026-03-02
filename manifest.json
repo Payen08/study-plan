@@ -1,0 +1,18 @@
+{
+  "name": "Study Plan - 学习计划",
+  "short_name": "学习计划",
+  "description": "考研冲刺学习计划管理工具",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
