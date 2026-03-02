@@ -8,6 +8,7 @@
     <title>冲刺计划 Pro</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="冲刺计划">
     <meta name="theme-color" content="#3b82f6">
@@ -1713,13 +1714,7 @@
             );
         }
 
-        /* PWA Config */
-        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        const iconUrl = URL.createObjectURL(new Blob([iconSVG], { type: 'image/svg+xml' }));
-        document.getElementById('apple-icon').href = iconUrl;
 
-        const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
-        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
 
         // ================= 全局状态 =================
         let CURRENT_YEAR = 2025; // 默认为2025模式

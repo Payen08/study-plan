@@ -29,8 +29,8 @@ self.addEventListener('activate', event => {
 
 // 请求拦截：网络优先，失败则用缓存
 self.addEventListener('fetch', event => {
-  // 跳过非 GET 请求和外部 API
-  if (event.request.method !== 'GET') return;
+  // 跳过非 GET 请求、非 http/https 请求和外部 API
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
   const url = new URL(event.request.url);
 
