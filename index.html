@@ -359,6 +359,10 @@
             opacity: 1;
         }
 
+        .day-card.has-note-card {
+            background: #FDEFDC;
+        }
+
         .action-btn:hover {
             color: #3b82f6;
             transform: scale(1.1);
@@ -1267,6 +1271,411 @@
                 max-height: 80vh;
             }
         }
+
+        /* === 番茄钟 === */
+        .pomodoro-fab {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom, 0px));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .pomodoro-fab:active {
+            transform: scale(0.9);
+        }
+
+        .pomodoro-fab.running {
+            animation: fab-pulse 2s ease-in-out infinite;
+        }
+
+        .pomodoro-fab .fab-time {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        @keyframes fab-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 6px 30px rgba(239, 68, 68, 0.7);
+            }
+        }
+
+        .timer-modal {
+            width: 92%;
+            max-width: 380px;
+            height: auto;
+            border-radius: 24px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .timer-header {
+            padding: 24px 24px 0;
+            text-align: center;
+        }
+
+        .timer-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+            margin: 16px 24px 0;
+        }
+
+        .timer-tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .timer-tab.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .timer-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-ring-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 8px 0 20px;
+        }
+
+        .timer-ring-container svg {
+            transform: rotate(-90deg);
+        }
+
+        .timer-ring-bg {
+            fill: none;
+            stroke: #f1f5f9;
+            stroke-width: 8;
+        }
+
+        .timer-ring-progress {
+            fill: none;
+            stroke: #ef4444;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s linear;
+        }
+
+        .timer-ring-progress.break-mode {
+            stroke: #22c55e;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-time {
+            font-size: 42px;
+            font-weight: 900;
+            color: #1e293b;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .timer-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timer-btn:active {
+            transform: scale(0.9);
+        }
+
+        .timer-btn-main {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .timer-btn-main.break-mode {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .timer-btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .timer-stats {
+            display: flex;
+            gap: 20px;
+            padding: 16px 24px 24px;
+            justify-content: center;
+        }
+
+        .timer-stat {
+            text-align: center;
+        }
+
+        .timer-stat-num {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .timer-stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .custom-time-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .custom-time-input input {
+            width: 80px;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .custom-time-input input:focus {
+            border-color: #3b82f6;
+        }
+
+        .custom-time-input span {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        /* === 笔记快捷侧栏 === */
+        .notes-fab {
+            position: fixed;
+            bottom: max(92px, calc(env(safe-area-inset-bottom, 0px) + 92px));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: white;
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.2s;
+            border: 1px solid #f3f4f6;
+        }
+
+        .notes-fab:active {
+            transform: scale(0.9);
+        }
+
+        .notes-search-box {
+            padding: 8px 16px 12px;
+        }
+
+        .notes-search-input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            outline: none;
+            background: #f8fafc;
+            transition: 0.2s;
+        }
+
+        .notes-search-input:focus {
+            border-color: #f59e0b;
+            background: white;
+        }
+
+        .notes-search-wrap {
+            position: relative;
+        }
+
+        .notes-search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .notes-sidebar {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 560px;
+            max-height: 80vh;
+            background: white;
+            z-index: 200;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .notes-sidebar.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @media (max-width: 768px) {
+            .notes-sidebar {
+                width: 100%;
+                max-width: 100%;
+                max-height: none;
+                left: 0;
+                top: auto;
+                bottom: 0;
+                height: 65vh;
+                border-radius: 24px 24px 0 0;
+                transform: translateY(100%);
+                box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+                padding-bottom: env(safe-area-inset-bottom);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .notes-sidebar.open {
+                transform: translateY(0);
+            }
+        }
+
+        .notes-sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 199;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .notes-sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .notes-sidebar-header {
+            padding: 20px 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notes-sidebar-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .notes-sidebar-item {
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .notes-sidebar-item:active {
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .notes-sidebar-item-date {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .notes-sidebar-item-preview {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -1549,6 +1958,89 @@
     <!-- 图片放大 Modal -->
     <div id="img-zoom-modal" class="modal-overlay" onclick="this.classList.remove('open')">
         <img id="zoomed-img" src="" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- 笔记快捷按钮 -->
+    <button id="notes-fab" class="notes-fab" onclick="toggleNotesSidebar()">
+        <i class="fas fa-book-open"></i>
+    </button>
+    <div id="notes-sidebar-overlay" class="notes-sidebar-overlay" onclick="toggleNotesSidebar()"></div>
+    <div id="notes-sidebar" class="notes-sidebar">
+        <div class="md:hidden w-full pt-2 pb-1 cursor-pointer" onclick="toggleNotesSidebar()">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto"></div>
+        </div>
+        <div class="notes-sidebar-header">
+            <span class="text-base font-bold text-slate-800"><i class="fas fa-pen-nib text-amber-500 mr-1"></i>
+                我的笔记</span>
+            <button onclick="toggleNotesSidebar()" class="text-slate-400 text-lg px-2"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        <div class="notes-search-box">
+            <div class="notes-search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="notes-search-input" class="notes-search-input" placeholder="搜索笔记内容..."
+                    oninput="filterNotes(this.value)">
+            </div>
+        </div>
+        <div id="notes-sidebar-list" class="notes-sidebar-list">
+        </div>
+    </div>
+
+    <!-- 番茄钟浮动按钮 -->
+    <button id="pomodoro-fab" class="pomodoro-fab" onclick="togglePomodoroModal()">
+        <i class="fas fa-stopwatch"></i>
+    </button>
+
+    <!-- 番茄钟 Modal -->
+    <div id="pomodoro-modal" class="modal-overlay">
+        <div class="modal-content timer-modal bg-white">
+            <div class="timer-header">
+                <h3 class="text-lg font-bold text-slate-800">🍅 番茄钟</h3>
+            </div>
+            <div class="timer-tabs">
+                <div class="timer-tab active" onclick="switchTimerMode('pomodoro')" id="tab-pomodoro">专注 25分</div>
+                <div class="timer-tab" onclick="switchTimerMode('shortBreak')" id="tab-shortBreak">休息 5分</div>
+                <div class="timer-tab" onclick="switchTimerMode('custom')" id="tab-custom">自定义</div>
+            </div>
+            <div class="timer-body">
+                <div id="custom-input-area" class="custom-time-input" style="display:none;">
+                    <input type="number" id="custom-minutes" value="45" min="1" max="180">
+                    <span>分钟</span>
+                </div>
+                <div class="timer-ring-container">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <circle class="timer-ring-bg" cx="100" cy="100" r="88" />
+                        <circle id="timer-ring" class="timer-ring-progress" cx="100" cy="100" r="88"
+                            stroke-dasharray="552.92" stroke-dashoffset="0" />
+                    </svg>
+                    <div class="timer-display">
+                        <div class="timer-time" id="timer-time">25:00</div>
+                        <div class="timer-label" id="timer-status-label">准备开始</div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button class="timer-btn timer-btn-secondary" onclick="resetTimer()">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="timer-btn timer-btn-main" id="timer-main-btn" onclick="toggleTimer()">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="timer-btn timer-btn-secondary" onclick="skipTimer()">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="timer-stats">
+                <div class="timer-stat">
+                    <div class="timer-stat-num" id="pomo-count">0</div>
+                    <div class="timer-stat-label">今日番茄</div>
+                </div>
+                <div class="timer-stat">
+                    <div class="timer-stat-num" id="focus-minutes">0</div>
+                    <div class="timer-stat-label">专注分钟</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 笔记 Modal -->
@@ -1854,9 +2346,15 @@
             if (SUPABASE_URL && SUPABASE_KEY) {
                 try {
                     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    isCloud = true; updateStatus('online'); await loadCloud();
-                } catch (e) { console.error(e); loadLocal(); }
-            } else loadLocal();
+                    isCloud = true;
+                    await loadCloud();
+                } catch (e) {
+                    console.error('云端初始化失败，使用本地数据:', e);
+                    isCloud = false;
+                    loadLocal();
+                    updateStatus('offline');
+                }
+            } else { loadLocal(); updateStatus('offline'); }
 
             // Render initial UI based on loaded year
             switchYear(CURRENT_YEAR);
@@ -1960,7 +2458,8 @@
                 const isToday = d ? (d.day === 4) : (i === 4);
 
                 const card = document.createElement('div');
-                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''}`;
+                const hasNoteCard = currentState.notes[`d${i}`] ? 'has-note-card' : '';
+                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${hasNoteCard}`;
                 if (d && d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
                 card.id = `day-${i}`;
 
@@ -2021,7 +2520,8 @@
                 const isToday = isCurrMonth && i === today.getDate();
 
                 const card = document.createElement('div');
-                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''}`;
+                const hasNoteCard = currentState.notes[dateKey] ? 'has-note-card' : '';
+                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''} ${hasNoteCard}`;
                 if (isToday) card.classList.add('is-today');
 
                 const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
@@ -2131,15 +2631,100 @@
             return s;
         }
 
+        // 数据完整性检查
+        function isValidState(state) {
+            if (!state || typeof state !== 'object') return false;
+            // 至少要有一个年份的数据
+            const has2025 = state['2025'] && typeof state['2025'] === 'object';
+            const has2026 = state['2026'] && typeof state['2026'] === 'object';
+            if (!has2025 && !has2026) return false;
+            // 检查年份数据结构
+            for (const year of ['2025', '2026']) {
+                if (state[year]) {
+                    if (!Array.isArray(state[year].done)) return false;
+                    if (typeof state[year].notes !== 'object') return false;
+                    if (typeof state[year].customTasks !== 'object') return false;
+                }
+            }
+            return true;
+        }
+
+        // 统计数据量（用于比较本地和云端数据的丰富度）
+        function countDataSize(state) {
+            let count = 0;
+            for (const year of ['2025', '2026']) {
+                if (state[year]) {
+                    count += (state[year].done || []).length;
+                    count += Object.keys(state[year].notes || {}).length;
+                    count += Object.values(state[year].customTasks || {}).reduce((sum, arr) => sum + arr.length, 0);
+                }
+            }
+            return count;
+        }
+
+        // 智能合并两份数据（取并集，不丢失任何一方的内容）
+        function mergeStates(local, cloud) {
+            const merged = JSON.parse(JSON.stringify(cloud)); // 以云端为基础
+            for (const year of ['2025', '2026']) {
+                if (!local[year]) continue;
+                if (!merged[year]) { merged[year] = JSON.parse(JSON.stringify(local[year])); continue; }
+                // done 取并集
+                const localDone = new Set(local[year].done || []);
+                const mergedDone = new Set(merged[year].done || []);
+                localDone.forEach(id => mergedDone.add(id));
+                merged[year].done = Array.from(mergedDone);
+                // notes 合并：本地有但云端没有的保留
+                const localNotes = local[year].notes || {};
+                if (!merged[year].notes) merged[year].notes = {};
+                Object.keys(localNotes).forEach(k => {
+                    if (!merged[year].notes[k]) merged[year].notes[k] = localNotes[k];
+                });
+                // customTasks 合并
+                const localTasks = local[year].customTasks || {};
+                if (!merged[year].customTasks) merged[year].customTasks = {};
+                Object.keys(localTasks).forEach(dateKey => {
+                    if (!merged[year].customTasks[dateKey]) {
+                        merged[year].customTasks[dateKey] = localTasks[dateKey];
+                    } else {
+                        // 按任务文本去重合并
+                        const existingTexts = new Set(merged[year].customTasks[dateKey].map(t => t.text));
+                        localTasks[dateKey].forEach(t => {
+                            if (!existingTexts.has(t.text)) merged[year].customTasks[dateKey].push(t);
+                        });
+                    }
+                });
+            }
+            // settings 保留云端的（通常更新）
+            if (!merged.settings && local.settings) merged.settings = local.settings;
+            return merged;
+        }
+
         async function save() {
             updateProgress();
-            // 保存整个 fullState 到 study_v2 (覆盖更新，保持兼容)
-            localStorage.setItem('study_v2', JSON.stringify(fullState));
+            // 数据完整性检查
+            if (!isValidState(fullState)) {
+                console.error('数据完整性检查失败，跳过保存');
+                return;
+            }
+            // 始终先保存到本地（本地优先，确保数据不丢）
+            try {
+                const json = JSON.stringify(fullState);
+                localStorage.setItem('study_v2', json);
+            } catch (e) {
+                console.error('本地保存失败:', e);
+                return;
+            }
+            // 云端同步
             if (isCloud) {
                 updateStatus('syncing');
-                // 使用唯一的 ID 存储所有年份数据
-                await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: fullState });
-                updateStatus('online');
+                try {
+                    const { error } = await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: fullState });
+                    if (error) throw error;
+                    updateStatus('online');
+                } catch (e) {
+                    console.error('云端保存失败:', e);
+                    updateStatus('offline');
+                }
             }
         }
 
@@ -2164,36 +2749,82 @@
 
         async function loadCloud() {
             updateStatus('syncing');
-            // 只读取一个 ID
-            const { data } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
 
-            if (data?.data) {
-                const raw = data.data;
-                // 数据迁移逻辑：如果读取到的数据没有 "2025" 键，说明是旧数据
-                if (!raw["2025"] && !raw["2026"]) {
-                    fullState["2025"] = ensureStateStructure(raw);
-                    fullState["2026"] = { done: [], notes: {}, customTasks: {} };
+            // 1. 先加载本地数据作为基础和备份
+            const localBackup = localStorage.getItem('study_v2');
+            let localState = null;
+            if (localBackup) {
+                try {
+                    localState = JSON.parse(localBackup);
+                    // 保存备份（防止后续操作破坏原始本地数据）
+                    localStorage.setItem('study_v2_backup', localBackup);
+                } catch (e) { console.warn('本地数据解析失败'); }
+            }
+
+            // 2. 从本地加载到 fullState（确保有数据基础）
+            if (localState) {
+                if (localState['2025'] || localState['2026']) {
+                    if (localState['2025']) fullState['2025'] = ensureStateStructure(localState['2025']);
+                    if (localState['2026']) fullState['2026'] = ensureStateStructure(localState['2026']);
+                    if (localState['settings']) fullState.settings = localState['settings'];
                 } else {
-                    if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
-                    if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
-                    if (raw["settings"]) fullState.settings = raw["settings"]; // 加载云端设置
+                    fullState['2025'] = ensureStateStructure(localState);
                 }
-            } else {
-                loadLocal(); // Fallback
+            }
+
+            // 3. 尝试拉取云端数据
+            try {
+                const { data, error } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
+
+                if (error) throw error;
+
+                if (data?.data) {
+                    const raw = data.data;
+                    let cloudState = {};
+
+                    // 数据迁移：处理旧格式
+                    if (!raw['2025'] && !raw['2026']) {
+                        cloudState['2025'] = ensureStateStructure(raw);
+                        cloudState['2026'] = { done: [], notes: {}, customTasks: {} };
+                    } else {
+                        if (raw['2025']) cloudState['2025'] = ensureStateStructure(raw['2025']);
+                        if (raw['2026']) cloudState['2026'] = ensureStateStructure(raw['2026']);
+                        if (raw['settings']) cloudState.settings = raw['settings'];
+                    }
+
+                    // 4. 智能合并：本地 + 云端取并集，不丢失任何一方数据
+                    if (localState && isValidState(fullState)) {
+                        const merged = mergeStates(fullState, cloudState);
+                        if (merged['2025']) fullState['2025'] = merged['2025'];
+                        if (merged['2026']) fullState['2026'] = merged['2026'];
+                        if (merged.settings) fullState.settings = merged.settings;
+                    } else {
+                        // 本地没数据，直接用云端
+                        if (cloudState['2025']) fullState['2025'] = cloudState['2025'];
+                        if (cloudState['2026']) fullState['2026'] = cloudState['2026'];
+                        if (cloudState.settings) fullState.settings = cloudState.settings;
+                    }
+                }
+                // 云端无数据 → 保持本地数据不动（已在步骤2加载）
+            } catch (e) {
+                console.error('云端加载失败，使用本地数据:', e);
+                // 网络失败 → 保持本地数据，不覆盖
             }
 
             // 确保设置存在
             if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
-            // 确保分类存在，如果云端没有，则使用默认
             if (!fullState.settings.categories || fullState.settings.categories.length === 0) {
                 fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
             }
 
-
-            inject2026Plan(); // 注入计划
+            inject2026Plan();
             currentState = fullState[CURRENT_YEAR.toString()];
+
+            // 5. 合并后立即保存到本地（确保合并结果持久化）
+            localStorage.setItem('study_v2', JSON.stringify(fullState));
+
             refresh();
-            window.switchYear(CURRENT_YEAR); // Re-render
+            window.switchYear(CURRENT_YEAR);
             updateStatus('online');
         }
 
@@ -2831,6 +3462,301 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 2600);
         };
+
+        // ================= 笔记快捷侧栏逻辑 =================
+        function toggleNotesSidebar() {
+            const sidebar = document.getElementById('notes-sidebar');
+            const overlay = document.getElementById('notes-sidebar-overlay');
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            } else {
+                const input = document.getElementById('notes-search-input');
+                if (input) input.value = '';
+                renderNotesSidebar();
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+            }
+        }
+
+        function renderNotesSidebar() {
+            const list = document.getElementById('notes-sidebar-list');
+            const notes = currentState.notes;
+            // 只显示当前月份的笔记
+            let keys;
+            if (CURRENT_YEAR === 2025) {
+                keys = Object.keys(notes).filter(k => k.startsWith('d') && notes[k] && notes[k] !== '<br>');
+            } else {
+                const monthPrefix = `2026-${currentMonth2026 + 1}-`;
+                keys = Object.keys(notes).filter(k => k.startsWith(monthPrefix) && notes[k] && notes[k] !== '<br>');
+            }
+
+            if (keys.length === 0) {
+                list.innerHTML = '<div class="text-center text-slate-400 text-sm py-12">暂无笔记</div>';
+                return;
+            }
+
+            // 为 keys 排序（支持 d1 格式和 2026-3-1 格式）
+            keys.sort((a, b) => {
+                const parseKey = k => {
+                    if (k.startsWith('d')) return parseInt(k.slice(1));
+                    const parts = k.split('-');
+                    return parseInt(parts[1]) * 100 + parseInt(parts[2]);
+                };
+                return parseKey(a) - parseKey(b);
+            });
+
+            let html = '';
+            keys.forEach(k => {
+                // 解析日期显示
+                let dateLabel;
+                if (k.startsWith('d')) {
+                    dateLabel = `12月${k.slice(1)}日`;
+                } else {
+                    const parts = k.split('-');
+                    dateLabel = `${parts[1]}月${parts[2]}日`;
+                }
+
+                // 提取纯文本预览
+                const div = document.createElement('div');
+                div.innerHTML = notes[k];
+                const preview = (div.textContent || div.innerText || '').trim().slice(0, 40);
+
+                html += `<div class="notes-sidebar-item" onclick="openNoteFromSidebar('${k}')">
+                    <div class="notes-sidebar-item-date"><i class="fas fa-pen-nib text-amber-400 mr-1" style="font-size:11px"></i> ${dateLabel}</div>
+                    <div class="notes-sidebar-item-preview">${preview || '(空)'}</div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        window.openNoteFromSidebar = (key) => {
+            toggleNotesSidebar();
+            setTimeout(() => window.openNote(key), 300);
+        };
+
+        function filterNotes(query) {
+            const items = document.querySelectorAll('.notes-sidebar-item');
+            const q = query.toLowerCase();
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        // ================= 番茄钟逻辑 =================
+        const TIMER_MODES = {
+            pomodoro: { duration: 25 * 60, label: '专注中', next: 'shortBreak' },
+            shortBreak: { duration: 5 * 60, label: '休息中', next: 'pomodoro' },
+            custom: { duration: 45 * 60, label: '倒计时', next: null }
+        };
+        const RING_CIRCUMFERENCE = 2 * Math.PI * 88; // ~553
+
+        let timerMode = 'pomodoro';
+        let timerSeconds = TIMER_MODES.pomodoro.duration;
+        let timerTotal = TIMER_MODES.pomodoro.duration;
+        let timerInterval = null;
+        let timerRunning = false;
+
+        // 今日统计（每天重置）
+        function getTodayKey() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
+        function loadPomoStats() {
+            const raw = localStorage.getItem('pomo_stats');
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.date === getTodayKey()) return data;
+            }
+            return { date: getTodayKey(), count: 0, minutes: 0 };
+        }
+        function savePomoStats(stats) { localStorage.setItem('pomo_stats', JSON.stringify(stats)); }
+        function updateStatsUI() {
+            const stats = loadPomoStats();
+            document.getElementById('pomo-count').textContent = stats.count;
+            document.getElementById('focus-minutes').textContent = stats.minutes;
+        }
+
+        function togglePomodoroModal() {
+            const modal = document.getElementById('pomodoro-modal');
+            modal.classList.toggle('open');
+            updateStatsUI();
+        }
+
+        function switchTimerMode(mode) {
+            if (timerRunning) return; // 运行中不能切换
+            timerMode = mode;
+            // 更新 tabs
+            document.querySelectorAll('.timer-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + mode).classList.add('active');
+            // 自定义模式显示输入框
+            document.getElementById('custom-input-area').style.display = mode === 'custom' ? 'flex' : 'none';
+
+            if (mode === 'custom') {
+                const mins = parseInt(document.getElementById('custom-minutes').value) || 45;
+                TIMER_MODES.custom.duration = mins * 60;
+            }
+            timerSeconds = TIMER_MODES[mode].duration;
+            timerTotal = timerSeconds;
+            updateTimerDisplay();
+            updateRing(1);
+            updateTimerUI();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60);
+            const s = timerSeconds % 60;
+            document.getElementById('timer-time').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateRing(ratio) {
+            const ring = document.getElementById('timer-ring');
+            const offset = RING_CIRCUMFERENCE * (1 - ratio);
+            ring.style.strokeDasharray = RING_CIRCUMFERENCE;
+            ring.style.strokeDashoffset = offset;
+            // 休息模式变绿
+            const isBreak = timerMode === 'shortBreak';
+            ring.classList.toggle('break-mode', isBreak);
+            document.getElementById('timer-main-btn').classList.toggle('break-mode', isBreak);
+        }
+
+        function updateTimerUI() {
+            const btn = document.getElementById('timer-main-btn');
+            const label = document.getElementById('timer-status-label');
+            if (timerRunning) {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+                label.textContent = TIMER_MODES[timerMode].label;
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                label.textContent = timerSeconds === timerTotal ? '准备开始' : '已暂停';
+            }
+        }
+
+        function updateFab() {
+            const fab = document.getElementById('pomodoro-fab');
+            if (timerRunning) {
+                fab.classList.add('running');
+                const m = Math.floor(timerSeconds / 60);
+                const s = timerSeconds % 60;
+                fab.innerHTML = `<span class="fab-time">${m}:${String(s).padStart(2, '0')}</span>`;
+            } else {
+                fab.classList.remove('running');
+                fab.innerHTML = '<i class="fas fa-stopwatch"></i>';
+            }
+        }
+
+        function toggleTimer() {
+            if (timerRunning) {
+                // 暂停
+                clearInterval(timerInterval);
+                timerRunning = false;
+            } else {
+                // 自定义模式：按开始前更新时长
+                if (timerMode === 'custom' && timerSeconds === timerTotal) {
+                    const mins = parseInt(document.getElementById('custom-minutes').value) || 45;
+                    TIMER_MODES.custom.duration = mins * 60;
+                    timerSeconds = mins * 60;
+                    timerTotal = timerSeconds;
+                }
+                // 开始
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    if (timerSeconds <= 0) {
+                        timerSeconds = 0;
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        onTimerComplete();
+                    }
+                    updateTimerDisplay();
+                    updateRing(timerSeconds / timerTotal);
+                    updateFab();
+                }, 1000);
+            }
+            updateTimerUI();
+            updateFab();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = TIMER_MODES[timerMode].duration;
+            timerTotal = timerSeconds;
+            updateTimerDisplay();
+            updateRing(1);
+            updateTimerUI();
+            updateFab();
+        }
+
+        function skipTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            const nextMode = TIMER_MODES[timerMode].next;
+            if (nextMode) {
+                switchTimerMode(nextMode);
+            } else {
+                resetTimer();
+            }
+        }
+
+        function onTimerComplete() {
+            // 播放提示音
+            playAlarm();
+
+            if (timerMode === 'pomodoro') {
+                // 记录一个番茄
+                const stats = loadPomoStats();
+                stats.count++;
+                stats.minutes += 25;
+                savePomoStats(stats);
+                updateStatsUI();
+                showToast('🍅 专注完成！休息一下吧');
+                // 自动切换到休息
+                setTimeout(() => switchTimerMode('shortBreak'), 1500);
+            } else if (timerMode === 'shortBreak') {
+                showToast('☕ 休息结束，继续加油！');
+                setTimeout(() => switchTimerMode('pomodoro'), 1500);
+            } else {
+                // 自定义倒计时
+                const mins = Math.round(TIMER_MODES.custom.duration / 60);
+                const stats = loadPomoStats();
+                stats.minutes += mins;
+                savePomoStats(stats);
+                updateStatsUI();
+                showToast('⏰ 倒计时结束！');
+            }
+            updateTimerUI();
+            updateFab();
+        }
+
+        function playAlarm() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const playBeep = (freq, startTime, duration) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.3, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+                // 三声提示音
+                playBeep(880, ctx.currentTime, 0.2);
+                playBeep(880, ctx.currentTime + 0.3, 0.2);
+                playBeep(1100, ctx.currentTime + 0.6, 0.4);
+            } catch (e) { console.warn('Audio not available'); }
+
+            // 震动（移动端）
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+        }
+
+        // 初始化番茄钟显示
+        updateTimerDisplay();
+        updateRing(1);
+        updateStatsUI();
 
         init();
     </script>
