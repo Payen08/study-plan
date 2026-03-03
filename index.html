@@ -561,11 +561,12 @@
             .modal-content.note-mode {
                 width: 100%;
                 max-width: 100%;
-                border-radius: 24px 24px 0 0;
+                border-radius: 0;
                 margin: 0;
                 transform: translateY(100%);
-                height: 93vh;
+                height: 100%;
                 overscroll-behavior: contain;
+                padding-top: env(safe-area-inset-top);
             }
 
             .modal-overlay.open .modal-content.note-mode {
@@ -1282,7 +1283,7 @@
                         <div id="cloud-status-badge"
                             class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-slate-50 text-slate-400 border border-slate-100 cursor-pointer"
                             onclick="changeSyncID()" title="点击修改同步ID">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 离线
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 未同步
                         </div>
                     </div>
 
@@ -1909,7 +1910,7 @@
                 document.getElementById('main-title').innerText = "12月冲刺";
                 render2025();
             } else {
-                document.getElementById('main-title').innerText = `2026年 ${currentMonth2026 + 1}月`;
+                document.getElementById('main-title').innerText = `2026-${String(currentMonth2026 + 1).padStart(2, '0')}`;
                 render2026(currentMonth2026);
             }
             updateCountdown();
@@ -1995,7 +1996,7 @@
         function render2026(monthIdx) {
             const root = document.getElementById('calendar-view'); root.innerHTML = '';
             // Update title dynamically when rendering
-            document.getElementById('main-title').innerText = `2026年 ${monthIdx + 1}月`;
+            document.getElementById('main-title').innerText = `2026-${String(monthIdx + 1).padStart(2, '0')}`;
 
             const firstDay = new Date(2026, monthIdx, 1);
             const daysInMonth = new Date(2026, monthIdx + 1, 0).getDate();
@@ -2499,7 +2500,18 @@
             lhClasses.forEach(c => editor.classList.remove(c));
             editor.classList.add(lhClasses[lineHeightIdx]);
         }
-        function updateStatus(s) { document.getElementById('cloud-status-badge').innerHTML = s === 'online' ? `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> 云同步` : (s === 'syncing' ? `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中` : `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 离线`); }
+        function updateStatus(s) {
+            const badge = document.getElementById('cloud-status-badge');
+            if (s === 'online') {
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> ${timeStr} 已同步`;
+            } else if (s === 'syncing') {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中`;
+            } else {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 未同步`;
+            }
+        }
 
         // ================= 核心修改：ID 弹窗逻辑 =================
         window.changeSyncID = () => {
