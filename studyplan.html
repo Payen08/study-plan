@@ -1523,7 +1523,7 @@
             height: 56px;
             border-radius: 50%;
             background: white;
-            color: #b45309;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1732,7 +1732,7 @@
         </div>
 
         <!-- 统一的导航栏 (集成年份 + 月份) 加上吸顶容器 -->
-        <div class="sticky-header-wrapper">
+        <div class="sticky-header-wrapper mb-4">
             <div class="month-nav" id="unified-nav">
                 <!-- JS 动态生成 -->
             </div>
@@ -2454,8 +2454,9 @@
                 let d = CALENDAR_DATA_2025.find(item => item.day === i);
 
                 // 默认构造
-                const isPast = d ? (d.day < 4) : (i < 4); // Demo day
-                const isToday = d ? (d.day === 4) : (i === 4);
+                const today = new Date();
+                const isPast = today > new Date(2025, 11, i, 23, 59, 59); // 2025年12月已全部过去
+                const isToday = (today.getFullYear() === 2025 && today.getMonth() === 11 && today.getDate() === i);
 
                 const card = document.createElement('div');
                 const hasNoteCard = currentState.notes[`d${i}`] ? 'has-note-card' : '';
