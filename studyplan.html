@@ -274,23 +274,24 @@
 
         /* === 分类选项样式 (补回丢失的样式) === */
         .type-option {
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 18px;
             text-align: center;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 400;
             cursor: pointer;
-            border: 2px solid transparent;
+            border: 1px solid #e2e8f0;
             transition: all 0.2s;
             background: #f8fafc;
             color: #64748b;
         }
 
         .type-option.selected {
-            border-color: #3b82f6;
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: var(--c) !important;
+            border-color: var(--c) !important;
+            color: white !important;
+            font-weight: 600;
         }
 
         /* 分类颜色 */
@@ -480,6 +481,26 @@
 
         .modal-overlay.open .bottom-sheet-content {
             transform: translateY(0);
+        }
+
+        /* 居中弹窗 */
+        .center-modal-content {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 420px;
+            max-width: 90vw;
+            height: auto;
+            border-radius: 20px;
+            padding: 24px;
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.open .center-modal-content {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
         }
 
         .add-task-modal {
@@ -1777,8 +1798,7 @@
 
     <!-- 任务管理面板 (底部弹出) -->
     <div id="task-manage-modal" class="modal-overlay">
-        <div class="modal-content bottom-sheet-content bg-white">
-            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+        <div class="modal-content center-modal-content bg-white">
             <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
                 <i class="fas fa-sliders-h text-blue-500"></i> 管理任务
             </h3>
@@ -1801,15 +1821,48 @@
 
     <!-- 添加任务 Modal -->
     <div id="add-task-modal" class="modal-overlay">
-        <div class="modal-content bottom-sheet-content bg-white">
-            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+        <div class="modal-content center-modal-content bg-white">
+            <h3 class="font-bold text-lg mb-3 text-slate-800 flex items-center gap-2">
                 <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
             </h3>
             <input type="text" id="new-task-input"
-                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
 
-            <div class="grid grid-cols-2 gap-3 mb-6" id="type-selector-container">
+            <!-- 日期 + 时段行 -->
+            <div class="flex items-center gap-4 py-3 mb-4 border-t border-b border-slate-100"
+                style="margin:0 -24px;padding:12px 24px">
+                <i class="far fa-clock text-slate-400" style="font-size:15px"></i>
+                <span id="add-task-start-date" class="font-bold text-slate-800 text-sm"></span>
+                <div class="flex items-center gap-4 ml-auto">
+                    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" name="task-period" value="全天"
+                            class="period-check w-3.5 h-3.5 rounded accent-blue-500" checked
+                            onchange="window.onPeriodChange(this)">
+                        <span class="text-xs text-slate-600">全天</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" name="task-period" value="上午"
+                            class="period-check w-3.5 h-3.5 rounded accent-blue-500"
+                            onchange="window.onPeriodChange(this)">
+                        <span class="text-xs text-slate-600">上午</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" name="task-period" value="下午"
+                            class="period-check w-3.5 h-3.5 rounded accent-blue-500"
+                            onchange="window.onPeriodChange(this)">
+                        <span class="text-xs text-slate-600">下午</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input type="checkbox" name="task-period" value="晚上"
+                            class="period-check w-3.5 h-3.5 rounded accent-blue-500"
+                            onchange="window.onPeriodChange(this)">
+                        <span class="text-xs text-slate-600">晚上</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 py-3 mb-3" id="type-selector-container">
                 <!-- JS 动态生成分类 -->
             </div>
 
@@ -2444,6 +2497,29 @@
             nav.innerHTML = html;
         }
 
+        // ================= 双击/双触新增任务（兼容手机） =================
+        function addDoubleTap(card, taskKey) {
+            const isInteractive = (e) => e.target.closest('.task-item') || e.target.closest('.action-btn') || e.target.closest('.note-trigger');
+            // 桌面端 dblclick
+            card.addEventListener('dblclick', (e) => {
+                if (isInteractive(e)) return;
+                window.openAddTaskModal(taskKey);
+            });
+            // 手机端 双触
+            let lastTap = 0;
+            card.addEventListener('touchend', (e) => {
+                if (isInteractive(e)) return;
+                const now = Date.now();
+                if (now - lastTap < 400) {
+                    e.preventDefault();
+                    window.openAddTaskModal(taskKey);
+                    lastTap = 0;
+                } else {
+                    lastTap = now;
+                }
+            });
+        }
+
         // ================= 渲染：2025 冲刺 =================
         function render2025() {
             const root = document.getElementById('calendar-view'); root.innerHTML = '';
@@ -2488,7 +2564,10 @@
                 const custom = currentState.customTasks[key] || [];
                 custom.forEach(t => con.appendChild(createEl(t, true, key)));
 
-                card.appendChild(con); root.appendChild(card);
+                card.appendChild(con);
+                // 双击/双击空白区域新增任务（兼容手机）
+                addDoubleTap(card, key);
+                root.appendChild(card);
             }
         }
 
@@ -2544,7 +2623,10 @@
                 const tasks = currentState.customTasks[dateKey] || [];
                 tasks.forEach(t => con.appendChild(createEl(t, true, dateKey)));
 
-                card.appendChild(con); root.appendChild(card);
+                card.appendChild(con);
+                // 双击/双击空白区域新增任务（兼容手机）
+                addDoubleTap(card, dateKey);
+                root.appendChild(card);
             }
         }
 
@@ -2926,17 +3008,41 @@
 
         // ================= 任务添加 =================
         let addingKey = null;
-        let selectedType = 't-work'; // 默认
+        let addingYear = 2026;
+        let addingMonth = 0;
+        let addingStartDay = 1;
+        let selectedType = 't-work';
 
         window.openAddTaskModal = (key) => {
             addingKey = key;
             const modal = document.getElementById('add-task-modal');
             const container = document.getElementById('type-selector-container');
 
-            // 使用动态分类列表
+            // 解析日期
+            if (key.startsWith('d')) {
+                addingStartDay = parseInt(key.slice(1));
+                addingYear = 2025;
+                addingMonth = 11;
+            } else {
+                const parts = key.split('-');
+                addingYear = parseInt(parts[0]);
+                addingMonth = parseInt(parts[1]) - 1;
+                addingStartDay = parseInt(parts[2]);
+            }
+
+            const mm = String(addingMonth + 1).padStart(2, '0');
+            const dd = String(addingStartDay).padStart(2, '0');
+            document.getElementById('add-task-start-date').textContent = `${addingYear}-${mm}-${dd}`;
+
+            // 重置时段勾选
+            document.querySelectorAll('.period-check').forEach((c, i) => {
+                c.checked = (i === 0); // 默认勾选"全天"
+            });
+
+            // 分类
             const cats = getCategories();
             container.innerHTML = cats.map(c =>
-                `<div class="type-option" data-val="${c.type}" onclick="window.selectType('${c.type}', this)" style="color:${c.color};background:${c.bg};border-color:${c.border}">${c.name}</div>`
+                `<div class="type-option" data-val="${c.type}" onclick="window.selectType('${c.type}', this)" style="--c:${c.color};color:${c.color};background:${c.bg};border-color:${c.border}">${c.name}</div>`
             ).join('');
             if (cats.length > 0) window.selectType(cats[0].type, container.children[0]);
 
@@ -2947,19 +3053,49 @@
 
         window.selectType = (type, el) => {
             selectedType = type;
-            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('#type-selector-container .type-option').forEach(opt => opt.classList.remove('selected'));
             if (el) el.classList.add('selected');
         };
 
+        window.onPeriodChange = (el) => {
+            const checks = document.querySelectorAll('.period-check');
+            if (el.value === '全天' && el.checked) {
+                // 勾选全天 → 取消其他
+                checks.forEach(c => { if (c.value !== '全天') c.checked = false; });
+            } else if (el.value !== '全天' && el.checked) {
+                // 勾选上午/下午/晚上 → 取消全天
+                checks.forEach(c => { if (c.value === '全天') c.checked = false; });
+            }
+        };
+
         window.confirmAddTask = () => {
-            const text = document.getElementById('new-task-input').value.trim();
-            if (!text) return;
-            if (!currentState.customTasks[addingKey]) currentState.customTasks[addingKey] = [];
-            currentState.customTasks[addingKey].push({ id: `custom-${Date.now()}`, text: text, type: selectedType });
-            document.getElementById('add-task-modal').classList.remove('open');
-            refresh();
-            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
-            save();
+            try {
+                const text = document.getElementById('new-task-input').value.trim();
+                if (!text) return;
+
+                // 收集选中的时段
+                const periods = [...document.querySelectorAll('.period-check:checked')].map(c => c.value);
+                const hasAllDay = periods.includes('全天');
+                let periodPrefix = '';
+                if (!hasAllDay && periods.length > 0) {
+                    periodPrefix = `[${periods.join('·')}] `;
+                }
+
+                if (!currentState.customTasks[addingKey]) currentState.customTasks[addingKey] = [];
+                currentState.customTasks[addingKey].push({
+                    id: `custom-${Date.now()}`,
+                    text: periodPrefix + text,
+                    type: selectedType
+                });
+
+                document.getElementById('add-task-modal').classList.remove('open');
+                refresh();
+                if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                save();
+            } catch (err) {
+                console.error('添加任务失败:', err);
+                alert('添加失败: ' + err.message);
+            }
         };
 
         window.deleteTask = (key, id) => {
