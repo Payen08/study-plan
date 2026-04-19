@@ -27,6 +27,507 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        body.dark-mode {
+            background: radial-gradient(1200px 540px at 20% -10%, rgba(255, 255, 255, 0.05), transparent 60%), #070708;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .bg-white,
+        body.dark-mode .modal-content,
+        body.dark-mode .day-card,
+        body.dark-mode .quick-menu-panel,
+        body.dark-mode .notes-sidebar,
+        body.dark-mode .notebook-main,
+        body.dark-mode .notebook-side,
+        body.dark-mode .task-item,
+        body.dark-mode .search-item,
+        body.dark-mode .preview-card,
+        body.dark-mode .preview-summary,
+        body.dark-mode .transfer-choice,
+        body.dark-mode .cat-row,
+        body.dark-mode .timer-tabs {
+            background: #121314 !important;
+            color: #f5f5f5 !important;
+            border-color: #2f3236 !important;
+            box-shadow: none !important;
+        }
+
+        body.dark-mode .text-slate-800,
+        body.dark-mode .text-slate-700,
+        body.dark-mode .text-slate-600,
+        body.dark-mode .text-slate-500 {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .text-slate-400,
+        body.dark-mode .text-slate-300 {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .bg-slate-50,
+        body.dark-mode .bg-slate-100,
+        body.dark-mode .bg-slate-200 {
+            background: #1a1b1e !important;
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .border-slate-100,
+        body.dark-mode .border-slate-200,
+        body.dark-mode .border-slate-300,
+        body.dark-mode .border {
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .sticky-header-wrapper {
+            background-color: #0b0c0d;
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .nav-pill {
+            background: #181a1d;
+            border-color: #333841;
+            color: #d4d4d8;
+        }
+
+        body.dark-mode .nav-pill.active,
+        body.dark-mode .nav-pill.year-pill.active {
+            background: #f5f5f5;
+            border-color: #f5f5f5;
+            color: #0a0a0a;
+            box-shadow: none;
+        }
+
+        body.dark-mode .nav-pill.year-pill {
+            background: #222429;
+            border-color: #3a3f48;
+            color: #d4d4d8;
+        }
+
+        body.dark-mode #note-editor,
+        body.dark-mode .notebook-editor,
+        body.dark-mode .import-textarea,
+        body.dark-mode .export-textarea,
+        body.dark-mode .search-input,
+        body.dark-mode .cat-name-input,
+        body.dark-mode .notes-search-input,
+        body.dark-mode #sync-id-input,
+        body.dark-mode #new-task-input,
+        body.dark-mode #custom-minutes {
+            background: #0f1012 !important;
+            color: #f5f5f5 !important;
+            border-color: #343842 !important;
+        }
+
+        body.dark-mode .bg-blue-600,
+        body.dark-mode .hover\:bg-blue-700:hover,
+        body.dark-mode .bg-blue-500,
+        body.dark-mode .timer-btn-main,
+        body.dark-mode .countdown-box,
+        body.dark-mode .quick-menu-fab {
+            background: linear-gradient(180deg, #272a2f 0%, #16181c 100%) !important;
+            color: #f9fafb !important;
+            border: 1px solid #393f49 !important;
+            box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.92) !important;
+        }
+
+        body.dark-mode .hover\:bg-blue-700:hover,
+        body.dark-mode .hover\:bg-green-700:hover,
+        body.dark-mode .hover\:bg-slate-200:hover {
+            filter: brightness(1.08);
+        }
+
+        body.dark-mode .timer-ring-progress,
+        body.dark-mode .timer-ring-progress.break-mode,
+        body.dark-mode .text-blue-500,
+        body.dark-mode .text-blue-600,
+        body.dark-mode .text-green-500,
+        body.dark-mode .text-purple-500,
+        body.dark-mode .text-amber-500,
+        body.dark-mode .text-orange-400 {
+            filter: brightness(1.2) saturate(1.15);
+        }
+
+        body.dark-mode .day-card.has-note-card {
+            background: #1b1710 !important;
+            border-color: #4b3f24 !important;
+        }
+
+        body.dark-mode #progress-fill {
+            background: linear-gradient(90deg, #e4e4e7, #fafafa) !important;
+        }
+
+        body.dark-mode .quick-menu-overlay,
+        body.dark-mode .notes-sidebar-overlay,
+        body.dark-mode .modal-overlay {
+            background: rgba(0, 0, 0, 0.72);
+        }
+
+        /* -- 暗黑: 日历卡片状态 -- */
+        body.dark-mode .is-past {
+            background-color: #0d0e10 !important;
+            opacity: 0.75;
+        }
+
+        body.dark-mode .is-today {
+            background: #121314 !important;
+            border-color: #e5e7eb !important;
+            box-shadow: 0 8px 20px -6px rgba(255, 255, 255, 0.08) !important;
+        }
+
+        body.dark-mode .is-holiday {
+            background: #1a1214 !important;
+            border-color: #3d2028 !important;
+        }
+
+        body.dark-mode .holiday-tag {
+            background: #2e171c !important;
+            color: #f87171 !important;
+        }
+
+        body.dark-mode .task-item.done {
+            background-color: #0d0e10 !important;
+            color: #6b7280 !important;
+            border-color: #1f2124 !important;
+        }
+
+        body.dark-mode .task-item.done .task-checkbox {
+            background-color: #6b7280 !important;
+            border-color: #6b7280 !important;
+        }
+
+        body.dark-mode .task-check-zone {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border-right-color: rgba(255, 255, 255, 0.06) !important;
+        }
+
+        /* -- 暗黑: 工具栏 -- */
+        body.dark-mode .toolbar-btn {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .toolbar-btn:hover {
+            background-color: #1f2124 !important;
+            color: #e5e7eb !important;
+        }
+
+        /* -- 暗黑: 快捷菜单内文字/图标 -- */
+        body.dark-mode .quick-menu-item {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .quick-menu-item i {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .quick-menu-item:hover {
+            background: #1a1b1e !important;
+        }
+
+        /* -- 暗黑: 番茄钟 -- */
+        body.dark-mode .timer-time {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .timer-label,
+        body.dark-mode .timer-stat-label {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .timer-stat-num {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .timer-tab {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .timer-tab.active {
+            background: #272a2f !important;
+            color: #f5f5f5 !important;
+            box-shadow: none !important;
+        }
+
+        body.dark-mode .timer-btn-secondary {
+            background: #1f2124 !important;
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .timer-ring-bg {
+            stroke: #272a2f !important;
+        }
+
+        body.dark-mode .custom-time-input span {
+            color: #a1a1aa !important;
+        }
+
+        /* -- 暗黑: 分类选项 (添加任务弹窗) -- */
+        body.dark-mode .type-option {
+            background: #1a1b1e !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .type-option.selected {
+            border-color: currentColor !important;
+        }
+
+        /* -- 暗黑: 冲突开关 -- */
+        body.dark-mode .conflict-toggle {
+            background: #1a1b1e !important;
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .toggle-switch.off {
+            background: #3f3f46 !important;
+        }
+
+        /* -- 暗黑: 预览区 -- */
+        body.dark-mode .preview-date {
+            color: #93c5fd !important;
+        }
+
+        body.dark-mode .preview-count {
+            background: #1f2124 !important;
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .preview-summary .text {
+            color: #86efac !important;
+        }
+
+        /* -- 暗黑: toast -- */
+        body.dark-mode .toast {
+            background: #f5f5f5 !important;
+            color: #18181b !important;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* -- 暗黑: 搜索高亮 -- */
+        body.dark-mode .search-highlight {
+            background: #854d0e !important;
+            color: #fef08a !important;
+        }
+
+        /* -- 暗黑: 笔记本侧栏和编辑器 -- */
+        body.dark-mode .subject-chip-btn {
+            background: #181a1d !important;
+            color: #d4d4d8 !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .subject-chip-btn.active {
+            background: #272a2f !important;
+            color: #f5f5f5 !important;
+            border-color: #52525b !important;
+        }
+
+        body.dark-mode .notebook-subject-head {
+            border-bottom-color: #272a2f !important;
+        }
+
+        body.dark-mode .notebook-head-date {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .notebook-footer {
+            background: #121314 !important;
+            border-top-color: #272a2f !important;
+        }
+
+        body.dark-mode .notebook-save-btn {
+            background: #1f2124 !important;
+            color: #d4d4d8 !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .notebook-save-btn:hover {
+            background: #272a2f !important;
+        }
+
+        body.dark-mode .notebook-projection {
+            background: #161718 !important;
+            border-color: #272a2f !important;
+        }
+
+        body.dark-mode .projection-head {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .projection-text {
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .projection-text + .projection-text {
+            border-top-color: #272a2f !important;
+        }
+
+        /* -- 暗黑: 笔记/编辑器内部元素 -- */
+        body.dark-mode #note-editor blockquote,
+        body.dark-mode .notebook-editor blockquote {
+            background: #161718 !important;
+            color: #a1a1aa !important;
+            border-left-color: #52525b !important;
+        }
+
+        body.dark-mode #note-editor th,
+        body.dark-mode .notebook-editor th {
+            background: #1a1b1e !important;
+        }
+
+        body.dark-mode #note-editor th,
+        body.dark-mode #note-editor td,
+        body.dark-mode .notebook-editor th,
+        body.dark-mode .notebook-editor td {
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode #note-editor a,
+        body.dark-mode .notebook-editor a {
+            color: #93c5fd !important;
+        }
+
+        body.dark-mode .note-link-menu {
+            background: rgba(24, 26, 29, 0.98) !important;
+            border-color: #30343a !important;
+            box-shadow: 0 18px 42px -24px rgba(0, 0, 0, 0.9) !important;
+        }
+
+        body.dark-mode .note-link-item:hover,
+        body.dark-mode .note-link-item.active {
+            background: #272a2f !important;
+        }
+
+        body.dark-mode .note-link-item-date {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .note-link-item-preview,
+        body.dark-mode .note-link-empty {
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .editor-scroller {
+            background: #121314 !important;
+        }
+
+        /* -- 暗黑: 斜杠命令菜单 -- */
+        body.dark-mode .slash-menu {
+            background: #181a1d !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .slash-item:hover,
+        body.dark-mode .slash-item.active {
+            background: #272a2f !important;
+        }
+
+        /* -- 暗黑: 右键归类菜单 -- */
+        body.dark-mode .subject-menu {
+            background: rgba(24, 26, 29, 0.98) !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .subject-menu-title {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .subject-menu-item:hover {
+            background: #272a2f !important;
+        }
+
+        /* -- 暗黑: 调色板 -- */
+        body.dark-mode .color-palette {
+            background: #181a1d !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-mode .color-swatch.selected {
+            border-color: #f5f5f5 !important;
+            box-shadow: 0 0 0 2px #181a1d, 0 0 0 4px #f5f5f5 !important;
+        }
+
+        /* -- 暗黑: 分类管理 -- */
+        body.dark-mode .cat-row:hover {
+            background: #1a1b1e !important;
+        }
+
+        body.dark-mode .cat-color-dot {
+            border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+
+        body.dark-mode .cat-add-row {
+            border-color: #30343a !important;
+            color: #71717a !important;
+        }
+
+        body.dark-mode .cat-add-row:hover {
+            border-color: #52525b !important;
+            color: #d4d4d8 !important;
+            background: #1a1b1e !important;
+        }
+
+        /* -- 暗黑: 笔记侧栏 -- */
+        body.dark-mode .notes-sidebar-header {
+            border-bottom-color: #272a2f !important;
+        }
+
+        body.dark-mode .notes-sidebar-item-date {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .notes-sidebar-item-preview {
+            color: #71717a !important;
+        }
+
+        body.dark-mode .notes-sidebar-item:active {
+            background: #1f1d18 !important;
+            border-color: #3d3a2f !important;
+        }
+
+        /* -- 暗黑: 手机端日期分隔线 -- */
+        body.dark-mode .day-header-mobile {
+            border-bottom-color: #272a2f !important;
+        }
+
+        /* -- 暗黑: 装饰渐变角 -- */
+        body.dark-mode .bg-gradient-to-br {
+            opacity: 0 !important;
+        }
+
+        /* -- 暗黑: 导入弹窗底部 -- */
+        body.dark-mode .import-footer {
+            border-top-color: #272a2f !important;
+        }
+
+        /* -- 暗黑: placeholder -- */
+        body.dark-mode .import-textarea::placeholder,
+        body.dark-mode .export-textarea::placeholder,
+        body.dark-mode .notes-search-input::placeholder,
+        body.dark-mode #note-editor[contenteditable="true"]:empty:before,
+        body.dark-mode .notebook-editor:empty:before {
+            color: #52525b !important;
+        }
+
+        /* -- 暗黑: 内联样式覆盖(任务条目的分类色) -- */
+        body.dark-mode .task-item:not(.done) {
+            background-color: transparent !important;
+            border-color: #272a2f !important;
+        }
+
+        body.dark-mode .task-content-zone {
+            color: inherit !important;
+        }
+
+        /* -- 暗黑: shadow 清理 -- */
+        body.dark-mode [class*="shadow-blue-"],
+        body.dark-mode [class*="shadow-slate-"],
+        body.dark-mode [class*="shadow-green-"],
+        body.dark-mode [class*="shadow-purple-"],
+        body.dark-mode .shadow-lg,
+        body.dark-mode .shadow-sm {
+            --tw-shadow: none !important;
+            box-shadow: none !important;
+        }
+
         .safe-area-top {
             padding-top: env(safe-area-inset-top);
         }
@@ -675,6 +1176,17 @@
             font-size: 13px;
         }
 
+        #note-editor p {
+            margin: 0 0 8px;
+        }
+
+        #note-editor .note-editable-slot {
+            min-height: 10px;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
         #note-editor th,
         #note-editor td {
             border: 1px solid #cbd5e1;
@@ -758,6 +1270,19 @@
             text-decoration: underline;
         }
 
+        .note-inner-link {
+            color: #2563eb !important;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(37, 99, 235, 0.45);
+            padding: 0 1px;
+        }
+
+        .note-inner-link:hover {
+            color: #1d4ed8 !important;
+            border-bottom-color: rgba(29, 78, 216, 0.7);
+        }
+
         /* 倒计时盒子新增 hover 和 点击 状态 */
         .countdown-box {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -824,18 +1349,24 @@
 
         /* 行高控制 */
         #note-editor.lh-tight,
-        #note-editor.lh-tight * {
-            line-height: 1.3 !important;
+        #note-editor.lh-tight *,
+        .notebook-editor.lh-tight,
+        .notebook-editor.lh-tight * {
+            line-height: 1.5 !important;
         }
 
         #note-editor.lh-normal,
-        #note-editor.lh-normal * {
-            line-height: 1.75 !important;
+        #note-editor.lh-normal *,
+        .notebook-editor.lh-normal,
+        .notebook-editor.lh-normal * {
+            line-height: 1.8 !important;
         }
 
         #note-editor.lh-loose,
-        #note-editor.lh-loose * {
-            line-height: 2.2 !important;
+        #note-editor.lh-loose *,
+        .notebook-editor.lh-loose,
+        .notebook-editor.lh-loose * {
+            line-height: 2.3 !important;
         }
 
         /* === 导入/导出弹窗 === */
@@ -1293,51 +1824,178 @@
             }
         }
 
-        /* === 番茄钟 === */
-        .pomodoro-fab {
+        /* === 右下角汇总菜单 === */
+        .quick-menu-fab {
             position: fixed;
             bottom: max(24px, env(safe-area-inset-bottom, 0px));
             right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            font-size: 20px;
+            box-shadow: 0 14px 32px -18px rgba(15, 23, 42, 0.72);
             cursor: pointer;
-            z-index: 90;
+            z-index: 221;
             transition: all 0.3s;
             border: none;
         }
 
-        .pomodoro-fab:active {
+        .quick-menu-fab:active {
             transform: scale(0.9);
         }
 
-        .pomodoro-fab.running {
+        .quick-menu-fab.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.88);
+        }
+
+        .quick-menu-fab.running {
             animation: fab-pulse 2s ease-in-out infinite;
         }
 
-        .pomodoro-fab .fab-time {
+        .quick-menu-fab .fab-time {
             font-size: 11px;
             font-weight: 800;
             letter-spacing: -0.5px;
+        }
+
+        .quick-menu-fab .fa-bars,
+        .quick-menu-fab .fa-times {
+            transition: transform 0.2s;
+        }
+
+        .quick-menu-fab.open .fa-bars,
+        .quick-menu-fab.open .fa-times {
+            transform: rotate(90deg);
+        }
+
+        .quick-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(1px);
+            z-index: 218;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .quick-menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .quick-menu-panel {
+            position: fixed;
+            right: 20px;
+            bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
+            z-index: 220;
+            width: min(260px, calc(100vw - 28px));
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 22px 42px -24px rgba(15, 23, 42, 0.42);
+            padding: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px) scale(0.96);
+            transform-origin: bottom right;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quick-menu-panel.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .quick-menu-item {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.16s, transform 0.16s;
+        }
+
+        .quick-menu-item:hover {
+            background: #f8fafc;
+        }
+
+        .quick-menu-item:active {
+            transform: scale(0.98);
+        }
+
+        .quick-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #475569;
+        }
+
+        .quick-menu-badge {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #fff;
+            background: #ef4444;
+            box-shadow: 0 8px 18px -10px rgba(239, 68, 68, 0.85);
+            letter-spacing: -0.2px;
+        }
+
+        .quick-menu-badge.hidden {
+            display: none;
         }
 
         @keyframes fab-pulse {
 
             0%,
             100% {
-                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+                box-shadow: 0 14px 32px -18px rgba(15, 23, 42, 0.72);
             }
 
             50% {
-                box-shadow: 0 6px 30px rgba(239, 68, 68, 0.7);
+                box-shadow: 0 16px 36px -14px rgba(239, 68, 68, 0.9);
             }
+        }
+
+        .transfer-hub-modal {
+            width: 90%;
+            max-width: 380px;
+            height: auto;
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .transfer-choice {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transfer-choice:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
         }
 
         .timer-modal {
@@ -1536,30 +2194,6 @@
         }
 
         /* === 笔记快捷侧栏 === */
-        .notes-fab {
-            position: fixed;
-            bottom: max(92px, calc(env(safe-area-inset-bottom, 0px) + 92px));
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: white;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            z-index: 90;
-            transition: all 0.2s;
-            border: 1px solid #f3f4f6;
-        }
-
-        .notes-fab:active {
-            transform: scale(0.9);
-        }
-
         .notes-search-box {
             padding: 8px 16px 12px;
         }
@@ -1697,6 +2331,709 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        .notebook-modal {
+            width: min(920px, calc(100vw - 24px));
+            height: min(76vh, 680px);
+            border-radius: 24px;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notebook-layout {
+            display: grid;
+            grid-template-columns: 176px minmax(0, 1fr);
+            min-height: 0;
+            flex: 1;
+        }
+
+        .notebook-side {
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+            border-right: 1px solid #e2e8f0;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .subject-chip-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .subject-chip-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .subject-chip-btn {
+            border-radius: 14px;
+            padding: 9px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 1;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            color: #334155;
+            min-height: 42px;
+        }
+
+        .notebook-main {
+            padding: 0;
+            overflow-y: auto;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .subject-chip-btn.active {
+            transform: none;
+            box-shadow: 0 10px 18px -18px rgba(37, 99, 235, 0.6);
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .notebook-subject-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0;
+            padding: 10px 14px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            gap: 12px;
+        }
+
+        .notebook-head-date {
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            background: transparent;
+            border: 0;
+            border-radius: 999px;
+            padding: 0;
+        }
+
+        .notebook-editor-shell {
+            flex: 1;
+            min-height: 0;
+            padding: 0 14px 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notebook-editor {
+            flex: 1;
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
+            outline: none;
+            background: transparent;
+            color: #1e293b;
+            font-size: 16px;
+            line-height: 1.75;
+            overflow-y: auto;
+            padding: 14px 0 16px;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: pre-wrap;
+            box-shadow: none;
+        }
+
+        .notebook-editor:focus {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .notebook-editor:empty:before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+        }
+
+        .notebook-editor > * {
+            margin: 0 0 10px;
+        }
+
+        .notebook-editor p {
+            margin: 0 0 8px;
+        }
+
+        .notebook-editor > *:last-child {
+            margin-bottom: 0;
+        }
+
+        .notebook-editor ul,
+        .notebook-editor ol {
+            padding-left: 22px;
+        }
+
+        .notebook-editor blockquote {
+            border-left: 4px solid #3b82f6;
+            padding: 6px 0 6px 12px;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .notebook-editor table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .notebook-editor th,
+        .notebook-editor td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .notebook-editor th {
+            background: #f8fafc;
+            font-weight: 700;
+        }
+
+        .notebook-editor img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 8px 0;
+            border: 1px solid #e2e8f0;
+            cursor: zoom-in;
+        }
+
+        .notebook-editor input[type="checkbox"] {
+            margin-right: 8px;
+            vertical-align: middle;
+            transform: scale(1.2);
+            accent-color: #3b82f6;
+        }
+
+        .notebook-editor a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .notebook-footer {
+            padding: 10px 12px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .notebook-tools {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .notebook-tools::-webkit-scrollbar {
+            display: none;
+        }
+
+        .notebook-save-btn {
+            border: 1px solid #dbe1ea;
+            background: #fff;
+            color: #334155;
+            border-radius: 14px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .notebook-save-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        /* === 模板选择器 === */
+        .template-modal-content {
+            width: 92%;
+            max-width: 420px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .template-picker-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .template-card {
+            flex: 1 1 calc(50% - 4px);
+            min-width: 130px;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .template-card:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        .template-card:active {
+            transform: scale(0.97);
+        }
+
+        .template-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .template-card-desc {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        body.dark-mode .template-modal-content {
+            background: #111214 !important;
+            border-top-color: #272a2f !important;
+        }
+
+        body.dark-mode .template-modal-content h3 {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .template-modal-content p {
+            color: #71717a !important;
+        }
+
+        body.dark-mode .template-modal-content > button {
+            background: #1f2124 !important;
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .template-modal-content > button:hover {
+            background: #272a2f !important;
+        }
+
+        body.dark-mode .template-card {
+            background: #181a1d !important;
+            border-color: #30343a !important;
+        }
+
+        body.dark-mode .template-card:hover {
+            background: #1f2124 !important;
+            border-color: #52525b !important;
+        }
+
+        body.dark-mode .template-card-title {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .template-card-desc {
+            color: #71717a !important;
+        }
+
+        @media (max-width: 900px) {
+            .template-card {
+                flex: 1 1 100%;
+            }
+        }
+
+        /* === 标签系统 === */
+        .note-tag {
+            display: inline;
+            color: #6366f1;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .note-tag:hover {
+            background: #eef2ff;
+        }
+
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #e0e7ff;
+            white-space: nowrap;
+        }
+
+        .tag-chip:hover {
+            background: #e0e7ff;
+            border-color: #c7d2fe;
+        }
+
+        .tag-chip.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        .tag-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0 20px 6px;
+            min-height: 0;
+        }
+
+        .tag-bar:empty {
+            display: none;
+        }
+
+        /* 搜索弹窗中的热门标签区域 */
+        .search-tags-area {
+            padding: 8px 16px 4px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .search-tags-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+
+        .search-tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        /* 笔记侧栏标签筛选 */
+        .sidebar-tag-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0 16px 8px;
+        }
+
+        .sidebar-tag-filter:empty {
+            display: none;
+        }
+
+        /* 标签聚合结果 */
+        .tag-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .tag-results-close {
+            font-size: 11px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: 0.15s;
+        }
+
+        .tag-results-close:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        body.dark-mode .note-tag {
+            color: #818cf8 !important;
+        }
+
+        body.dark-mode .note-tag:hover {
+            background: #1e1b4b !important;
+        }
+
+        body.dark-mode .tag-chip {
+            background: #1e1b4b !important;
+            color: #a5b4fc !important;
+            border-color: #312e81 !important;
+        }
+
+        body.dark-mode .tag-chip:hover {
+            background: #312e81 !important;
+            border-color: #4338ca !important;
+        }
+
+        body.dark-mode .tag-chip.active {
+            background: #4f46e5 !important;
+            color: white !important;
+            border-color: #4f46e5 !important;
+        }
+
+        body.dark-mode .search-tags-area {
+            border-bottom-color: #272a2f !important;
+        }
+
+        body.dark-mode .search-tags-label {
+            color: #6b7280 !important;
+        }
+
+        body.dark-mode .tag-results-header {
+            color: #d1d5db !important;
+        }
+
+        body.dark-mode .tag-results-close:hover {
+            background: #1f2124 !important;
+            color: #d1d5db !important;
+        }
+
+        .notebook-projection {
+            margin-top: 2px;
+            padding: 3px 8px 5px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            text-align: left;
+        }
+
+        .notebook-projection,
+        .notebook-projection * {
+            line-height: 1.55 !important;
+        }
+
+        .projection-head {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            margin: 0 0 8px;
+            text-align: left;
+        }
+
+        .projection-text {
+            color: #334155;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            border: 0;
+        }
+
+        #note-editor .projection-text,
+        #note-editor .projection-text * {
+            line-height: 1.45 !important;
+        }
+
+        .projection-text + .projection-text {
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed #dbe4ee;
+        }
+
+        .projection-text[contenteditable="true"] {
+            outline: none;
+            cursor: text;
+        }
+
+        .subject-menu {
+            position: fixed;
+            z-index: 260;
+            min-width: 190px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 18px 40px -22px rgba(15, 23, 42, 0.45);
+            padding: 8px;
+            display: none;
+        }
+
+        .subject-menu.open {
+            display: block;
+        }
+
+        .subject-menu-title {
+            padding: 8px 10px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .subject-menu-item {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.18s ease;
+        }
+
+        .subject-menu-item:hover {
+            background: #f8fafc;
+        }
+
+        .subject-menu-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+
+        .note-link-menu {
+            position: fixed;
+            z-index: 280;
+            min-width: 220px;
+            max-width: min(380px, calc(100vw - 20px));
+            max-height: 260px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 18px 40px -22px rgba(15, 23, 42, 0.45);
+            padding: 6px;
+            display: none;
+        }
+
+        .note-link-menu.open {
+            display: block;
+        }
+
+        .note-link-item {
+            border: 0;
+            width: 100%;
+            background: transparent;
+            border-radius: 10px;
+            padding: 8px 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .note-link-item:hover,
+        .note-link-item.active {
+            background: #f8fafc;
+        }
+
+        .note-link-item-date {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 2px;
+        }
+
+        .note-link-item-preview {
+            font-size: 12px;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .note-link-empty {
+            padding: 9px 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        @media (max-width: 900px) {
+            .notebook-modal {
+                width: calc(100vw - 12px);
+                height: calc(100vh - 16px);
+                border-radius: 24px 24px 0 0;
+            }
+
+            .notebook-layout {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .notebook-side {
+                border-right: 0;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 10px;
+                gap: 8px;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .subject-chip-row {
+                flex-direction: row;
+                gap: 8px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding-bottom: 2px;
+            }
+
+            .subject-chip-btn {
+                flex: 0 0 auto;
+                min-height: 36px;
+                padding: 8px 12px;
+                white-space: nowrap;
+            }
+
+            .notebook-main {
+                flex: 1;
+                min-height: 0;
+            }
+
+            .notebook-subject-head {
+                padding: 10px 12px 8px;
+            }
+
+            .notebook-editor-shell {
+                padding: 0 12px 8px;
+            }
+
+            .notebook-editor {
+                padding: 12px 14px 14px;
+            }
+
+            .notebook-footer {
+                padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 
@@ -1778,20 +3115,7 @@
                 <i class="fas fa-fingerprint text-blue-500"></i> 同步ID: <span id="sync-id-label"
                     class="text-slate-800 font-mono">LOCAL</span> <i class="fas fa-pen text-[10px] ml-1 opacity-50"></i>
             </div>
-            <div class="flex items-center justify-center gap-2">
-                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-200 rounded-full text-[11px] text-blue-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
-                    onclick="openImportModal()">
-                    <i class="fas fa-file-import text-[10px]"></i> 导入
-                </div>
-                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-[11px] text-slate-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
-                    onclick="openExportModal()">
-                    <i class="fas fa-file-export text-green-500 text-[10px]"></i> 导出
-                </div>
-                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-[11px] text-slate-500 font-bold shadow-sm cursor-pointer hover:shadow-md transition active:scale-95"
-                    onclick="openCategoryModal()">
-                    <i class="fas fa-tags text-purple-500 text-[10px]"></i> 分类
-                </div>
-            </div>
+            <p class="text-[11px] text-slate-400">右下角菜单可打开笔记本 / 番茄钟 / 导入导出 / 分类</p>
             <p class="text-[10px] text-slate-300 mt-2">ID 通用：自动合并 2025/2026 数据</p>
         </div>
     </div>
@@ -1799,9 +3123,7 @@
     <!-- 任务管理面板 (底部弹出) -->
     <div id="task-manage-modal" class="modal-overlay">
         <div class="modal-content center-modal-content bg-white">
-            <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
-                <i class="fas fa-sliders-h text-blue-500"></i> 管理任务
-            </h3>
+            <h3 class="font-bold text-lg mb-4 text-slate-800">管理任务</h3>
 
             <textarea id="edit-task-input" rows="3"
                 class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"></textarea>
@@ -1814,7 +3136,7 @@
                 <button onclick="closeTaskManage()"
                     class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
                 <button onclick="deleteCurrentTask()"
-                    class="flex-1 py-3 bg-red-50 text-red-500 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-100 transition">删除任务</button>
+                    class="flex-1 py-3 bg-slate-50 text-slate-500 border border-slate-200 rounded-xl font-bold text-sm hover:bg-slate-100 transition">删除任务</button>
             </div>
         </div>
     </div>
@@ -1880,10 +3202,14 @@
         <div class="modal-content search-modal bg-white flex flex-col">
             <div class="search-header">
                 <i class="fas fa-search text-slate-400"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记或任务..."
+                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记或任务... 输入 #标签 可筛选"
                     oninput="handleSearch(this.value)">
                 <button onclick="toggleSearch()"
                     class="text-slate-400 hover:text-slate-600 text-sm font-bold">取消</button>
+            </div>
+            <div id="search-tags-area" class="search-tags-area" style="display:none;">
+                <div class="search-tags-label">热门标签</div>
+                <div id="search-tags-row" class="search-tags-row"></div>
             </div>
             <div id="search-results" class="search-results">
                 <div class="empty-state">输入关键词开始搜索...</div>
@@ -1936,9 +3262,7 @@
     <div id="import-modal" class="modal-overlay">
         <div class="modal-content import-modal bg-white">
             <div class="import-header">
-                <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2 mb-1">
-                    <i class="fas fa-file-import text-blue-500"></i> 快捷导入学习计划
-                </h3>
+                <h3 class="font-bold text-lg text-slate-800 mb-1">快捷导入学习计划</h3>
                 <p class="text-xs text-slate-400 mb-5">每行一个任务，用日期行分隔</p>
             </div>
             <div class="import-body">
@@ -1957,9 +3281,7 @@
                 <button onclick="closeImportModal()"
                     class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
                 <button onclick="directImport()"
-                    class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-file-import"></i> 导入
-                </button>
+                    class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">导入</button>
             </div>
         </div>
     </div>
@@ -1967,18 +3289,40 @@
     <!-- 导出计划 Modal -->
     <div id="export-modal" class="modal-overlay">
         <div class="modal-content export-modal bg-white">
-            <h3 class="font-bold text-lg mb-1 text-slate-800 flex items-center gap-2">
-                <i class="fas fa-file-export text-green-500"></i> 导出学习计划
-            </h3>
+            <h3 class="font-bold text-lg mb-1 text-slate-800">导出学习计划</h3>
             <p class="text-xs text-slate-400 mb-4">复制以下内容，可以分享给同学或备份</p>
             <textarea id="export-textarea" class="export-textarea" readonly></textarea>
             <div class="flex gap-3 mt-4">
                 <button onclick="closeExportModal()"
                     class="flex-1 py-2.5 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">关闭</button>
                 <button onclick="copyExport()"
-                    class="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-green-200 hover:bg-green-700 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-copy"></i> 复制
+                    class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">复制</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入/导出汇总 Modal -->
+    <div id="transfer-hub-modal" class="modal-overlay">
+        <div class="modal-content transfer-hub-modal bg-white">
+            <h3 class="font-bold text-lg text-slate-800 mb-1">导入 / 导出</h3>
+            <p class="text-xs text-slate-400 mb-4">尽量只用一个入口完成数据流转</p>
+            <div class="space-y-3">
+                <button class="transfer-choice w-full text-left" onclick="openImportFromHub()">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-bold text-sm text-slate-700">导入计划</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1">从文本快速批量写入任务</div>
                 </button>
+                <button class="transfer-choice w-full text-left" onclick="openExportFromHub()">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-bold text-sm text-slate-700">导出计划</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1">导出为可复制文本，便于备份/分享</div>
+                </button>
+            </div>
+            <div class="mt-4">
+                <button onclick="closeTransferHubModal()"
+                    class="w-full py-2.5 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">关闭</button>
             </div>
         </div>
     </div>
@@ -1986,21 +3330,17 @@
     <!-- 分类管理 Modal -->
     <div id="category-modal" class="modal-overlay">
         <div class="modal-content category-modal bg-white">
-            <h3 class="font-bold text-lg mb-1 text-slate-800 flex items-center gap-2">
-                <i class="fas fa-tags text-purple-500"></i> 管理任务分类
-            </h3>
+            <h3 class="font-bold text-lg mb-1 text-slate-800">管理任务分类</h3>
             <p class="text-xs text-slate-400 mb-4">自定义任务分类，会自动同步到云端</p>
             <div class="cat-list" id="cat-list">
                 <!-- JS 动态生成 -->
             </div>
-            <div class="cat-add-row" onclick="addCategory()">
-                <i class="fas fa-plus"></i> 添加分类
-            </div>
+            <div class="cat-add-row" onclick="addCategory()">添加分类</div>
             <div class="flex gap-3 mt-5">
                 <button onclick="closeCategoryModal()"
                     class="flex-1 py-2.5 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">关闭</button>
                 <button onclick="saveCategorySettings()"
-                    class="flex-1 py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-200 hover:bg-purple-700 transition">保存</button>
+                    class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition">保存</button>
             </div>
         </div>
     </div>
@@ -2013,10 +3353,29 @@
         <img id="zoomed-img" src="" onclick="event.stopPropagation()">
     </div>
 
-    <!-- 笔记快捷按钮 -->
-    <button id="notes-fab" class="notes-fab" onclick="toggleNotesSidebar()">
-        <i class="fas fa-book-open"></i>
+    <div id="quick-menu-overlay" class="quick-menu-overlay" onclick="closeQuickMenu()"></div>
+    <div id="quick-menu-panel" class="quick-menu-panel">
+        <button class="quick-menu-item" onclick="openQuickAction('notebook')">
+            <i class="fas fa-book"></i> 多维笔记本
+        </button>
+        <button class="quick-menu-item" onclick="openQuickAction('pomodoro')">
+            <i class="fas fa-stopwatch"></i> 番茄钟
+        </button>
+        <button class="quick-menu-item" onclick="openQuickAction('transfer')">
+            <i class="fas fa-right-left"></i> 导入 / 导出
+        </button>
+        <button class="quick-menu-item" onclick="openQuickAction('category')">
+            <i class="fas fa-tags"></i> 分类管理
+        </button>
+        <button class="quick-menu-item" onclick="openQuickAction('theme')">
+            <i id="theme-menu-icon" class="fas fa-moon"></i> <span id="theme-menu-label">暗黑模式</span>
+        </button>
+    </div>
+    <button id="quick-menu-fab" class="quick-menu-fab" onclick="toggleQuickMenu()" title="快捷菜单">
+        <span id="quick-menu-timer-badge" class="quick-menu-badge hidden">计时</span>
+        <i class="fas fa-bars"></i>
     </button>
+
     <div id="notes-sidebar-overlay" class="notes-sidebar-overlay" onclick="toggleNotesSidebar()"></div>
     <div id="notes-sidebar" class="notes-sidebar">
         <div class="md:hidden w-full pt-2 pb-1 cursor-pointer" onclick="toggleNotesSidebar()">
@@ -2035,14 +3394,63 @@
                     oninput="filterNotes(this.value)">
             </div>
         </div>
+        <div id="sidebar-tag-filter" class="sidebar-tag-filter"></div>
         <div id="notes-sidebar-list" class="notes-sidebar-list">
         </div>
     </div>
 
-    <!-- 番茄钟浮动按钮 -->
-    <button id="pomodoro-fab" class="pomodoro-fab" onclick="togglePomodoroModal()">
-        <i class="fas fa-stopwatch"></i>
-    </button>
+    <div id="notebook-modal" class="modal-overlay">
+        <div class="modal-content notebook-modal bg-white">
+            <div class="modal-header bg-white px-4 py-3 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <div class="text-lg font-bold text-slate-800">多维笔记本</div>
+                <button onclick="closeNotebookModal()"
+                    class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
+            </div>
+            <div class="notebook-layout">
+                <aside class="notebook-side">
+                    <div id="notebook-subject-tabs" class="subject-chip-row"></div>
+                </aside>
+                <section class="notebook-main">
+                    <div class="notebook-subject-head">
+                        <div id="notebook-current-filter" class="text-sm font-bold text-slate-700">科目笔记</div>
+                        <div id="notebook-current-date" class="notebook-head-date"></div>
+                    </div>
+                    <div class="notebook-editor-shell">
+                        <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="true"
+                            data-placeholder="写点什么..."></div>
+                    </div>
+                    <div class="notebook-footer">
+                        <div id="notebook-editor-tools" class="notebook-tools">
+                            <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i class="fas fa-italic"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('underline')" title="下划线"><i class="fas fa-underline"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="删除线"><i class="fas fa-strikethrough"></i></button>
+                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                            <button class="toolbar-btn relative" title="文字颜色" onclick="document.getElementById('notebook-text-color-input').click()"><i class="fas fa-font" style="color:#475569"></i></button>
+                            <input id="notebook-text-color-input" type="color" value="#334155" class="absolute w-0 h-0 opacity-0" oninput="execCmd('foreColor', this.value)">
+                            <button class="toolbar-btn" onclick="toggleHighlight()" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
+                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                            <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
+                            <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
+                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                            <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="左对齐"><i class="fas fa-align-left"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="居中"><i class="fas fa-align-center"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="右对齐"><i class="fas fa-align-right"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('outdent')" title="减少缩进"><i class="fas fa-outdent"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('indent')" title="增加缩进"><i class="fas fa-indent"></i></button>
+                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                            <button class="toolbar-btn" onclick="insertLink()" title="插入链接"><i class="fas fa-link"></i></button>
+                            <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
+                            <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i class="fas fa-eraser"></i></button>
+                        </div>
+                        <button class="notebook-save-btn" onclick="saveNotebookDraft()">立即保存</button>
+                    </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 
     <!-- 番茄钟 Modal -->
     <div id="pomodoro-modal" class="modal-overlay">
@@ -2114,11 +3522,12 @@
                         class="text-[10px] px-2 py-0.5 rounded bg-slate-50 text-slate-400 font-medium">0 字</span>
                 </div>
                 <button onclick="closeModal()"
-                    class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
+                class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
             </div>
+            <div id="note-tag-bar" class="tag-bar"></div>
 
             <div class="editor-scroller">
-                <div id="note-editor" contenteditable="false" class="lh-normal" placeholder="点击下方“编辑”开始记录..."></div>
+                <div id="note-editor" contenteditable="false" class="lh-normal" placeholder="点击下方"编辑"开始记录..."></div>
             </div>
 
             <div
@@ -2171,6 +3580,8 @@
                             class="fas fa-text-height"></i></button>
                     <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i
                             class="fas fa-eraser"></i></button>
+                    <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                    <button class="toolbar-btn" onclick="toggleTemplatePicker()" title="插入模板"><i class="fas fa-file-alt"></i></button>
                 </div>
 
                 <div class="flex gap-3 shrink-0 ml-2">
@@ -2186,6 +3597,19 @@
             </div>
         </div>
     </div>
+
+    <!-- 模板选择弹窗 -->
+    <div id="template-modal" class="modal-overlay" style="z-index:150;">
+        <div class="modal-content center-modal-content bg-white template-modal-content">
+            <h3 class="font-bold text-base text-slate-800 mb-1">选择笔记模板</h3>
+            <p class="text-xs text-slate-400 mb-3">选择后内容将插入当前笔记</p>
+            <div class="template-picker-list" id="template-picker-list"></div>
+            <button onclick="closeTemplateModal()" class="w-full mt-3 py-2 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200 transition">取消</button>
+        </div>
+    </div>
+
+    <div id="subject-menu" class="subject-menu"></div>
+    <div id="note-link-menu" class="note-link-menu"></div>
 
     <script>
         // ================= 配置区 =================
@@ -2331,8 +3755,8 @@
         ];
 
         let fullState = {
-            "2025": { done: [], notes: {}, customTasks: {} },
-            "2026": { done: [], notes: {}, customTasks: {} },
+            "2025": { done: [], notes: {}, customTasks: {}, notebookEntries: {} },
+            "2026": { done: [], notes: {}, customTasks: {}, notebookEntries: {} },
             "settings": { targetDate: "2026-12-19", targetName: "距离考研仅剩", categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)) }
         };
 
@@ -2358,6 +3782,156 @@
                 't-urgent': { color: '#be123c', bg: '#fef2f2', border: '#fecaca' },
             };
             return legacyMap[type] || { color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' };
+        }
+
+        function escapeHtml(text) {
+            return (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function sanitizeColor(value) {
+            const v = String(value || '').trim();
+            return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(v) ? v : '#64748b';
+        }
+
+        function sanitizeCssColor(value, fallback) {
+            const v = String(value || '').trim();
+            if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(v)) return v;
+            if (/^rgba?\([\d\s.,%]+\)$/.test(v)) return v;
+            return fallback;
+        }
+
+        function textFromHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+            return (div.textContent || div.innerText || '').replace(/\u00a0/g, ' ').trim();
+        }
+
+        function sanitizeRichHtml(html) {
+            if (!html) return '';
+            const template = document.createElement('template');
+            template.innerHTML = String(html);
+            template.content.querySelectorAll('script, style, iframe, object, embed, link, meta').forEach(el => el.remove());
+            template.content.querySelectorAll('*').forEach(el => {
+                [...el.attributes].forEach(attr => {
+                    const name = attr.name.toLowerCase();
+                    const value = (attr.value || '').trim();
+                    if (name.startsWith('on')) el.removeAttribute(attr.name);
+                    if ((name === 'href' || name === 'src') && /^javascript:/i.test(value)) el.removeAttribute(attr.name);
+                });
+            });
+            return template.innerHTML;
+        }
+
+        function keyToDateStamp(key) {
+            if (key.startsWith('d')) return `2025-12-${String(parseInt(key.slice(1), 10)).padStart(2, '0')}`;
+            const [year, month, day] = key.split('-').map(Number);
+            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+
+        function dateStampToKey(value) {
+            if (!value) return null;
+            const [year, month, day] = value.split('-').map(Number);
+            if (!year || !month || !day) return null;
+            if (year === 2025 && month === 12) return `d${day}`;
+            return `${year}-${month}-${day}`;
+        }
+
+        function getAutoNotebookDateKey() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            if (year === 2025 && month === 12) return `d${day}`;
+            if (year === 2026) return `2026-${month}-${day}`;
+            if (CURRENT_YEAR === 2025) return `d${Math.min(Math.max(day, 1), 31)}`;
+            return `${CURRENT_YEAR}-${currentMonth2026 + 1}-${day}`;
+        }
+
+        function getNotebookEntries(state = currentState) {
+            return Object.values(state.notebookEntries || {});
+        }
+
+        function getNotebookEntriesByDate(dateKey, state = currentState) {
+            return getNotebookEntries(state)
+                .filter(entry => entry.dateKey === dateKey)
+                .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+        }
+
+        function getNotebookEntriesBySubject(subjectType, state = currentState) {
+            return getNotebookEntries(state)
+                .filter(entry => entry.subjectType === subjectType)
+                .sort((a, b) => {
+                    if (a.dateKey !== b.dateKey) return keyToDateStamp(a.dateKey).localeCompare(keyToDateStamp(b.dateKey));
+                    return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+                });
+        }
+
+        function hasProjectedNotebook(dateKey) {
+            return getNotebookEntriesByDate(dateKey).length > 0;
+        }
+
+        function buildProjectionHtml(dateKey) {
+            const entries = getNotebookEntriesByDate(dateKey);
+            if (!entries.length) return '';
+            const items = entries.map(entry => `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${sanitizeRichHtml(entry.html || escapeHtml(entry.content).replace(/\n/g, '<br>'))}</div>`).join('');
+            return `<section class="notebook-projection" data-notebook-projection="1" contenteditable="false">
+                <div class="projection-head">来自 Notebook</div>
+                ${items}
+            </section>`;
+        }
+
+        function getRenderedNoteHtml(dateKey, ensureEditableSlot = false) {
+            const base = sanitizeRichHtml(currentState.notes[dateKey] || '');
+            const editableBase = ensureEditableSlot && !base.trim() ? '<div class="note-editable-slot"><br></div>' : base;
+            return `${editableBase}${buildProjectionHtml(dateKey)}`;
+        }
+
+        function syncNotebookProjectionEdits() {
+            editor.querySelectorAll('[data-notebook-entry-id]').forEach(node => {
+                const entryId = node.dataset.notebookEntryId;
+                const existing = currentState.notebookEntries?.[entryId];
+                if (!existing) return;
+                const html = (node.innerHTML || '').trim();
+                const content = textFromHtml(html).trim();
+                if (!content) {
+                    delete currentState.notebookEntries[entryId];
+                    return;
+                }
+                currentState.notebookEntries[entryId] = {
+                    ...existing,
+                    html,
+                    content,
+                    updatedAt: new Date().toISOString()
+                };
+            });
+        }
+
+        function stripProjectionHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+            div.querySelectorAll('[data-notebook-projection]').forEach(el => el.remove());
+            return div.innerHTML.trim();
+        }
+
+        function upsertNotebookEntry(entry) {
+            const id = entry.id || `nb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            const now = new Date().toISOString();
+            const html = sanitizeRichHtml((entry.html || '').trim());
+            const content = textFromHtml(html || entry.content || '');
+            if (!content) {
+                delete currentState.notebookEntries[id];
+                return null;
+            }
+            currentState.notebookEntries[id] = {
+                ...currentState.notebookEntries[id],
+                ...entry,
+                id,
+                content,
+                html: html || escapeHtml(content).replace(/\n/g, '<br>'),
+                createdAt: currentState.notebookEntries[id]?.createdAt || now,
+                updatedAt: now
+            };
+            return currentState.notebookEntries[id];
         }
 
         // 指向当前年份数据的引用，简化代码
@@ -2431,6 +4005,8 @@
                         else if (id === 'import-modal') window.closeImportModal();
                         else if (id === 'export-modal') window.closeExportModal();
                         else if (id === 'category-modal') window.closeCategoryModal();
+                        else if (id === 'notebook-modal') window.closeNotebookModal();
+                        else if (id === 'template-modal') window.closeTemplateModal();
                         else overlay.classList.remove('open');
                     }
                     mouseDownOnOverlay = false;
@@ -2535,9 +4111,15 @@
                 const isToday = (today.getFullYear() === 2025 && today.getMonth() === 11 && today.getDate() === i);
 
                 const card = document.createElement('div');
-                const hasNoteCard = currentState.notes[`d${i}`] ? 'has-note-card' : '';
+                const hasNoteCard = (currentState.notes[`d${i}`] || hasProjectedNotebook(`d${i}`)) ? 'has-note-card' : '';
                 card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${hasNoteCard}`;
-                if (d && d.special) card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
+                if (d && d.special) {
+                    if (!document.body.classList.contains('dark-mode')) {
+                        card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
+                    } else {
+                        card.style.background = "repeating-linear-gradient(45deg, #121314, #121314 10px, #1a1518 10px, #1a1518 20px)";
+                    }
+                }
                 card.id = `day-${i}`;
 
                 const key = `d${i}`; // 2025使用简单的 d1, d2 key
@@ -2549,7 +4131,7 @@
                     (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
                     (d && d.note ? `<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>` : '');
 
-                const hasNote = currentState.notes[key] ? 'has-note' : '';
+                const hasNote = (currentState.notes[key] || hasProjectedNotebook(key)) ? 'has-note' : '';
 
                 header.innerHTML = `<div>${label}</div> 
                     <div class="flex gap-2 ${hasNote}">
@@ -2600,15 +4182,16 @@
                 const isToday = isCurrMonth && i === today.getDate();
 
                 const card = document.createElement('div');
-                const hasNoteCard = currentState.notes[dateKey] ? 'has-note-card' : '';
+                const hasNoteCard = (currentState.notes[dateKey] || hasProjectedNotebook(dateKey)) ? 'has-note-card' : '';
                 card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''} ${hasNoteCard}`;
+                card.id = `day-${dateKey}`; // e.g. day-2026-4-11
                 if (isToday) card.classList.add('is-today');
 
                 const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
                     (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
                     (holiday ? `<span class="holiday-tag">${holiday}</span>` : '');
 
-                const hasNote = currentState.notes[dateKey] ? 'has-note' : '';
+                const hasNote = (currentState.notes[dateKey] || hasProjectedNotebook(dateKey)) ? 'has-note' : '';
 
                 const header = document.createElement('div');
                 header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
@@ -2638,8 +4221,13 @@
             // 动态样式：优先使用自定义分类颜色，兼容老的 CSS class
             const style = getCatStyle(t.type);
             el.style.color = style.color;
-            el.style.backgroundColor = style.bg;
-            el.style.borderColor = style.border;
+            if (!document.body.classList.contains('dark-mode')) {
+                el.style.backgroundColor = style.bg;
+                el.style.borderColor = style.border;
+            } else {
+                el.dataset.catBg = style.bg;
+                el.dataset.catBorder = style.border;
+            }
 
             // 左侧打勾区
             const checkZone = document.createElement('div');
@@ -2707,10 +4295,11 @@
 
         // ================= 数据存取 (统一ID逻辑) =================
         function ensureStateStructure(s) {
-            if (!s) return { done: [], notes: {}, customTasks: {} };
+            if (!s) return { done: [], notes: {}, customTasks: {}, notebookEntries: {} };
             if (!s.done) s.done = [];
             if (!s.notes) s.notes = {};
             if (!s.customTasks) s.customTasks = {};
+            if (!s.notebookEntries) s.notebookEntries = {};
             return s;
         }
 
@@ -2727,6 +4316,7 @@
                     if (!Array.isArray(state[year].done)) return false;
                     if (typeof state[year].notes !== 'object') return false;
                     if (typeof state[year].customTasks !== 'object') return false;
+                    if (typeof state[year].notebookEntries !== 'object') return false;
                 }
             }
             return true;
@@ -2740,6 +4330,7 @@
                     count += (state[year].done || []).length;
                     count += Object.keys(state[year].notes || {}).length;
                     count += Object.values(state[year].customTasks || {}).reduce((sum, arr) => sum + arr.length, 0);
+                    count += Object.keys(state[year].notebookEntries || {}).length;
                 }
             }
             return count;
@@ -2775,6 +4366,11 @@
                             if (!existingTexts.has(t.text)) merged[year].customTasks[dateKey].push(t);
                         });
                     }
+                });
+                const localNotebook = local[year].notebookEntries || {};
+                if (!merged[year].notebookEntries) merged[year].notebookEntries = {};
+                Object.keys(localNotebook).forEach(entryId => {
+                    if (!merged[year].notebookEntries[entryId]) merged[year].notebookEntries[entryId] = localNotebook[entryId];
                 });
             }
             // settings 保留云端的（通常更新）
@@ -2868,7 +4464,7 @@
                     // 数据迁移：处理旧格式
                     if (!raw['2025'] && !raw['2026']) {
                         cloudState['2025'] = ensureStateStructure(raw);
-                        cloudState['2026'] = { done: [], notes: {}, customTasks: {} };
+                        cloudState['2026'] = { done: [], notes: {}, customTasks: {}, notebookEntries: {} };
                     } else {
                         if (raw['2025']) cloudState['2025'] = ensureStateStructure(raw['2025']);
                         if (raw['2026']) cloudState['2026'] = ensureStateStructure(raw['2026']);
@@ -2915,14 +4511,19 @@
             // 读取本地 study_v2
             const s = localStorage.getItem('study_v2');
             if (s) {
-                const raw = JSON.parse(s);
-                // 检测是否已经是新结构
-                if (raw["2025"] || raw["2026"]) {
-                    if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
-                    if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
-                    if (raw["settings"]) fullState.settings = raw["settings"];
-                } else {
-                    fullState["2025"] = ensureStateStructure(raw);
+                try {
+                    const raw = JSON.parse(s);
+                    // 检测是否已经是新结构
+                    if (raw["2025"] || raw["2026"]) {
+                        if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
+                        if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                        if (raw["settings"]) fullState.settings = raw["settings"];
+                    } else {
+                        fullState["2025"] = ensureStateStructure(raw);
+                    }
+                } catch (e) {
+                    console.warn('本地数据损坏，已跳过并继续初始化:', e);
+                    localStorage.removeItem('study_v2');
                 }
             }
 
@@ -2943,7 +4544,11 @@
         function refresh() {
             document.querySelectorAll('.task-item').forEach(el => currentState.done.includes(el.dataset.id) ? el.classList.add('done') : el.classList.remove('done'));
             // 更新笔记图标颜色
-            const keys = Object.keys(currentState.notes);
+            document.querySelectorAll('.note-trigger').forEach(icon => {
+                icon.classList.remove('text-orange-400', 'opacity-100');
+                icon.classList.add('text-slate-400');
+            });
+            const keys = new Set([...Object.keys(currentState.notes), ...getNotebookEntries().map(entry => entry.dateKey)]);
             keys.forEach(k => {
                 const icon = document.getElementById(`icon-${k}`);
                 if (icon) { icon.classList.add('text-orange-400', 'opacity-100'); icon.classList.remove('text-slate-400'); }
@@ -3041,9 +4646,20 @@
 
             // 分类
             const cats = getCategories();
-            container.innerHTML = cats.map(c =>
-                `<div class="type-option" data-val="${c.type}" onclick="window.selectType('${c.type}', this)" style="--c:${c.color};color:${c.color};background:${c.bg};border-color:${c.border}">${c.name}</div>`
-            ).join('');
+            container.innerHTML = '';
+            cats.forEach(c => {
+                const opt = document.createElement('div');
+                opt.className = 'type-option';
+                opt.dataset.val = c.type;
+                const color = sanitizeColor(c.color);
+                opt.style.setProperty('--c', color);
+                opt.style.color = color;
+                opt.style.background = sanitizeCssColor(c.bg, '#f8fafc');
+                opt.style.borderColor = sanitizeCssColor(c.border, '#e2e8f0');
+                opt.textContent = c.name || '未命名';
+                opt.addEventListener('click', () => window.selectType(c.type, opt));
+                container.appendChild(opt);
+            });
             if (cats.length > 0) window.selectType(cats[0].type, container.children[0]);
 
             modal.classList.add('open');
@@ -3105,9 +4721,388 @@
             save();
         };
 
+        // ================= 标签系统 =================
+        // 从纯文本中提取 #标签（支持中英文、数字、下划线）
+        function extractTags(text) {
+            if (!text) return [];
+            const matches = text.match(/#([\u4e00-\u9fff\w\-]+)/g);
+            if (!matches) return [];
+            return [...new Set(matches.map(m => m.slice(1)))];
+        }
+
+        // 从 HTML 中提取标签（先转纯文本再提取）
+        function extractTagsFromHtml(html) {
+            return extractTags(textFromHtml(html));
+        }
+
+        // 获取某个 dateKey 的标签
+        function getTagsForNote(dateKey) {
+            const noteHtml = currentState.notes[dateKey] || '';
+            const noteTags = extractTagsFromHtml(noteHtml);
+            // 也从 notebook entries 提取
+            const entryTags = getNotebookEntriesByDate(dateKey)
+                .flatMap(entry => extractTags(entry.content));
+            return [...new Set([...noteTags, ...entryTags])];
+        }
+
+        // 获取所有年份的全部标签（带计数）
+        function getAllTags() {
+            const tagCount = {};
+            ['2025', '2026'].forEach(yr => {
+                const state = fullState[yr];
+                // 笔记中的标签
+                Object.values(state.notes || {}).forEach(html => {
+                    extractTagsFromHtml(html).forEach(tag => {
+                        tagCount[tag] = (tagCount[tag] || 0) + 1;
+                    });
+                });
+                // notebook entries 中的标签
+                Object.values(state.notebookEntries || {}).forEach(entry => {
+                    extractTags(entry.content).forEach(tag => {
+                        tagCount[tag] = (tagCount[tag] || 0) + 1;
+                    });
+                });
+            });
+            return tagCount;
+        }
+
+        // 获取所有包含特定标签的笔记列表
+        function getNotesByTag(tag) {
+            const results = [];
+            ['2025', '2026'].forEach(yr => {
+                const state = fullState[yr];
+                // 合并所有有内容的 dateKey
+                const dateKeys = new Set([
+                    ...Object.keys(state.notes || {}),
+                    ...Object.values(state.notebookEntries || {}).map(e => e.dateKey)
+                ]);
+                dateKeys.forEach(k => {
+                    const noteTags = extractTagsFromHtml(state.notes?.[k] || '');
+                    const entryTags = Object.values(state.notebookEntries || {})
+                        .filter(e => e.dateKey === k)
+                        .flatMap(e => extractTags(e.content));
+                    const allTags = [...new Set([...noteTags, ...entryTags])];
+                    if (allTags.includes(tag)) {
+                        const raw = textFromHtml(state.notes?.[k] || '');
+                        const entryText = Object.values(state.notebookEntries || {})
+                            .filter(e => e.dateKey === k)
+                            .map(e => e.content).join(' ');
+                        const fullText = (raw + ' ' + entryText).trim();
+                        const preview = fullText.slice(0, 60) || '(空)';
+                        results.push({ k, yr, tags: allTags, preview });
+                    }
+                });
+            });
+            return results;
+        }
+
+        // 渲染标签 chips（返回 HTML）
+        function renderTagChips(tags, onclick) {
+            return tags.map(tag =>
+                `<span class="tag-chip" onclick="${onclick ? onclick.replace('{tag}', tag) : `searchByTag('${tag}')`}">#${escapeHtml(tag)}</span>`
+            ).join('');
+        }
+
+        // 更新笔记弹窗顶部的标签栏
+        function updateNoteTagBar(dateKey) {
+            const bar = document.getElementById('note-tag-bar');
+            if (!bar) return;
+            const tags = getTagsForNote(dateKey);
+            if (!tags.length) {
+                bar.innerHTML = '';
+                return;
+            }
+            bar.innerHTML = tags.map(tag =>
+                `<span class="tag-chip" onclick="searchByTag('${escapeHtml(tag)}')">#${escapeHtml(tag)}</span>`
+            ).join('');
+        }
+
+        // 通过标签触发搜索
+        window.searchByTag = (tag) => {
+            // 关闭当前弹窗
+            document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+            document.getElementById('notes-sidebar')?.classList.remove('open');
+            document.getElementById('notes-sidebar-overlay')?.classList.remove('open');
+            // 打开搜索弹窗
+            const modal = document.getElementById('search-modal');
+            modal.classList.add('open');
+            const input = document.getElementById('search-input');
+            input.value = '#' + tag;
+            setTimeout(() => { input.focus(); handleSearch('#' + tag); }, 150);
+        };
+
         // ================= 笔记 & 高级功能 =================
         let curNoteKey = null, isEditMode = false;
+        let notebookComposeSubject = null;
+        let pendingNotebookSelection = null;
+        let notebookAutosaveTimer = null;
         const editor = document.getElementById('note-editor');
+        const notebookEditor = document.getElementById('notebook-editor');
+        let activeRichEditor = editor;
+        const subjectMenu = document.getElementById('subject-menu');
+        const noteLinkMenu = document.getElementById('note-link-menu');
+        let noteLinkSuggestState = {
+            open: false,
+            editor: null,
+            query: '',
+            replaceRange: null,
+            activeIndex: 0,
+            items: []
+        };
+
+        function getYearByDateKey(key) {
+            if (!key) return String(CURRENT_YEAR);
+            if (key.startsWith('d')) return '2025';
+            return String((key.split('-')[0] || CURRENT_YEAR));
+        }
+
+        function getStateByDateKey(key) {
+            const yr = getYearByDateKey(key);
+            return fullState[yr] || currentState;
+        }
+
+        function keySortScore(key) {
+            const stamp = keyToDateStamp(key || '').replace(/-/g, '');
+            const n = parseInt(stamp, 10);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function buildNoteLinkTargetList(query = '') {
+            const map = new Map();
+            ['2025', '2026'].forEach(yr => {
+                const state = fullState[yr] || {};
+                Object.keys(state.notes || {}).forEach(k => {
+                    const html = state.notes[k] || '';
+                    const text = textFromHtml(html);
+                    if (text) map.set(k, true);
+                });
+                Object.values(state.notebookEntries || {}).forEach(entry => {
+                    if (!entry?.dateKey) return;
+                    const text = (entry.content || textFromHtml(entry.html || '') || '').trim();
+                    if (text) map.set(entry.dateKey, true);
+                });
+            });
+
+            const q = query.trim().toLowerCase();
+            const items = [...map.keys()].map(k => {
+                const state = getStateByDateKey(k);
+                const noteText = textFromHtml(state.notes?.[k] || '');
+                const notebookText = Object.values(state.notebookEntries || {})
+                    .filter(entry => entry.dateKey === k)
+                    .map(entry => (entry.content || textFromHtml(entry.html || '') || '').trim())
+                    .join(' ');
+                const preview = (noteText || notebookText || '(空)').slice(0, 40);
+                return {
+                    key: k,
+                    label: keyToLabel(k),
+                    preview,
+                    score: keySortScore(k)
+                };
+            });
+
+            const filtered = q
+                ? items.filter(item =>
+                    item.key.toLowerCase().includes(q) ||
+                    item.label.toLowerCase().includes(q) ||
+                    item.preview.toLowerCase().includes(q)
+                )
+                : items;
+
+            return filtered
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 8);
+        }
+
+        function createTextOffsetsRange(root, start, end) {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            let seen = 0;
+            const range = document.createRange();
+            let startSet = false;
+
+            while (node = walker.nextNode()) {
+                const len = node.nodeValue.length;
+                const nodeStart = seen;
+                const nodeEnd = seen + len;
+
+                if (!startSet && start >= nodeStart && start <= nodeEnd) {
+                    range.setStart(node, Math.max(0, start - nodeStart));
+                    startSet = true;
+                }
+                if (startSet && end >= nodeStart && end <= nodeEnd) {
+                    range.setEnd(node, Math.max(0, end - nodeStart));
+                    return range;
+                }
+                seen = nodeEnd;
+            }
+            return null;
+        }
+
+        function getNoteLinkTrigger(editorEl) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount || !sel.isCollapsed) return null;
+            const caretRange = sel.getRangeAt(0);
+            if (!editorEl.contains(caretRange.endContainer)) return null;
+
+            const prefixRange = caretRange.cloneRange();
+            prefixRange.selectNodeContents(editorEl);
+            prefixRange.setEnd(caretRange.endContainer, caretRange.endOffset);
+            const text = prefixRange.toString();
+            const match = text.match(/(?:\[\[|@)([^\[\]@\n]{0,32})$/);
+            if (!match) return null;
+
+            const tokenLen = match[0].length;
+            const end = text.length;
+            const start = end - tokenLen;
+            const replaceRange = createTextOffsetsRange(editorEl, start, end);
+            if (!replaceRange) return null;
+            return {
+                query: (match[1] || '').trim(),
+                replaceRange,
+                caretRect: caretRange.getBoundingClientRect()
+            };
+        }
+
+        function hideNoteLinkSuggest() {
+            noteLinkSuggestState.open = false;
+            noteLinkSuggestState.editor = null;
+            noteLinkSuggestState.query = '';
+            noteLinkSuggestState.replaceRange = null;
+            noteLinkSuggestState.activeIndex = 0;
+            noteLinkSuggestState.items = [];
+            if (noteLinkMenu) noteLinkMenu.classList.remove('open');
+        }
+
+        function renderNoteLinkSuggest(items) {
+            if (!noteLinkMenu) return;
+            if (!items.length) {
+                noteLinkMenu.innerHTML = '<div class="note-link-empty">未找到匹配笔记</div>';
+                return;
+            }
+            noteLinkMenu.innerHTML = items.map((item, idx) =>
+                `<button type="button" class="note-link-item ${idx === noteLinkSuggestState.activeIndex ? 'active' : ''}" data-note-link-idx="${idx}">`
+                + `<div class="note-link-item-date">${escapeHtml(item.label)}</div>`
+                + `<div class="note-link-item-preview">${escapeHtml(item.preview)}</div>`
+                + '</button>'
+            ).join('');
+        }
+
+        function scrollActiveNoteLinkIntoView() {
+            if (!noteLinkMenu) return;
+            const active = noteLinkMenu.querySelector('.note-link-item.active');
+            if (!active) return;
+            active.scrollIntoView({ block: 'nearest' });
+        }
+
+        function positionNoteLinkSuggest(caretRect) {
+            if (!noteLinkMenu || !caretRect) return;
+            const width = Math.min(380, window.innerWidth - 20);
+            const left = Math.max(10, Math.min(caretRect.left, window.innerWidth - width - 10));
+            const top = Math.min(window.innerHeight - 16, caretRect.bottom + 8);
+            noteLinkMenu.style.left = `${left}px`;
+            noteLinkMenu.style.top = `${top}px`;
+        }
+
+        function updateNoteLinkSuggest(editorEl) {
+            const trigger = getNoteLinkTrigger(editorEl);
+            if (!trigger) {
+                hideNoteLinkSuggest();
+                return;
+            }
+            const items = buildNoteLinkTargetList(trigger.query);
+            noteLinkSuggestState.open = true;
+            noteLinkSuggestState.editor = editorEl;
+            noteLinkSuggestState.query = trigger.query;
+            noteLinkSuggestState.replaceRange = trigger.replaceRange;
+            noteLinkSuggestState.items = items;
+            noteLinkSuggestState.activeIndex = Math.min(noteLinkSuggestState.activeIndex, Math.max(0, items.length - 1));
+
+            renderNoteLinkSuggest(items);
+            scrollActiveNoteLinkIntoView();
+            positionNoteLinkSuggest(trigger.caretRect);
+            noteLinkMenu.classList.add('open');
+        }
+
+        function openNoteByKey(dateKey) {
+            if (!dateKey) return;
+            const yr = getYearByDateKey(dateKey);
+            if (yr === '2026') {
+                const monthIdx = parseInt(dateKey.split('-')[1], 10) - 1;
+                if (CURRENT_YEAR !== 2026 || currentMonth2026 !== monthIdx) {
+                    currentMonth2026 = monthIdx;
+                    window.switchYear(2026);
+                }
+            } else if (CURRENT_YEAR !== 2025) {
+                window.switchYear(2025);
+            }
+            document.getElementById('notebook-modal')?.classList.remove('open');
+            document.getElementById('notes-sidebar')?.classList.remove('open');
+            document.getElementById('notes-sidebar-overlay')?.classList.remove('open');
+            setTimeout(() => window.openNote(dateKey), 260);
+        }
+
+        function insertSelectedNoteLink() {
+            if (!noteLinkSuggestState.open) return;
+            const item = noteLinkSuggestState.items[noteLinkSuggestState.activeIndex];
+            if (!item || !noteLinkSuggestState.replaceRange) return;
+
+            const range = noteLinkSuggestState.replaceRange;
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            range.deleteContents();
+
+            const anchor = document.createElement('a');
+            anchor.href = '#';
+            anchor.className = 'note-inner-link';
+            anchor.dataset.noteKey = item.key;
+            anchor.dataset.noteLink = '1';
+            anchor.textContent = item.label;
+            range.insertNode(anchor);
+
+            const spacer = document.createTextNode('\u00a0');
+            anchor.after(spacer);
+
+            const caret = document.createRange();
+            caret.setStart(spacer, 1);
+            caret.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(caret);
+
+            const owner = noteLinkSuggestState.editor;
+            hideNoteLinkSuggest();
+            if (owner === editor) updateWordCount();
+        }
+
+        function handleNoteLinkKeydown(e, editorEl) {
+            if (!noteLinkSuggestState.open || noteLinkSuggestState.editor !== editorEl) return;
+            if (e.key === 'ArrowDown') {
+                if (!noteLinkSuggestState.items.length) return;
+                e.preventDefault();
+                noteLinkSuggestState.activeIndex = (noteLinkSuggestState.activeIndex + 1) % noteLinkSuggestState.items.length;
+                renderNoteLinkSuggest(noteLinkSuggestState.items);
+                scrollActiveNoteLinkIntoView();
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                if (!noteLinkSuggestState.items.length) return;
+                e.preventDefault();
+                noteLinkSuggestState.activeIndex = (noteLinkSuggestState.activeIndex - 1 + noteLinkSuggestState.items.length) % noteLinkSuggestState.items.length;
+                renderNoteLinkSuggest(noteLinkSuggestState.items);
+                scrollActiveNoteLinkIntoView();
+                return;
+            }
+            if (e.key === 'Enter') {
+                if (!noteLinkSuggestState.items.length) return;
+                e.preventDefault();
+                insertSelectedNoteLink();
+                return;
+            }
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                hideNoteLinkSuggest();
+            }
+        }
 
         // 字数统计辅助函数
         function updateWordCount() {
@@ -3119,6 +5114,7 @@
 
         window.openNote = (key, highlight = null) => {
             curNoteKey = key; isEditMode = false;
+            activeRichEditor = editor;
             let title;
             if (key.startsWith('d')) {
                 // 2025 format: d1, d2...
@@ -3130,12 +5126,14 @@
             }
             document.getElementById('modal-date-title').innerText = title;
 
-            const content = currentState.notes[key];
+            const ownContent = currentState.notes[key] || '';
+            const content = getRenderedNoteHtml(key, true);
             editor.innerHTML = content || '';
 
             updateWordCount(); // 初始化时统计字数
+            updateNoteTagBar(key); // 显示标签
 
-            if (!content) toggleEditMode(true); else setMode(false);
+            if (!ownContent) toggleEditMode(true); else setMode(false);
             document.getElementById('note-modal').classList.add('open');
 
             if (highlight) setTimeout(() => scrollToText(highlight), 300);
@@ -3147,6 +5145,7 @@
             const tools = document.getElementById('editor-tools');
             const editBtn = document.getElementById('edit-btn');
             const saveBtn = document.getElementById('save-btn');
+            editor.querySelectorAll('[data-notebook-entry-id]').forEach(node => node.contentEditable = edit ? 'true' : 'false');
 
             if (edit) {
                 tools.classList.remove('opacity-0', 'pointer-events-none');
@@ -3160,49 +5159,565 @@
         }
 
         window.saveNote = () => {
-            const v = editor.innerHTML;
+            syncNotebookProjectionEdits();
+            const v = stripProjectionHtml(editor.innerHTML);
             if (v && v !== '<br>') currentState.notes[curNoteKey] = v; else delete currentState.notes[curNoteKey];
+            updateNoteTagBar(curNoteKey);
             refresh(); save(); setMode(false);
         };
-        window.closeModal = () => { document.querySelector('.modal-overlay.open').classList.remove('open'); if (isEditMode) saveNote(); };
-
-        // 搜索逻辑
-        window.toggleSearch = () => document.getElementById('search-modal').classList.toggle('open');
-        window.handleSearch = (q) => {
-            if (!q) return;
-            const res = [];
-            // 搜索当前选定年份的数据
-            const notes = currentState.notes;
-            const tasks = currentState.customTasks;
-
-            Object.keys(notes).forEach(k => {
-                if (notes[k].toLowerCase().includes(q.toLowerCase())) res.push({ k, type: '笔记', text: notes[k].replace(/<[^>]*>?/gm, '').substring(0, 50) });
-            });
-            Object.keys(tasks).forEach(k => {
-                tasks[k].forEach(t => {
-                    if (t.text.toLowerCase().includes(q.toLowerCase())) res.push({ k, type: '任务', text: t.text });
-                })
-            });
-
-            document.getElementById('search-results').innerHTML = res.length ? res.map(r => `
-                <div class="search-item" onclick="window.jumpTo('${r.k}')">
-                    <div class="flex justify-between text-xs text-slate-400 mb-1">
-                        <span>${r.k}</span><span>${r.type}</span>
-                    </div>
-                    <div class="text-sm font-bold text-slate-700">${r.text}</div>
-                </div>`).join('') : '<div class="empty-state">无结果</div>';
+        window.closeModal = () => {
+            const openModal = document.querySelector('.modal-overlay.open');
+            if (openModal) openModal.classList.remove('open');
+            hideSubjectMenu();
+            hideNoteLinkSuggest();
+            if (isEditMode) saveNote();
         };
-        window.jumpTo = k => {
+
+        // ================= 搜索逻辑（全局，支持高亮 + 直达） =================
+        window.toggleSearch = () => {
+            const modal = document.getElementById('search-modal');
+            modal.classList.toggle('open');
+            if (modal.classList.contains('open')) {
+                // 打开时清空并聚焦
+                const inp = document.getElementById('search-input');
+                inp.value = '';
+                document.getElementById('search-results').innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">输入 #标签 可按标签聚合笔记</span></div>';
+                // 显示热门标签
+                renderSearchTags();
+                setTimeout(() => inp.focus(), 150);
+            }
+        };
+
+        // 渲染搜索弹窗中的热门标签
+        function renderSearchTags() {
+            const area = document.getElementById('search-tags-area');
+            const row = document.getElementById('search-tags-row');
+            const tagCount = getAllTags();
+            const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 15);
+            if (!sorted.length) {
+                area.style.display = 'none';
+                return;
+            }
+            area.style.display = '';
+            row.innerHTML = sorted.map(([tag, count]) =>
+                `<span class="tag-chip" onclick="searchByTag('${escapeHtml(tag)}')">#${escapeHtml(tag)} <span style="opacity:0.6;font-weight:400">${count}</span></span>`
+            ).join('');
+        }
+
+        // 高亮辅助：用 <mark> 包裹匹配词
+        function highlightText(text, q) {
+            if (!q) return text;
+            const safeText = escapeHtml(text || '');
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return safeText.replace(new RegExp(escaped, 'gi'), m => `<mark class="search-highlight">${m}</mark>`);
+        }
+
+        // 将 key 转换为可读日期字符串
+        function keyToLabel(k) {
+            if (k.startsWith('d')) return `2025年12月${k.replace('d', '')}日`;
+            const parts = k.split('-');
+            return `${parts[0]}年${parts[1]}月${parts[2]}日`;
+        }
+
+        window.handleSearch = (q) => {
+            window._searchQ = q; // 保存搜索词，供 jumpToResult 传给 openNote
+            const resultsEl = document.getElementById('search-results');
+            if (!q.trim()) {
+                resultsEl.innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">输入 #标签 可按标签聚合笔记</span></div>';
+                window._searchQ = '';
+                return;
+            }
+
+            // ===== 标签搜索模式 =====
+            const tagMatch = q.trim().match(/^#([\u4e00-\u9fff\w\-]+)$/);
+            if (tagMatch) {
+                const tag = tagMatch[1];
+                const notes = getNotesByTag(tag);
+                if (!notes.length) {
+                    resultsEl.innerHTML = '<div class="empty-state">没有包含 #' + escapeHtml(tag) + ' 的笔记</div>';
+                    return;
+                }
+                resultsEl.innerHTML = '';
+                // 标签聚合头部
+                const header = document.createElement('div');
+                header.className = 'tag-results-header';
+                header.innerHTML = `<span><i class="fas fa-tag" style="color:#6366f1;margin-right:4px"></i>#${escapeHtml(tag)}  <span style="font-weight:400;color:#94a3b8">${notes.length} 篇笔记</span></span>`;
+                resultsEl.appendChild(header);
+
+                notes.forEach(r => {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.addEventListener('click', () => window.jumpToResult(r.k, r.yr, '笔记', 0));
+
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center text-xs text-slate-400 mb-1';
+
+                    const date = document.createElement('span');
+                    date.className = 'font-bold text-slate-500';
+                    date.textContent = keyToLabel(r.k);
+
+                    const tagRow = document.createElement('span');
+                    tagRow.className = 'flex gap-1 flex-wrap';
+                    r.tags.forEach(t => {
+                        const chip = document.createElement('span');
+                        chip.className = 'tag-chip' + (t === tag ? ' active' : '');
+                        chip.textContent = '#' + t;
+                        chip.addEventListener('click', e => { e.stopPropagation(); searchByTag(t); });
+                        tagRow.appendChild(chip);
+                    });
+
+                    row.appendChild(date);
+                    row.appendChild(tagRow);
+
+                    const desc = document.createElement('div');
+                    desc.className = 'text-sm font-medium text-slate-700 leading-snug';
+                    desc.textContent = r.preview;
+
+                    item.appendChild(row);
+                    item.appendChild(desc);
+                    resultsEl.appendChild(item);
+                });
+                return;
+            }
+
+            // ===== 普通搜索模式 =====
+            const lower = q.toLowerCase();
+            const res = [];
+
+            // --- 搜索所有年份 ---
+            ['2025', '2026'].forEach(yr => {
+                const state = fullState[yr];
+
+                // 笔记
+                Object.keys(state.notes).forEach(k => {
+                    const raw = state.notes[k].replace(/<[^>]*>?/gm, '');
+                    if (raw.toLowerCase().includes(lower)) {
+                        const idx = raw.toLowerCase().indexOf(lower);
+                        const snippet = raw.substring(Math.max(0, idx - 20), idx + 60).trim();
+                        const tags = extractTagsFromHtml(state.notes[k]);
+                        res.push({ k, yr, type: '笔记', text: snippet, tags });
+                    }
+                });
+
+                Object.values(state.notebookEntries || {}).forEach(entry => {
+                    if (entry.content.toLowerCase().includes(lower)) {
+                        const idx = entry.content.toLowerCase().indexOf(lower);
+                        const snippet = entry.content.substring(Math.max(0, idx - 20), idx + 60).trim();
+                        res.push({ k: entry.dateKey, yr, type: '笔记', text: snippet, tags: extractTags(entry.content) });
+                    }
+                });
+
+                // 用户自定义任务
+                Object.keys(state.customTasks).forEach(k => {
+                    state.customTasks[k].forEach(t => {
+                        if (t.text.toLowerCase().includes(lower))
+                            res.push({ k, yr, type: '任务', text: t.text, tags: [] });
+                    });
+                });
+            });
+
+            // --- 搜索 2025 静态任务 ---
+            CALENDAR_DATA_2025.forEach(d => {
+                if (!d.tasks) return;
+                d.tasks.forEach(t => {
+                    if (t.text.toLowerCase().includes(lower))
+                        res.push({ k: `d${d.day}`, yr: '2025', type: '内置任务', text: t.text, tags: [] });
+                });
+            });
+
+            if (!res.length) {
+                resultsEl.innerHTML = '<div class="empty-state">未找到相关内容</div>';
+                return;
+            }
+
+            resultsEl.innerHTML = '';
+            res.forEach((r, idx) => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.addEventListener('click', () => window.jumpToResult(r.k, r.yr, r.type, idx));
+
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center text-xs text-slate-400 mb-1';
+
+                const date = document.createElement('span');
+                date.className = 'font-bold text-slate-500';
+                date.textContent = keyToLabel(r.k);
+
+                const rightSide = document.createElement('span');
+                rightSide.className = 'flex items-center gap-1';
+
+                // 显示标签 chips
+                if (r.tags && r.tags.length) {
+                    r.tags.slice(0, 3).forEach(t => {
+                        const chip = document.createElement('span');
+                        chip.className = 'tag-chip';
+                        chip.style.fontSize = '9px';
+                        chip.style.padding = '1px 5px';
+                        chip.textContent = '#' + t;
+                        chip.addEventListener('click', e => { e.stopPropagation(); searchByTag(t); });
+                        rightSide.appendChild(chip);
+                    });
+                }
+
+                const badge = document.createElement('span');
+                badge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold';
+                if (r.type === '笔记') {
+                    badge.style.background = '#eff6ff';
+                    badge.style.color = '#1d4ed8';
+                } else if (r.type === '内置任务') {
+                    badge.style.background = '#f0fdf4';
+                    badge.style.color = '#15803d';
+                } else {
+                    badge.style.background = '#faf5ff';
+                    badge.style.color = '#7e22ce';
+                }
+                badge.textContent = r.type;
+                rightSide.appendChild(badge);
+
+                row.appendChild(date);
+                row.appendChild(rightSide);
+
+                const desc = document.createElement('div');
+                desc.className = 'text-sm font-medium text-slate-700 leading-snug';
+                desc.innerHTML = highlightText(r.text, q);
+
+                item.appendChild(row);
+                item.appendChild(desc);
+                resultsEl.appendChild(item);
+            });
+        };
+
+        window.jumpToResult = (k, yr, type, idx) => {
             document.getElementById('search-modal').classList.remove('open');
-            window.openNote(k);
+
+            const doNav = () => {
+                // 高亮卡片的公共辅助
+                function flashCard(card) {
+                    if (!card) return;
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.style.transition = 'box-shadow 0.4s, border-color 0.4s';
+                    card.style.boxShadow = '0 0 0 3px #3b82f6';
+                    card.style.borderColor = '#3b82f6';
+                    setTimeout(() => { card.style.boxShadow = ''; card.style.borderColor = ''; }, 2000);
+                }
+
+                if (type === '笔记') {
+                    if (yr === '2026') {
+                        const monthIdx = parseInt(k.split('-')[1]) - 1;
+                        if (CURRENT_YEAR !== 2026 || currentMonth2026 !== monthIdx) {
+                            currentMonth2026 = monthIdx;
+                            window.switchYear(2026);
+                        }
+                    } else if (CURRENT_YEAR !== 2025) {
+                        window.switchYear(2025);
+                    }
+                    // 传入搜索词，openNote 会调用 scrollToText 定位并高亮
+                    setTimeout(() => window.openNote(k, window._searchQ || null), 350);
+                } else {
+                    // 任务/内置任务：切换到正确年月，再滚动高亮日期卡片
+                    if (yr === '2026') {
+                        const monthIdx = parseInt(k.split('-')[1]) - 1;
+                        if (CURRENT_YEAR !== 2026 || currentMonth2026 !== monthIdx) {
+                            currentMonth2026 = monthIdx;
+                            window.switchYear(2026);
+                        }
+                        // card.id = "day-2026-M-D"
+                        setTimeout(() => flashCard(document.getElementById(`day-${k}`)), 600);
+                    } else {
+                        // 2025: key = dN, card.id = day-N
+                        const day = k.replace('d', '');
+                        if (CURRENT_YEAR !== 2025) window.switchYear(2025);
+                        setTimeout(() => flashCard(document.getElementById(`day-${day}`)), 600);
+                    }
+                }
+            };
+
+            doNav();
+        };
+
+        function renderSubjectChips(containerId, selected, clickName) {
+            const root = document.getElementById(containerId);
+            root.innerHTML = '';
+            const clickFn = window[clickName];
+            getCategories().forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `subject-chip-btn ${selected === cat.type ? 'active' : ''}`;
+                const span = document.createElement('span');
+                span.textContent = cat.name || '未命名';
+                btn.appendChild(span);
+                btn.addEventListener('click', () => {
+                    if (typeof clickFn === 'function') clickFn(cat.type);
+                });
+                root.appendChild(btn);
+            });
+        }
+
+        function renderNotebookList() {
+            const currentDateKey = getAutoNotebookDateKey();
+            const entries = notebookComposeSubject ? getNotebookEntriesBySubject(notebookComposeSubject) : [];
+            const todayEntry = entries.find(entry => entry.dateKey === currentDateKey) || null;
+            document.getElementById('notebook-current-filter').innerText =
+                getCategories().find(cat => cat.type === notebookComposeSubject)?.name || '科目笔记';
+            document.getElementById('notebook-current-date').innerText = keyToLabel(currentDateKey);
+            notebookEditor.innerHTML = sanitizeRichHtml(todayEntry?.html || (todayEntry?.content ? escapeHtml(todayEntry.content).replace(/\n/g, '<br>') : ''));
+        }
+
+        function refreshNotebookUI() {
+            if (document.getElementById('notebook-modal').classList.contains('open')) {
+                renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
+                renderNotebookList();
+            }
+        }
+
+        window.openNotebookModal = () => {
+            closeQuickMenu();
+            document.getElementById('quick-menu-fab')?.classList.add('hidden');
+            if (!notebookComposeSubject) notebookComposeSubject = getCategories()[0]?.type || null;
+            document.getElementById('notes-sidebar')?.classList.remove('open');
+            document.getElementById('notes-sidebar-overlay')?.classList.remove('open');
+            renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
+            document.getElementById('notebook-modal').classList.add('open');
+            renderNotebookList();
+            activeRichEditor = notebookEditor;
+            setTimeout(() => notebookEditor.focus(), 120);
+        };
+
+        window.closeNotebookModal = () => {
+            clearTimeout(notebookAutosaveTimer);
+            commitNotebookDraft();
+            document.getElementById('notebook-modal').classList.remove('open');
+            document.getElementById('quick-menu-fab')?.classList.remove('hidden');
+        };
+        window.selectNotebookComposeSubject = (type) => {
+            commitNotebookDraft();
+            notebookComposeSubject = type;
+            renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
+            renderNotebookList();
+            activeRichEditor = notebookEditor;
+            setTimeout(() => notebookEditor.focus(), 0);
+        };
+
+        function commitNotebookDraft() {
+            const dateKey = getAutoNotebookDateKey();
+            if (!notebookComposeSubject) return;
+            const existing = getNotebookEntriesBySubject(notebookComposeSubject).find(entry => entry.dateKey === dateKey);
+            const html = sanitizeRichHtml(notebookEditor.innerHTML);
+            const plain = textFromHtml(html);
+            if (!plain.trim()) {
+                if (existing) delete currentState.notebookEntries[existing.id];
+            } else {
+                upsertNotebookEntry({ ...(existing || {}), dateKey, subjectType: notebookComposeSubject, html });
+            }
+            refresh();
+            if (curNoteKey === dateKey && document.getElementById('note-modal').classList.contains('open')) {
+                const wasEdit = isEditMode;
+                editor.innerHTML = getRenderedNoteHtml(curNoteKey, true);
+                setMode(wasEdit);
+            }
+            save();
+        }
+
+        window.handleNotebookComposeInput = () => {
+            clearTimeout(notebookAutosaveTimer);
+            notebookAutosaveTimer = setTimeout(() => commitNotebookDraft(), 260);
+        };
+
+        window.saveNotebookDraft = () => {
+            clearTimeout(notebookAutosaveTimer);
+            commitNotebookDraft();
+            showToast('✅ Notebook 已保存');
+        };
+
+        // ================= 内置模板 =================
+        const NOTEBOOK_TEMPLATES = [
+            {
+                name: '每日学习记录',
+                desc: '今日目标 / 完成内容 / 遗留问题',
+                html: `<h3 style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e293b">📋 每日学习记录</h3>
+<p><b>今日目标</b></p>
+<ul><li>　</li></ul>
+<p><b>完成内容</b></p>
+<ul><li>　</li></ul>
+<p><b>遗留问题</b></p>
+<ul><li>　</li></ul>
+<p><b>明日计划</b></p>
+<ul><li>　</li></ul>`
+            },
+            {
+                name: '知识点整理',
+                desc: '定义 / 核心考点 / 例题 / 易错提示',
+                html: `<h3 style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e293b">📖 知识点整理</h3>
+<p><b>知识点名称：</b>　</p>
+<p><b>定义</b></p>
+<blockquote>用自己的话写一遍定义...</blockquote>
+<p><b>核心考点</b></p>
+<ol><li>　</li><li>　</li></ol>
+<p><b>经典例题</b></p>
+<blockquote>题目 + 解法...</blockquote>
+<p><b>易错提示</b></p>
+<ul><li>⚠️ 　</li></ul>`
+            },
+            {
+                name: '真题分析',
+                desc: '题目摘录 / 解题思路 / 错因分析',
+                html: `<h3 style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e293b">🎯 真题分析</h3>
+<p><b>题目摘录</b></p>
+<blockquote>题目原文...</blockquote>
+<p><b>解题思路</b></p>
+<ol><li>　</li><li>　</li></ol>
+<p><b>知识点定位</b></p>
+<p>所属章节：　</p>
+<p><b>错误原因</b></p>
+<ul><li>　</li></ul>
+<p><b>同类题归纳</b></p>
+<ul><li>　</li></ul>`
+            },
+            {
+                name: '单词/概念速记',
+                desc: '左词右义的两列表格',
+                html: `<h3 style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e293b">🔤 单词 / 概念速记</h3>
+<table style="width:100%;border-collapse:collapse;font-size:14px">
+<thead><tr><th style="border:1px solid #cbd5e1;padding:8px;background:#f1f5f9;text-align:left;width:40%">词条 / 概念</th><th style="border:1px solid #cbd5e1;padding:8px;background:#f1f5f9;text-align:left">释义 / 解释</th></tr></thead>
+<tbody>
+<tr><td style="border:1px solid #cbd5e1;padding:8px">　</td><td style="border:1px solid #cbd5e1;padding:8px">　</td></tr>
+<tr><td style="border:1px solid #cbd5e1;padding:8px">　</td><td style="border:1px solid #cbd5e1;padding:8px">　</td></tr>
+<tr><td style="border:1px solid #cbd5e1;padding:8px">　</td><td style="border:1px solid #cbd5e1;padding:8px">　</td></tr>
+<tr><td style="border:1px solid #cbd5e1;padding:8px">　</td><td style="border:1px solid #cbd5e1;padding:8px">　</td></tr>
+<tr><td style="border:1px solid #cbd5e1;padding:8px">　</td><td style="border:1px solid #cbd5e1;padding:8px">　</td></tr>
+</tbody></table>`
+            },
+            {
+                name: '每周复盘',
+                desc: '本周完成 / 薄弱点 / 下周计划',
+                html: `<h3 style="margin:0 0 6px;font-size:15px;font-weight:800;color:#1e293b">📆 每周复盘</h3>
+<p><b>本周完成</b></p>
+<ul><li><input type="checkbox"> 　</li><li><input type="checkbox"> 　</li><li><input type="checkbox"> 　</li></ul>
+<p><b>薄弱环节</b></p>
+<ul><li>　</li></ul>
+<p><b>下周计划</b></p>
+<ol><li>　</li><li>　</li><li>　</li></ol>
+<p><b>一句话总结</b></p>
+<blockquote>这周最大的收获是...</blockquote>`
+            }
+        ];
+
+        function renderTemplatePicker() {
+            const list = document.getElementById('template-picker-list');
+            list.innerHTML = '';
+            NOTEBOOK_TEMPLATES.forEach((tpl, i) => {
+                const card = document.createElement('div');
+                card.className = 'template-card';
+                card.addEventListener('click', () => insertTemplate(i));
+                const title = document.createElement('div');
+                title.className = 'template-card-title';
+                title.textContent = tpl.name;
+                const desc = document.createElement('div');
+                desc.className = 'template-card-desc';
+                desc.textContent = tpl.desc;
+                card.appendChild(title);
+                card.appendChild(desc);
+                list.appendChild(card);
+            });
+        }
+
+        window.toggleTemplatePicker = () => {
+            const modal = document.getElementById('template-modal');
+            if (!modal.classList.contains('open')) {
+                // 打开模板面板时自动进入编辑模式
+                if (!isEditMode) toggleEditMode(true);
+                renderTemplatePicker();
+                modal.classList.add('open');
+            } else {
+                modal.classList.remove('open');
+            }
+        };
+
+        window.closeTemplateModal = () => {
+            document.getElementById('template-modal').classList.remove('open');
+        };
+
+        function insertTemplate(idx) {
+            const tpl = NOTEBOOK_TEMPLATES[idx];
+            if (!tpl) return;
+            const ed = editor; // 日历笔记编辑器
+            if (!isEditMode) toggleEditMode(true);
+            // 去掉 projection 区，只看用户自己的内容
+            const userHtml = stripProjectionHtml(ed.innerHTML).trim();
+            if (userHtml && userHtml !== '<br>' && userHtml !== '<div class="note-editable-slot"><br></div>') {
+                ed.innerHTML = userHtml + '<p><br></p>' + sanitizeRichHtml(tpl.html) + buildProjectionHtml(curNoteKey);
+            } else {
+                ed.innerHTML = sanitizeRichHtml(tpl.html) + buildProjectionHtml(curNoteKey);
+            }
+            document.getElementById('template-modal').classList.remove('open');
+            ed.focus();
+            updateWordCount();
+            showToast('✅ 已插入「' + tpl.name + '」模板');
+        }
+
+        function hideSubjectMenu() {
+            pendingNotebookSelection = null;
+            subjectMenu.classList.remove('open');
+        }
+
+        function showSubjectMenu(x, y) {
+            subjectMenu.innerHTML = '';
+            const title = document.createElement('div');
+            title.className = 'subject-menu-title';
+            title.textContent = '归类到科目';
+            subjectMenu.appendChild(title);
+
+            getCategories().forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'subject-menu-item';
+                btn.addEventListener('click', () => assignSelectionToNotebook(cat.type));
+
+                const dot = document.createElement('span');
+                dot.className = 'subject-menu-dot';
+                dot.style.background = sanitizeColor(cat.color);
+
+                const name = document.createElement('span');
+                name.style.fontSize = '13px';
+                name.style.fontWeight = '700';
+                name.style.color = '#0f172a';
+                name.textContent = cat.name || '未命名';
+
+                btn.appendChild(dot);
+                btn.appendChild(name);
+                subjectMenu.appendChild(btn);
+            });
+            subjectMenu.style.left = `${Math.min(x, window.innerWidth - 210)}px`;
+            subjectMenu.style.top = `${Math.min(y, window.innerHeight - 260)}px`;
+            subjectMenu.classList.add('open');
+        }
+
+        window.assignSelectionToNotebook = (subjectType) => {
+            if (!pendingNotebookSelection?.text || !curNoteKey) return;
+            const existing = getNotebookEntriesBySubject(subjectType).find(entry => entry.dateKey === curNoteKey);
+            const existingHtml = existing?.html || (existing?.content ? escapeHtml(existing.content).replace(/\n/g, '<br>') : '');
+            const appendedHtml = `${existingHtml}${existingHtml ? '<p><br></p>' : ''}<p>${escapeHtml(pendingNotebookSelection.text)}</p>`;
+            upsertNotebookEntry({
+                ...(existing || {}),
+                dateKey: curNoteKey,
+                subjectType,
+                html: appendedHtml
+            });
+            hideSubjectMenu();
+            refresh();
+            refreshNotebookUI();
+            showToast('✅ 已归类进对应科目笔记本');
+            save();
         };
 
         // 初始化编辑器事件 (Markdown, 图片点击)
         function initEditorEvents() {
-            window.execCmd = (c, v) => { document.execCommand(c, false, v); editor.focus(); updateWordCount(); };
+            const focusActiveEditor = () => {
+                if (!activeRichEditor) activeRichEditor = editor;
+                activeRichEditor.focus();
+            };
+            window.execCmd = (c, v) => { focusActiveEditor(); document.execCommand(c, false, v); updateWordCount(); };
             window.toggleHighlight = () => {
                 const sel = window.getSelection();
-                if (!sel.rangeCount || sel.isCollapsed) { document.execCommand('backColor', false, '#fef08a'); editor.focus(); return; }
+                if (!sel.rangeCount || sel.isCollapsed) { focusActiveEditor(); document.execCommand('backColor', false, '#fef08a'); return; }
                 // 检查选区内是否已有高亮
                 let hasHighlight = false;
                 const range = sel.getRangeAt(0);
@@ -3213,7 +5728,7 @@
                 if (highlighted.length > 0) hasHighlight = true;
                 // 也检查父元素
                 let node = sel.anchorNode;
-                while (node && node !== editor) {
+                while (node && node !== activeRichEditor) {
                     if (node.nodeType === 1 && node.style && node.style.backgroundColor) { hasHighlight = true; break; }
                     node = node.parentNode;
                 }
@@ -3222,7 +5737,7 @@
                 } else {
                     document.execCommand('backColor', false, '#fef08a');
                 }
-                editor.focus();
+                focusActiveEditor();
                 updateWordCount();
             };
             window.insertCheckbox = () => { window.execCmd('insertHTML', `<input type="checkbox"> `); updateWordCount(); };
@@ -3231,7 +5746,7 @@
                 const sel = window.getSelection();
                 const hasText = sel && !sel.isCollapsed;
                 const url = prompt('输入链接地址：', 'https://');
-                if (!url) { editor.focus(); return; }
+                if (!url) { focusActiveEditor(); return; }
                 if (hasText) {
                     document.execCommand('createLink', false, url);
                 } else {
@@ -3239,22 +5754,60 @@
                     document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${label}</a>&nbsp;`);
                 }
                 // 新链接默认在新标签页打开
-                editor.querySelectorAll('a:not([target])').forEach(a => a.target = '_blank');
-                editor.focus();
+                (activeRichEditor || editor).querySelectorAll('a:not([target])').forEach(a => a.target = '_blank');
+                focusActiveEditor();
                 updateWordCount();
             };
 
             // 实时监听输入，更新字数
-            editor.addEventListener('input', updateWordCount);
+            editor.addEventListener('input', () => {
+                updateWordCount();
+                updateNoteLinkSuggest(editor);
+            });
+            editor.addEventListener('focus', () => { activeRichEditor = editor; }, true);
+            notebookEditor.addEventListener('focus', () => { activeRichEditor = notebookEditor; }, true);
+            notebookEditor.addEventListener('input', () => {
+                activeRichEditor = notebookEditor;
+                handleNotebookComposeInput();
+                updateNoteLinkSuggest(notebookEditor);
+            });
+
+            editor.addEventListener('keydown', e => handleNoteLinkKeydown(e, editor));
+            notebookEditor.addEventListener('keydown', e => handleNoteLinkKeydown(e, notebookEditor));
+
+            editor.addEventListener('keyup', () => updateNoteLinkSuggest(editor));
+            notebookEditor.addEventListener('keyup', () => updateNoteLinkSuggest(notebookEditor));
 
             editor.addEventListener('click', e => {
+                const link = e.target.closest('a[data-note-key]');
+                if (link) {
+                    e.preventDefault();
+                    openNoteByKey(link.dataset.noteKey);
+                    return;
+                }
                 if (e.target.tagName === 'IMG') {
                     document.getElementById('zoomed-img').src = e.target.src;
                     document.getElementById('img-zoom-modal').classList.add('open');
+                    return;
                 }
+                updateNoteLinkSuggest(editor);
+            });
+            notebookEditor.addEventListener('click', e => {
+                const link = e.target.closest('a[data-note-key]');
+                if (link) {
+                    e.preventDefault();
+                    openNoteByKey(link.dataset.noteKey);
+                    return;
+                }
+                if (e.target.tagName === 'IMG') {
+                    document.getElementById('zoomed-img').src = e.target.src;
+                    document.getElementById('img-zoom-modal').classList.add('open');
+                    return;
+                }
+                updateNoteLinkSuggest(notebookEditor);
             });
             // Markdown Trigger
-            editor.addEventListener('keyup', e => {
+            const handleMarkdownTrigger = (e) => {
                 if (e.key === ' ') {
                     const sel = window.getSelection();
                     if (!sel.rangeCount) return;
@@ -3262,11 +5815,68 @@
                     if (txt.match(/^(\-|\*)\s$/)) { document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('insertUnorderedList'); }
                     if (txt.match(/^1\.\s$/)) { document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('delete', false); document.execCommand('insertOrderedList'); }
                 }
+            };
+            editor.addEventListener('keyup', handleMarkdownTrigger);
+            notebookEditor.addEventListener('keyup', handleMarkdownTrigger);
+            editor.addEventListener('contextmenu', e => {
+                if (!document.getElementById('note-modal').classList.contains('open')) return;
+                const selection = window.getSelection();
+                if (!selection.rangeCount || selection.isCollapsed) return;
+                if (!editor.contains(selection.anchorNode) || !editor.contains(selection.focusNode)) return;
+                const projectionWrap = selection.anchorNode.parentElement?.closest?.('[data-notebook-projection]') || selection.focusNode.parentElement?.closest?.('[data-notebook-projection]');
+                if (projectionWrap) return;
+                const text = selection.toString().trim();
+                if (!text) return;
+                e.preventDefault();
+                pendingNotebookSelection = { text };
+                showSubjectMenu(e.clientX, e.clientY);
+            });
+            document.addEventListener('click', e => {
+                if (!subjectMenu.contains(e.target)) hideSubjectMenu();
+                if (noteLinkMenu && !noteLinkMenu.contains(e.target)) {
+                    const triggerRoot = e.target.closest('#note-editor, #notebook-editor');
+                    if (!triggerRoot) hideNoteLinkSuggest();
+                }
+            });
+
+            if (noteLinkMenu) {
+                noteLinkMenu.addEventListener('click', e => {
+                    const btn = e.target.closest('[data-note-link-idx]');
+                    if (!btn) return;
+                    e.preventDefault();
+                    noteLinkSuggestState.activeIndex = parseInt(btn.dataset.noteLinkIdx, 10) || 0;
+                    insertSelectedNoteLink();
+                });
+            }
+
+            window.addEventListener('resize', hideNoteLinkSuggest);
+            window.addEventListener('scroll', e => {
+                if (noteLinkMenu && e.target === noteLinkMenu) return;
+                hideNoteLinkSuggest();
+            }, true);
+
+            document.addEventListener('selectionchange', () => {
+                if (!noteLinkSuggestState.open) return;
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount || !sel.isCollapsed) {
+                    hideNoteLinkSuggest();
+                    return;
+                }
+                const node = sel.anchorNode;
+                const root = node?.nodeType === 1 ? node : node?.parentElement;
+                const editorEl = root?.closest?.('#note-editor, #notebook-editor');
+                if (!editorEl) {
+                    hideNoteLinkSuggest();
+                    return;
+                }
+                updateNoteLinkSuggest(editorEl);
             });
         }
         function applyLineHeight() {
             lhClasses.forEach(c => editor.classList.remove(c));
             editor.classList.add(lhClasses[lineHeightIdx]);
+            lhClasses.forEach(c => notebookEditor.classList.remove(c));
+            notebookEditor.classList.add(lhClasses[lineHeightIdx]);
         }
         function updateStatus(s) {
             const badge = document.getElementById('cloud-status-badge');
@@ -3339,6 +5949,7 @@
         ];
 
         window.openCategoryModal = () => {
+            closeQuickMenu();
             renderCatList();
             document.getElementById('category-modal').classList.add('open');
         };
@@ -3347,13 +5958,32 @@
         function renderCatList() {
             const cats = getCategories();
             const list = document.getElementById('cat-list');
-            list.innerHTML = cats.map((c, i) => `
-                <div class="cat-row" data-idx="${i}">
-                    <div class="cat-color-dot" style="background:${c.color}" onclick="toggleColorPicker(${i}, this)"></div>
-                    <input class="cat-name-input" value="${c.name}" data-idx="${i}" onchange="updateCatName(${i}, this.value)">
-                    <i class="fas fa-trash-alt cat-del-btn" onclick="deleteCategory(${i})"></i>
-                </div>
-            `).join('');
+            list.innerHTML = '';
+            cats.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.className = 'cat-row';
+                row.dataset.idx = String(i);
+
+                const dot = document.createElement('div');
+                dot.className = 'cat-color-dot';
+                dot.style.background = sanitizeColor(c.color);
+                dot.addEventListener('click', () => toggleColorPicker(i, dot));
+
+                const input = document.createElement('input');
+                input.className = 'cat-name-input';
+                input.value = c.name || '';
+                input.dataset.idx = String(i);
+                input.addEventListener('change', () => updateCatName(i, input.value));
+
+                const del = document.createElement('i');
+                del.className = 'fas fa-trash-alt cat-del-btn';
+                del.addEventListener('click', () => deleteCategory(i));
+
+                row.appendChild(dot);
+                row.appendChild(input);
+                row.appendChild(del);
+                list.appendChild(row);
+            });
         }
 
         window.addCategory = () => {
@@ -3380,9 +6010,13 @@
             document.querySelectorAll('.color-palette').forEach(p => p.remove());
             const palette = document.createElement('div');
             palette.className = 'color-palette';
-            palette.innerHTML = PALETTE_COLORS.map(c =>
-                `<div class="color-swatch ${c === getCategories()[idx].color ? 'selected' : ''}" style="background:${c}" onclick="pickColor(${idx},'${c}', this)"></div>`
-            ).join('');
+            PALETTE_COLORS.forEach(c => {
+                const swatch = document.createElement('div');
+                swatch.className = `color-swatch ${c === getCategories()[idx].color ? 'selected' : ''}`;
+                swatch.style.background = c;
+                swatch.addEventListener('click', () => pickColor(idx, c, swatch));
+                palette.appendChild(swatch);
+            });
             dotEl.parentElement.appendChild(palette);
             // 点击外部关闭
             setTimeout(() => {
@@ -3412,20 +6046,38 @@
             closeCategoryModal();
             // 重新渲染当前页面
             if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            if (notebookComposeSubject && !getCategories().some(cat => cat.type === notebookComposeSubject)) {
+                notebookComposeSubject = getCategories()[0]?.type || null;
+            }
+            refreshNotebookUI();
+            if (curNoteKey && document.getElementById('note-modal').classList.contains('open')) {
+                const wasEdit = isEditMode;
+                editor.innerHTML = getRenderedNoteHtml(curNoteKey);
+                setMode(wasEdit);
+            }
             showToast('✅ 分类已保存');
         };
 
         // ================= 快捷导入 =================
         window.openImportModal = () => {
+            closeQuickMenu();
             document.getElementById('import-textarea').value = '';
             document.getElementById('conflict-toggle-switch').classList.remove('off');
 
             // 渲染分类标签条
             const cats = getCategories();
             const chips = document.getElementById('import-cat-chips');
-            chips.innerHTML = cats.map(c =>
-                `<span style="color:${c.color};background:${c.bg};border:1px solid ${c.border}" class="px-2 py-0.5 rounded-full text-[11px] font-bold cursor-pointer active:scale-95 transition" onclick="insertCatTag('${c.name}')">${c.name}</span>`
-            ).join('');
+            chips.innerHTML = '';
+            cats.forEach(c => {
+                const chip = document.createElement('span');
+                chip.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold cursor-pointer active:scale-95 transition';
+                chip.style.color = sanitizeColor(c.color);
+                chip.style.background = sanitizeCssColor(c.bg, '#f8fafc');
+                chip.style.border = `1px solid ${sanitizeCssColor(c.border, '#e2e8f0')}`;
+                chip.textContent = c.name || '未命名';
+                chip.addEventListener('click', () => insertCatTag(c.name || '未命名'));
+                chips.appendChild(chip);
+            });
 
             document.getElementById('import-modal').classList.add('open');
             setTimeout(() => document.getElementById('import-textarea').focus(), 100);
@@ -3550,6 +6202,7 @@
 
         // ================= 导出 =================
         window.openExportModal = () => {
+            closeQuickMenu();
             const tasks = currentState.customTasks;
             const keys = Object.keys(tasks).sort((a, b) => {
                 // 排序日期
@@ -3611,26 +6264,55 @@
             } else {
                 const input = document.getElementById('notes-search-input');
                 if (input) input.value = '';
+                window._sidebarFilterTag = null;
                 renderNotesSidebar();
                 sidebar.classList.add('open');
                 overlay.classList.add('open');
             }
         }
 
-        function renderNotesSidebar() {
+        function renderNotesSidebar(filterTag = null) {
             const list = document.getElementById('notes-sidebar-list');
             const notes = currentState.notes;
             // 只显示当前月份的笔记
             let keys;
             if (CURRENT_YEAR === 2025) {
-                keys = Object.keys(notes).filter(k => k.startsWith('d') && notes[k] && notes[k] !== '<br>');
+                keys = [...new Set([
+                    ...Object.keys(notes).filter(k => k.startsWith('d') && notes[k] && notes[k] !== '<br>'),
+                    ...getNotebookEntries().filter(entry => entry.dateKey.startsWith('d')).map(entry => entry.dateKey)
+                ])];
             } else {
                 const monthPrefix = `2026-${currentMonth2026 + 1}-`;
-                keys = Object.keys(notes).filter(k => k.startsWith(monthPrefix) && notes[k] && notes[k] !== '<br>');
+                keys = [...new Set([
+                    ...Object.keys(notes).filter(k => k.startsWith(monthPrefix) && notes[k] && notes[k] !== '<br>'),
+                    ...getNotebookEntries().filter(entry => entry.dateKey.startsWith(monthPrefix)).map(entry => entry.dateKey)
+                ])];
+            }
+
+            // 渲染侧栏标签筛选区
+            const tagFilter = document.getElementById('sidebar-tag-filter');
+            if (tagFilter) {
+                const tagSet = {};
+                keys.forEach(k => {
+                    getTagsForNote(k).forEach(t => { tagSet[t] = (tagSet[t] || 0) + 1; });
+                });
+                const sortedTags = Object.entries(tagSet).sort((a, b) => b[1] - a[1]);
+                if (sortedTags.length) {
+                    tagFilter.innerHTML = sortedTags.map(([t, c]) =>
+                        `<span class="tag-chip${filterTag === t ? ' active' : ''}" onclick="sidebarFilterByTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`
+                    ).join('') + (filterTag ? `<span class="tag-results-close" onclick="sidebarFilterByTag(null)">清除筛选</span>` : '');
+                } else {
+                    tagFilter.innerHTML = '';
+                }
+            }
+
+            // 如果有标签筛选，过滤 keys
+            if (filterTag) {
+                keys = keys.filter(k => getTagsForNote(k).includes(filterTag));
             }
 
             if (keys.length === 0) {
-                list.innerHTML = '<div class="text-center text-slate-400 text-sm py-12">暂无笔记</div>';
+                list.innerHTML = '<div class="text-center text-slate-400 text-sm py-12">' + (filterTag ? '没有包含 #' + escapeHtml(filterTag) + ' 的笔记' : '暂无笔记') + '</div>';
                 return;
             }
 
@@ -3644,7 +6326,7 @@
                 return parseKey(a) - parseKey(b);
             });
 
-            let html = '';
+            list.innerHTML = '';
             keys.forEach(k => {
                 // 解析日期显示
                 let dateLabel;
@@ -3656,17 +6338,59 @@
                 }
 
                 // 提取纯文本预览
-                const div = document.createElement('div');
-                div.innerHTML = notes[k];
-                const preview = (div.textContent || div.innerText || '').trim().slice(0, 40);
+                const basePreview = notes[k] ? textFromHtml(notes[k]) : '';
+                const notebookPreview = getNotebookEntriesByDate(k).map(entry => entry.content).join(' ');
+                const preview = (basePreview || notebookPreview || '').trim().slice(0, 40) || '(空)';
 
-                html += `<div class="notes-sidebar-item" onclick="openNoteFromSidebar('${k}')">
-                    <div class="notes-sidebar-item-date"><i class="fas fa-pen-nib text-amber-400 mr-1" style="font-size:11px"></i> ${dateLabel}</div>
-                    <div class="notes-sidebar-item-preview">${preview || '(空)'}</div>
-                </div>`;
+                // 获取标签
+                const tags = getTagsForNote(k);
+
+                const item = document.createElement('div');
+                item.className = 'notes-sidebar-item';
+                item.addEventListener('click', () => openNoteFromSidebar(k));
+
+                const dateRow = document.createElement('div');
+                dateRow.className = 'flex items-center gap-2';
+
+                const date = document.createElement('span');
+                date.className = 'notes-sidebar-item-date';
+                date.textContent = dateLabel;
+                dateRow.appendChild(date);
+
+                // 标签 chips
+                if (tags.length) {
+                    tags.slice(0, 3).forEach(t => {
+                        const chip = document.createElement('span');
+                        chip.className = 'tag-chip';
+                        chip.style.fontSize = '9px';
+                        chip.style.padding = '1px 5px';
+                        chip.textContent = '#' + t;
+                        chip.addEventListener('click', e => { e.stopPropagation(); sidebarFilterByTag(t); });
+                        dateRow.appendChild(chip);
+                    });
+                    if (tags.length > 3) {
+                        const more = document.createElement('span');
+                        more.style.cssText = 'font-size:9px;color:#94a3b8;';
+                        more.textContent = `+${tags.length - 3}`;
+                        dateRow.appendChild(more);
+                    }
+                }
+
+                const prev = document.createElement('div');
+                prev.className = 'notes-sidebar-item-preview';
+                prev.textContent = preview;
+
+                item.appendChild(dateRow);
+                item.appendChild(prev);
+                list.appendChild(item);
             });
-            list.innerHTML = html;
         }
+
+        window._sidebarFilterTag = null;
+        window.sidebarFilterByTag = (tag) => {
+            window._sidebarFilterTag = (window._sidebarFilterTag === tag) ? null : tag;
+            renderNotesSidebar(window._sidebarFilterTag);
+        };
 
         window.openNoteFromSidebar = (key) => {
             toggleNotesSidebar();
@@ -3714,10 +6438,104 @@
         }
 
         function togglePomodoroModal() {
+            closeQuickMenu();
             const modal = document.getElementById('pomodoro-modal');
             modal.classList.toggle('open');
             updateStatsUI();
         }
+
+        // ================= 右下角汇总菜单 =================
+        function setQuickFabIcon(isOpen) {
+            const icon = document.querySelector('#quick-menu-fab i');
+            if (!icon) return;
+            icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+        }
+
+        function closeQuickMenu() {
+            document.getElementById('quick-menu-panel')?.classList.remove('open');
+            document.getElementById('quick-menu-overlay')?.classList.remove('open');
+            document.getElementById('quick-menu-fab')?.classList.remove('open');
+            setQuickFabIcon(false);
+        }
+
+        function toggleQuickMenu() {
+            const panel = document.getElementById('quick-menu-panel');
+            const overlay = document.getElementById('quick-menu-overlay');
+            const fab = document.getElementById('quick-menu-fab');
+            if (!panel || !overlay || !fab) return;
+            const nextOpen = !panel.classList.contains('open');
+            panel.classList.toggle('open', nextOpen);
+            overlay.classList.toggle('open', nextOpen);
+            fab.classList.toggle('open', nextOpen);
+            setQuickFabIcon(nextOpen);
+        }
+
+        window.closeQuickMenu = closeQuickMenu;
+        window.toggleQuickMenu = toggleQuickMenu;
+
+        let isDarkMode = false;
+
+        function applyThemeMode(dark) {
+            isDarkMode = !!dark;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const label = document.getElementById('theme-menu-label');
+            const icon = document.getElementById('theme-menu-icon');
+            if (label) label.textContent = isDarkMode ? '白天模式' : '暗黑模式';
+            if (icon) icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('study_theme_mode', isDarkMode ? 'dark' : 'light');
+            // 更新系统主题色
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.content = isDarkMode ? '#070708' : '#f8fafc';
+            // 切换主题后重新渲染，让 inline 样式跟随
+            if (typeof refresh === 'function') {
+                if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+                refresh();
+            }
+        }
+
+        function toggleThemeMode() {
+            applyThemeMode(!isDarkMode);
+            closeQuickMenu();
+            showToast(isDarkMode ? '🌙 已切到暗黑模式' : '☀️ 已切到白天模式');
+        }
+
+        window.toggleThemeMode = toggleThemeMode;
+
+        window.openTransferHubModal = () => {
+            closeQuickMenu();
+            document.getElementById('transfer-hub-modal').classList.add('open');
+        };
+
+        window.closeTransferHubModal = () => {
+            document.getElementById('transfer-hub-modal').classList.remove('open');
+        };
+
+        window.openImportFromHub = () => {
+            closeTransferHubModal();
+            openImportModal();
+        };
+
+        window.openExportFromHub = () => {
+            closeTransferHubModal();
+            openExportModal();
+        };
+
+        window.openQuickAction = (action) => {
+            if (action === 'notebook') {
+                closeQuickMenu();
+                openNotebookModal();
+            } else if (action === 'pomodoro') {
+                closeQuickMenu();
+                togglePomodoroModal();
+            } else if (action === 'transfer') {
+                openTransferHubModal();
+            } else if (action === 'category') {
+                closeQuickMenu();
+                openCategoryModal();
+            } else if (action === 'theme') {
+                toggleThemeMode();
+            }
+        };
 
         function switchTimerMode(mode) {
             if (timerRunning) return; // 运行中不能切换
@@ -3769,15 +6587,19 @@
         }
 
         function updateFab() {
-            const fab = document.getElementById('pomodoro-fab');
+            const fab = document.getElementById('quick-menu-fab');
+            const badge = document.getElementById('quick-menu-timer-badge');
+            if (!fab || !badge) return;
             if (timerRunning) {
                 fab.classList.add('running');
                 const m = Math.floor(timerSeconds / 60);
                 const s = timerSeconds % 60;
-                fab.innerHTML = `<span class="fab-time">${m}:${String(s).padStart(2, '0')}</span>`;
+                badge.textContent = `${m}:${String(s).padStart(2, '0')}`;
+                badge.classList.remove('hidden');
             } else {
                 fab.classList.remove('running');
-                fab.innerHTML = '<i class="fas fa-stopwatch"></i>';
+                badge.textContent = '计时';
+                badge.classList.add('hidden');
             }
         }
 
@@ -3894,6 +6716,8 @@
         updateTimerDisplay();
         updateRing(1);
         updateStatsUI();
+
+        applyThemeMode(localStorage.getItem('study_theme_mode') === 'dark');
 
         init();
     </script>
