@@ -2564,6 +2564,258 @@
             border-color: #cbd5e1;
         }
 
+        /* === 历史笔记入口按钮 === */
+        .nb-history-entry-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+        }
+        .nb-history-entry-btn:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #2563eb;
+        }
+        .nb-history-entry-btn i:first-child { font-size: 13px; }
+
+        /* === 历史笔记面板（绝对定位覆盖编辑区） === */
+        .nb-history-panel {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .nb-history-panel.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .nb-history-panel-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        .nb-history-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #3b82f6;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+        .nb-history-back-btn:hover { background: #eff6ff; }
+
+        .nb-history-panel-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+            flex: 1;
+        }
+        .nb-history-filter {
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 4px 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            outline: none;
+            max-width: 90px;
+        }
+
+        .nb-history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 16px;
+        }
+
+        /* 按月分组标题 */
+        .nb-history-month-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 10px 4px 4px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        /* 每条历史笔记 */
+        .nb-history-card {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.13s;
+            border: 1px solid transparent;
+            margin-bottom: 2px;
+        }
+        .nb-history-card:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        .nb-history-card-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .nb-history-card-day {
+            font-size: 20px;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1;
+        }
+        .nb-history-card-weekday {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .nb-history-card-body { flex: 1; min-width: 0; }
+        .nb-history-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+        }
+        .nb-history-subject-tag {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eff6ff;
+            color: #2563eb;
+            white-space: nowrap;
+        }
+        .nb-history-card-date-label {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+        .nb-history-card-preview {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* 删除按钮 */
+        .nb-history-delete-btn {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.15s;
+            opacity: 0;
+        }
+        .nb-history-card:hover .nb-history-delete-btn { opacity: 1; }
+        .nb-history-delete-btn:hover { background: #fee2e2; color: #ef4444; }
+        body.dark-mode .nb-history-delete-btn:hover { background: #3b0f0f !important; color: #f87171 !important; }
+
+        /* 空状态 */
+        .nb-history-empty {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 48px 0;
+        }
+
+        /* 日期导航 (顶部) */
+        .notebook-date-nav { display: flex; align-items: center; gap: 4px; }
+        .notebook-date-nav-btn {
+            width: 26px; height: 26px; border-radius: 8px;
+            border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; transition: all 0.15s; flex-shrink: 0;
+        }
+        .notebook-date-nav-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .notebook-date-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .notebook-date-nav-label {
+            font-size: 12px; font-weight: 700; color: #64748b;
+            white-space: nowrap; min-width: 80px; text-align: center;
+        }
+        .notebook-date-today-badge {
+            font-size: 11px; font-weight: 700; color: #2563eb;
+            background: #dbeafe; border-radius: 8px; padding: 3px 9px;
+            cursor: pointer; white-space: nowrap; border: 1px solid #bfdbfe; transition: 0.15s;
+            letter-spacing: 0.01em;
+        }
+        .notebook-date-today-badge:hover { background: #bfdbfe; border-color: #93c5fd; }
+
+        /* 暗黑模式 */
+        body.dark-mode .nb-history-entry-btn {
+            background: #1a1b1e !important; border-color: #30343a !important; color: #a1a1aa !important;
+        }
+        body.dark-mode .nb-history-entry-btn:hover {
+            background: #1e2433 !important; border-color: #3b4a6a !important; color: #93c5fd !important;
+        }
+        body.dark-mode .nb-history-panel { background: #121314 !important; }
+        body.dark-mode .nb-history-panel-head { border-bottom-color: #272a2f !important; }
+        body.dark-mode .nb-history-panel-title { color: #f5f5f5 !important; }
+        body.dark-mode .nb-history-back-btn { color: #93c5fd !important; }
+        body.dark-mode .nb-history-back-btn:hover { background: #1e2433 !important; }
+        body.dark-mode .nb-history-filter {
+            background: #1a1b1e !important; border-color: #30343a !important; color: #d4d4d8 !important;
+        }
+        body.dark-mode .nb-history-month-label { color: #52525b !important; border-bottom-color: #272a2f !important; }
+        body.dark-mode .nb-history-card:hover { background: #1a1b1e !important; border-color: #30343a !important; }
+        body.dark-mode .nb-history-card-day { color: #f5f5f5 !important; }
+        body.dark-mode .nb-history-card-weekday { color: #52525b !important; }
+        body.dark-mode .nb-history-card-preview { color: #a1a1aa !important; }
+        body.dark-mode .nb-history-card-date-label { color: #52525b !important; }
+        body.dark-mode .nb-history-subject-tag { background: #1e2433 !important; color: #93c5fd !important; }
+        body.dark-mode .nb-history-empty { color: #52525b !important; }
+        body.dark-mode .notebook-date-nav-btn {
+            background: #1a1b1e !important; border-color: #30343a !important; color: #a1a1aa !important;
+        }
+        body.dark-mode .notebook-date-nav-label { color: #a1a1aa !important; }
+        body.dark-mode .notebook-date-today-badge { background: #1e2433 !important; color: #93c5fd !important; }
+
         /* === 模板选择器 === */
         .template-modal-content {
             width: 92%;
@@ -3409,48 +3661,76 @@
             <div class="notebook-layout">
                 <aside class="notebook-side">
                     <div id="notebook-subject-tabs" class="subject-chip-row"></div>
+                    <!-- 历史笔记入口 -->
+                    <button class="nb-history-entry-btn" id="nb-history-entry-btn" onclick="openNbHistory()">
+                        <i class="fas fa-history"></i>
+                        <span>历史笔记</span>
+                        <i class="fas fa-chevron-right" style="font-size:10px;margin-left:auto;opacity:0.5"></i>
+                    </button>
                 </aside>
-                <section class="notebook-main">
-                    <div class="notebook-subject-head">
-                        <div id="notebook-current-filter" class="text-sm font-bold text-slate-700">科目笔记</div>
-                        <div id="notebook-current-date" class="notebook-head-date"></div>
-                    </div>
-                    <div class="notebook-editor-shell">
-                        <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="true"
-                            data-placeholder="写点什么..."></div>
-                    </div>
-                    <div class="notebook-footer">
-                        <div id="notebook-editor-tools" class="notebook-tools">
-                            <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i class="fas fa-italic"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('underline')" title="下划线"><i class="fas fa-underline"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="删除线"><i class="fas fa-strikethrough"></i></button>
-                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
-                            <button class="toolbar-btn relative" title="文字颜色" onclick="document.getElementById('notebook-text-color-input').click()"><i class="fas fa-font" style="color:#475569"></i></button>
-                            <input id="notebook-text-color-input" type="color" value="#334155" class="absolute w-0 h-0 opacity-0" oninput="execCmd('foreColor', this.value)">
-                            <button class="toolbar-btn" onclick="toggleHighlight()" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
-                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
-                            <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
-                            <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
-                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
-                            <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="左对齐"><i class="fas fa-align-left"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="居中"><i class="fas fa-align-center"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="右对齐"><i class="fas fa-align-right"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('outdent')" title="减少缩进"><i class="fas fa-outdent"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('indent')" title="增加缩进"><i class="fas fa-indent"></i></button>
-                            <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
-                            <button class="toolbar-btn" onclick="insertLink()" title="插入链接"><i class="fas fa-link"></i></button>
-                            <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
-                            <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i class="fas fa-eraser"></i></button>
+                <section class="notebook-main" style="position:relative;overflow:hidden;">
+                    <!-- 编辑视图 -->
+                    <div id="nb-editor-view" style="display:flex;flex-direction:column;height:100%;">
+                        <div class="notebook-subject-head">
+                            <div id="notebook-current-filter" class="text-sm font-bold text-slate-700">科目笔记</div>
+                            <div class="notebook-date-nav">
+                                <button id="notebook-prev-btn" class="notebook-date-nav-btn" onclick="notebookNavDate(-1)" title="上一条">&#8249;</button>
+                                <span id="notebook-current-date" class="notebook-date-nav-label"></span>
+                                <button id="notebook-next-btn" class="notebook-date-nav-btn" onclick="notebookNavDate(1)" title="下一条">&#8250;</button>
+                                <button id="notebook-today-btn" class="notebook-date-today-badge" onclick="notebookGoToday()" style="display:none">↩ 回今天</button>
+                            </div>
                         </div>
-                        <button class="notebook-save-btn" onclick="saveNotebookDraft()">立即保存</button>
+                        <div class="notebook-editor-shell">
+                            <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="true"
+                                data-placeholder="写点什么..."></div>
+                        </div>
+                        <div class="notebook-footer">
+                            <div id="notebook-editor-tools" class="notebook-tools">
+                                <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i class="fas fa-italic"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('underline')" title="下划线"><i class="fas fa-underline"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="删除线"><i class="fas fa-strikethrough"></i></button>
+                                <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                                <button class="toolbar-btn relative" title="文字颜色" onclick="document.getElementById('notebook-text-color-input').click()"><i class="fas fa-font" style="color:#475569"></i></button>
+                                <input id="notebook-text-color-input" type="color" value="#334155" class="absolute w-0 h-0 opacity-0" oninput="execCmd('foreColor', this.value)">
+                                <button class="toolbar-btn" onclick="toggleHighlight()" title="高亮"><i class="fas fa-highlighter text-yellow-500"></i></button>
+                                <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                                <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="列表"><i class="fas fa-list-ul"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="数字列表"><i class="fas fa-list-ol"></i></button>
+                                <button class="toolbar-btn" onclick="insertCheckbox()" title="任务框"><i class="far fa-check-square"></i></button>
+                                <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                                <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="左对齐"><i class="fas fa-align-left"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="居中"><i class="fas fa-align-center"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="右对齐"><i class="fas fa-align-right"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('outdent')" title="减少缩进"><i class="fas fa-outdent"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('indent')" title="增加缩进"><i class="fas fa-indent"></i></button>
+                                <div class="w-px h-5 bg-slate-200 mx-1 shrink-0"></div>
+                                <button class="toolbar-btn" onclick="insertLink()" title="插入链接"><i class="fas fa-link"></i></button>
+                                <button class="toolbar-btn" onclick="cycleLineHeight()" title="调整行距"><i class="fas fa-text-height"></i></button>
+                                <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="清除格式"><i class="fas fa-eraser"></i></button>
+                            </div>
+                            <button class="notebook-save-btn" onclick="saveNotebookDraft()">立即保存</button>
+                        </div>
                     </div>
+                    <!-- 历史笔记列表面板（滑入覆盖） -->
+                    <div id="nb-history-panel" class="nb-history-panel">
+                        <div class="nb-history-panel-head">
+                            <button class="nb-history-back-btn" onclick="closeNbHistory()">
+                                <i class="fas fa-arrow-left"></i> 返回编辑
+                            </button>
+                            <span class="nb-history-panel-title">历史笔记</span>
+                            <!-- 科目筛选 -->
+                            <select class="nb-history-filter" id="nb-history-filter" onchange="renderNbHistoryList()">
+                                <option value="">全部科目</option>
+                            </select>
+                        </div>
+                        <div id="nb-history-list" class="nb-history-list"></div>
                     </div>
                 </section>
             </div>
         </div>
     </div>
+
 
     <!-- 番茄钟 Modal -->
     <div id="pomodoro-modal" class="modal-overlay">
@@ -4347,11 +4627,14 @@
                 const mergedDone = new Set(merged[year].done || []);
                 localDone.forEach(id => mergedDone.add(id));
                 merged[year].done = Array.from(mergedDone);
-                // notes 合并：本地有但云端没有的保留
+                // notes 合并：取 updatedAt 更新的版本（本地有但云端没有的也保留）
                 const localNotes = local[year].notes || {};
                 if (!merged[year].notes) merged[year].notes = {};
                 Object.keys(localNotes).forEach(k => {
-                    if (!merged[year].notes[k]) merged[year].notes[k] = localNotes[k];
+                    if (!merged[year].notes[k]) {
+                        merged[year].notes[k] = localNotes[k];
+                    }
+                    // 注：notes 内容为 HTML 字符串，无 updatedAt，本地缺失时补充即可
                 });
                 // customTasks 合并
                 const localTasks = local[year].customTasks || {};
@@ -4367,10 +4650,21 @@
                         });
                     }
                 });
+                // notebookEntries 合并：以 updatedAt 最新的版本为准，确保本地新数据不被云端旧数据覆盖
                 const localNotebook = local[year].notebookEntries || {};
                 if (!merged[year].notebookEntries) merged[year].notebookEntries = {};
                 Object.keys(localNotebook).forEach(entryId => {
-                    if (!merged[year].notebookEntries[entryId]) merged[year].notebookEntries[entryId] = localNotebook[entryId];
+                    if (!merged[year].notebookEntries[entryId]) {
+                        // 云端没有此条目，直接用本地的
+                        merged[year].notebookEntries[entryId] = localNotebook[entryId];
+                    } else {
+                        // 两端都有，取 updatedAt 更新的版本
+                        const localUpdated = new Date(localNotebook[entryId].updatedAt || localNotebook[entryId].createdAt || 0);
+                        const cloudUpdated = new Date(merged[year].notebookEntries[entryId].updatedAt || merged[year].notebookEntries[entryId].createdAt || 0);
+                        if (localUpdated > cloudUpdated) {
+                            merged[year].notebookEntries[entryId] = localNotebook[entryId];
+                        }
+                    }
                 });
             }
             // settings 保留云端的（通常更新）
@@ -4836,6 +5130,7 @@
         let notebookComposeSubject = null;
         let pendingNotebookSelection = null;
         let notebookAutosaveTimer = null;
+        let notebookEditorDirty = false; // 追踪用户是否实际编辑过（防止误删已保存数据）
         const editor = document.getElementById('note-editor');
         const notebookEditor = document.getElementById('notebook-editor');
         let activeRichEditor = editor;
@@ -5452,15 +5747,206 @@
             });
         }
 
+        // 当前笔记本正在查看的日期key
+        let notebookCurrentDateKey = null;
+
+        // dateKey → Date
+        function notebookKeyToDate(key) {
+            if (!key) return new Date();
+            if (key.startsWith('d')) return new Date(2025, 11, parseInt(key.replace('d', '')));
+            const p = key.split('-').map(Number);
+            return new Date(p[0], p[1] - 1, p[2]);
+        }
+
+        // Date → dateKey
+        function notebookDateToKey(date) {
+            const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+            if (y === 2025 && m === 12) return `d${d}`;
+            return `${y}-${m}-${d}`;
+        }
+
         function renderNotebookList() {
-            const currentDateKey = getAutoNotebookDateKey();
+            const todayKey = getAutoNotebookDateKey();
+            if (!notebookCurrentDateKey) notebookCurrentDateKey = todayKey;
+
             const entries = notebookComposeSubject ? getNotebookEntriesBySubject(notebookComposeSubject) : [];
-            const todayEntry = entries.find(entry => entry.dateKey === currentDateKey) || null;
+            const currentEntry = entries.find(e => e.dateKey === notebookCurrentDateKey) || null;
+
             document.getElementById('notebook-current-filter').innerText =
                 getCategories().find(cat => cat.type === notebookComposeSubject)?.name || '科目笔记';
-            document.getElementById('notebook-current-date').innerText = keyToLabel(currentDateKey);
-            notebookEditor.innerHTML = sanitizeRichHtml(todayEntry?.html || (todayEntry?.content ? escapeHtml(todayEntry.content).replace(/\n/g, '<br>') : ''));
+
+            const isToday = notebookCurrentDateKey === todayKey;
+            document.getElementById('notebook-current-date').textContent = keyToLabel(notebookCurrentDateKey);
+
+            const todayBtn = document.getElementById('notebook-today-btn');
+            if (todayBtn) todayBtn.style.display = isToday ? 'none' : '';
+
+            // 前/后按钮：在已有记录的日期间跳（当前科目）
+            const allDateKeys = [...new Set(entries.map(e => e.dateKey))]
+                .sort((a, b) => notebookKeyToDate(a) - notebookKeyToDate(b));
+            const curIdx = allDateKeys.indexOf(notebookCurrentDateKey);
+            const prevBtn = document.getElementById('notebook-prev-btn');
+            const nextBtn = document.getElementById('notebook-next-btn');
+            if (prevBtn) prevBtn.disabled = curIdx <= 0;
+            if (nextBtn) nextBtn.disabled = isToday || (curIdx !== -1 && curIdx >= allDateKeys.length - 1);
+
+            notebookEditor.innerHTML = sanitizeRichHtml(currentEntry?.html || (currentEntry?.content ? escapeHtml(currentEntry.content).replace(/\n/g, '<br>') : ''));
+            notebookEditor.contentEditable = 'true';
         }
+
+        // ===== 历史笔记面板 =====
+        window.openNbHistory = () => {
+            document.getElementById('nb-history-panel').classList.add('open');
+            renderNbHistoryList();
+        };
+
+        window.closeNbHistory = () => {
+            document.getElementById('nb-history-panel').classList.remove('open');
+            // 返回编辑后回到今天
+            notebookCurrentDateKey = getAutoNotebookDateKey();
+            renderNotebookList();
+        };
+
+        // 渲染历史笔记列表（可按科目筛选，按月分组，最新在上）
+        window.renderNbHistoryList = () => {
+            const list = document.getElementById('nb-history-list');
+            const filterEl = document.getElementById('nb-history-filter');
+            if (!list) return;
+
+            // 填充科目筛选 select
+            if (filterEl) {
+                const cats = getCategories();
+                const curFilter = filterEl.value;
+                // 保留第一个 "全部科目" option，重建其余
+                while (filterEl.options.length > 1) filterEl.remove(1);
+                cats.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.type;
+                    opt.textContent = cat.name || cat.type;
+                    filterEl.appendChild(opt);
+                });
+                if (curFilter) filterEl.value = curFilter;
+            }
+
+            const filterSubject = filterEl?.value || '';
+            const cats = getCategories();
+            const catMap = Object.fromEntries(cats.map(c => [c.type, c.name]));
+            const todayKey = getAutoNotebookDateKey();
+
+            // 收集所有笔记条目（支持全部或筛选科目）
+            let allEntries = Object.values(currentState.notebookEntries || {});
+            if (filterSubject) allEntries = allEntries.filter(e => e.subjectType === filterSubject);
+
+            // 按日期降序
+            allEntries.sort((a, b) => notebookKeyToDate(b.dateKey) - notebookKeyToDate(a.dateKey));
+
+            if (!allEntries.length) {
+                list.innerHTML = '<div class="nb-history-empty">📭 还没有历史笔记</div>';
+                return;
+            }
+
+            // 按年月分组
+            const groups = {};
+            const WEEKDAYS = ['日','一','二','三','四','五','六'];
+            allEntries.forEach(entry => {
+                const d = notebookKeyToDate(entry.dateKey);
+                const groupKey = `${d.getFullYear()}-${d.getMonth() + 1}`;
+                if (!groups[groupKey]) groups[groupKey] = { label: `${d.getFullYear()}年${d.getMonth() + 1}月`, items: [] };
+                groups[groupKey].items.push(entry);
+            });
+
+            list.innerHTML = '';
+            Object.values(groups).forEach(group => {
+                const monthEl = document.createElement('div');
+                monthEl.className = 'nb-history-month-label';
+                monthEl.textContent = group.label;
+                list.appendChild(monthEl);
+
+                group.items.forEach(entry => {
+                    const d = notebookKeyToDate(entry.dateKey);
+                    const isToday = entry.dateKey === todayKey;
+                    const plain = entry.content || textFromHtml(entry.html || '');
+                    const preview = plain.replace(/#\S+/g, '').trim().slice(0, 80) || '（无内容）';
+                    const subjectName = catMap[entry.subjectType] || entry.subjectType || '未分类';
+
+                    const card = document.createElement('div');
+                    card.className = 'nb-history-card';
+                    card.style.cssText = 'display:flex;align-items:flex-start;gap:10px;';
+                    card.innerHTML = `
+                        <div class="nb-history-card-left">
+                            <div class="nb-history-card-day">${d.getDate()}</div>
+                            <div class="nb-history-card-weekday">${isToday ? '今天' : '周' + WEEKDAYS[d.getDay()]}</div>
+                        </div>
+                        <div class="nb-history-card-body">
+                            <div class="nb-history-card-meta">
+                                <span class="nb-history-subject-tag">${subjectName}</span>
+                                <span class="nb-history-card-date-label">${keyToLabel(entry.dateKey)}</span>
+                            </div>
+                            <div class="nb-history-card-preview">${escapeHtml(preview)}</div>
+                        </div>
+                        <button class="nb-history-delete-btn" title="删除" onclick="deleteNbHistoryEntry('${entry.id}', event)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    `;
+                    card.addEventListener('click', () => notebookJumpToHistory(entry.dateKey, entry.subjectType));
+                    list.appendChild(card);
+                });
+            });
+        };
+
+        // 删除历史笔记条目
+        window.deleteNbHistoryEntry = (id, e) => {
+            e.stopPropagation();
+            if (!confirm('确认删除这条笔记？\n删除后不可恢复。')) return;
+            if (currentState.notebookEntries && currentState.notebookEntries[id]) {
+                delete currentState.notebookEntries[id];
+                save();
+                refresh();
+                renderNbHistoryList(); // 刷新列表
+            }
+        };
+
+        // 从历史列表跳转到编辑某条笔记
+        function notebookJumpToHistory(dateKey, subjectType) {
+            // 只关闭面板，不重置日期（closeNbHistory 会重置到今天，所以这里直接操作）
+            document.getElementById('nb-history-panel').classList.remove('open');
+            // 切换科目（如果不同）
+            if (subjectType !== notebookComposeSubject) {
+                if (notebookEditorDirty) commitNotebookDraft();
+                notebookEditorDirty = false;
+                notebookComposeSubject = subjectType;
+                renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
+            }
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
+            notebookCurrentDateKey = dateKey; // 跳到目标日期
+            renderNotebookList();
+            setTimeout(() => notebookEditor.focus(), 60);
+        }
+
+        // 跳转到指定 dateKey（当前科目）
+        function notebookJumpToDate(key) {
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
+            notebookCurrentDateKey = key;
+            renderNotebookList();
+            setTimeout(() => notebookEditor.focus(), 60);
+        }
+
+        // 顶部前/后箭头：在有记录的日期间跳
+        window.notebookNavDate = (dir) => {
+            const entries = notebookComposeSubject ? getNotebookEntriesBySubject(notebookComposeSubject) : [];
+            const allDateKeys = [...new Set(entries.map(e => e.dateKey))]
+                .sort((a, b) => notebookKeyToDate(a) - notebookKeyToDate(b));
+            const todayKey = getAutoNotebookDateKey();
+            if (dir === 1 && notebookCurrentDateKey === todayKey) return;
+            const curIdx = allDateKeys.indexOf(notebookCurrentDateKey);
+            let nextIdx = curIdx === -1 ? (dir === -1 ? allDateKeys.length - 1 : 0) : curIdx + dir;
+            if (nextIdx < 0 || nextIdx >= allDateKeys.length) return;
+            notebookJumpToDate(allDateKeys[nextIdx]);
+        };
+
+        window.notebookGoToday = () => { notebookJumpToDate(getAutoNotebookDateKey()); };
 
         function refreshNotebookUI() {
             if (document.getElementById('notebook-modal').classList.contains('open')) {
@@ -5477,6 +5963,9 @@
             document.getElementById('notes-sidebar-overlay')?.classList.remove('open');
             renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
             document.getElementById('notebook-modal').classList.add('open');
+            document.getElementById('nb-history-panel')?.classList.remove('open'); // 确保面板关闭
+            notebookEditorDirty = false;
+            notebookCurrentDateKey = getAutoNotebookDateKey();
             renderNotebookList();
             activeRichEditor = notebookEditor;
             setTimeout(() => notebookEditor.focus(), 120);
@@ -5485,12 +5974,16 @@
         window.closeNotebookModal = () => {
             clearTimeout(notebookAutosaveTimer);
             commitNotebookDraft();
+            notebookEditorDirty = false;
             document.getElementById('notebook-modal').classList.remove('open');
             document.getElementById('quick-menu-fab')?.classList.remove('hidden');
         };
+
         window.selectNotebookComposeSubject = (type) => {
-            commitNotebookDraft();
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
             notebookComposeSubject = type;
+            notebookCurrentDateKey = getAutoNotebookDateKey(); // 切换科目时回到今天
             renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
             renderNotebookList();
             activeRichEditor = notebookEditor;
@@ -5498,13 +5991,13 @@
         };
 
         function commitNotebookDraft() {
-            const dateKey = getAutoNotebookDateKey();
+            const dateKey = notebookCurrentDateKey || getAutoNotebookDateKey();
             if (!notebookComposeSubject) return;
             const existing = getNotebookEntriesBySubject(notebookComposeSubject).find(entry => entry.dateKey === dateKey);
             const html = sanitizeRichHtml(notebookEditor.innerHTML);
             const plain = textFromHtml(html);
             if (!plain.trim()) {
-                if (existing) delete currentState.notebookEntries[existing.id];
+                if (existing && notebookEditorDirty) delete currentState.notebookEntries[existing.id];
             } else {
                 upsertNotebookEntry({ ...(existing || {}), dateKey, subjectType: notebookComposeSubject, html });
             }
@@ -5518,6 +6011,7 @@
         }
 
         window.handleNotebookComposeInput = () => {
+            notebookEditorDirty = true;
             clearTimeout(notebookAutosaveTimer);
             notebookAutosaveTimer = setTimeout(() => commitNotebookDraft(), 260);
         };
@@ -5529,6 +6023,7 @@
         };
 
         // ================= 内置模板 =================
+
         const NOTEBOOK_TEMPLATES = [
             {
                 name: '每日学习记录',
