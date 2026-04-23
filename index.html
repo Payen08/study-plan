@@ -152,8 +152,8 @@
         }
 
         body.dark-mode .day-card.has-note-card {
-            background: #1b1710 !important;
-            border-color: #4b3f24 !important;
+            background: rgba(59, 130, 246, 0.14) !important;
+            border-color: rgba(59, 130, 246, 0.45) !important;
         }
 
         body.dark-mode #progress-fill {
@@ -168,8 +168,8 @@
 
         /* -- 暗黑: 日历卡片状态 -- */
         body.dark-mode .is-past {
-            background-color: #09090b !important;
-            opacity: 0.6;
+            background-color: inherit !important;
+            opacity: 1 !important;
         }
 
         body.dark-mode .is-today {
@@ -664,12 +664,12 @@
         }
 
         .is-past {
-            background-color: #f9fafb;
-            opacity: 0.8;
+            background-color: inherit;
+            opacity: 1;
         }
 
         .is-past .task-item {
-            opacity: 0.7;
+            opacity: 1;
         }
 
         .is-today {
@@ -861,17 +861,34 @@
             font-size: 14px;
         }
 
+        /* SVG img icons for calendar actions (keep size consistent with font icons) */
+        .action-btn.icon-img {
+            width: 28px;
+            height: 28px;
+            display: inline-block;
+            vertical-align: middle;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body.dark-mode .action-btn.icon-img {
+            /* Source SVGs are dark; brighten for dark mode readability */
+            filter: invert(1) brightness(1.1);
+        }
+
         .day-card:hover .action-btn {
             opacity: 1;
         }
 
-        .has-note .note-trigger {
-            color: #f59e0b;
+        .note-trigger.has-note-icon {
             opacity: 1;
+            background: rgba(59, 130, 246, 0.18);
+            border-radius: 8px;
         }
 
         .day-card.has-note-card {
-            background: #FDEFDC;
+            background: #e0f2fe;
+            border-color: rgba(59, 130, 246, 0.35);
         }
 
         .action-btn:hover {
@@ -904,6 +921,11 @@
                 display: none;
             }
 
+            /* Keep last cards clear of the bottom-right FAB */
+            #calendar-view {
+                padding-bottom: 120px;
+            }
+
             .day-card {
                 flex-direction: row;
                 flex-wrap: wrap;
@@ -928,6 +950,12 @@
             .action-btn {
                 opacity: 0.6;
                 padding: 8px;
+            }
+
+            /* Mobile: make calendar action icons visibly tappable */
+            .action-btn.icon-img {
+                width: 36px;
+                height: 36px;
             }
 
             .delete-btn {
@@ -3004,7 +3032,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            padding: 0 20px 6px;
+            padding: 10px 20px 6px;
             min-height: 0;
         }
 
@@ -3114,7 +3142,7 @@
         }
 
         .notebook-projection {
-            margin-top: 2px;
+            margin-top: 12px;
             padding: 3px 8px 5px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -3142,7 +3170,6 @@
 
         .projection-text {
             color: #334155;
-            white-space: pre-wrap;
             word-break: break-word;
             margin: 0;
             padding: 0;
@@ -3150,6 +3177,31 @@
             background: transparent;
             border: 0;
         }
+
+        .projection-text > *:first-child {
+            margin-top: 0 !important;
+        }
+
+        .projection-text > *:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .projection-text p {
+            margin: 0 0 8px;
+        }
+
+        .projection-text p:first-child,
+        .projection-text > p:first-of-type {
+            margin-top: 0 !important;
+        }
+
+        .projection-text * {
+            margin-top: 0 !important;
+        }
+
+        .projection-text br {
+            line-height: 1.6;
+        }   
 
         #note-editor .projection-text,
         #note-editor .projection-text * {
@@ -4202,11 +4254,19 @@
         function buildProjectionHtml(dateKey) {
             const entries = getNotebookEntriesByDate(dateKey);
             if (!entries.length) return '';
-            const items = entries.map(entry => `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${sanitizeRichHtml(entry.html || escapeHtml(entry.content).replace(/\n/g, '<br>'))}</div>`).join('');
-            return `<section class="notebook-projection" data-notebook-projection="1" contenteditable="false">
-                <div class="projection-head">来自 Notebook</div>
-                ${items}
-            </section>`;
+            const items = entries.map(entry => {
+              let html = sanitizeRichHtml(
+                entry.html || escapeHtml(entry.content).replace(/\n/g, '<br>')
+              );
+
+            // 🔥 去掉前后空行（核心修复）
+              html = html
+                .replace(/^(\s|<br>|<p><br><\/p>|<div><br><\/div>)+/gi, '')
+                .replace(/(\s|<br>|<p><br><\/p>|<div><br><\/div>)+$/gi, '');
+
+              return `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${html}</div>`;
+              }).join('');
+            return `<section class="notebook-projection" data-notebook-projection="1" contenteditable="false"><div class="projection-head">来自 Notebook</div>${items}</section>`;
         }
 
         function getRenderedNoteHtml(dateKey, ensureEditableSlot = false) {
@@ -4441,7 +4501,8 @@
 
                 const card = document.createElement('div');
                 const hasNoteCard = (currentState.notes[`d${i}`] || hasProjectedNotebook(`d${i}`)) ? 'has-note-card' : '';
-                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${hasNoteCard}`;
+                // Past days should look the same as others (no greyed-out styling)
+                card.className = `day-card ${isToday ? 'is-today' : ''} ${hasNoteCard}`;
                 if (d && d.special) {
                     if (!document.body.classList.contains('dark-mode')) {
                         card.style.background = "repeating-linear-gradient(45deg, #fff, #fff 10px, #fdf2f8 10px, #fdf2f8 20px)";
@@ -4464,8 +4525,10 @@
 
                 header.innerHTML = `<div>${label}</div> 
                     <div class="flex gap-2 ${hasNote}">
-                        <i class="fas fa-plus action-btn text-slate-400" onclick="window.openAddTaskModal('${key}')"></i>
-                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="window.openNote('${key}')" id="icon-${key}"></i>
+                        <img class="action-btn icon-img" src="Bold/Essentional, UI/Add Square.svg" alt="Add"
+                            onclick="window.openAddTaskModal('${key}')" />
+                        <img class="action-btn icon-img note-trigger" src="Bold/Notes/Document Add.svg"
+                            alt="Note" onclick="window.openNote('${key}')" id="icon-${key}" />
                     </div>`;
                 card.appendChild(header);
 
@@ -4512,7 +4575,8 @@
 
                 const card = document.createElement('div');
                 const hasNoteCard = (currentState.notes[dateKey] || hasProjectedNotebook(dateKey)) ? 'has-note-card' : '';
-                card.className = `day-card ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''} ${hasNoteCard}`;
+                // Past days should look the same as others (no greyed-out styling)
+                card.className = `day-card ${isToday ? 'is-today' : ''} ${holiday ? 'is-holiday' : ''} ${hasNoteCard}`;
                 card.id = `day-${dateKey}`; // e.g. day-2026-4-11
                 if (isToday) card.classList.add('is-today');
 
@@ -4526,8 +4590,10 @@
                 header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
                 header.innerHTML = `<div>${label}</div> 
                     <div class="flex gap-2 ${hasNote}">
-                        <i class="fas fa-plus action-btn text-slate-400" onclick="window.openAddTaskModal('${dateKey}')"></i>
-                        <i class="fas fa-edit action-btn text-slate-400 note-trigger" onclick="window.openNote('${dateKey}')" id="icon-${dateKey}"></i>
+                        <img class="action-btn icon-img" src="Bold/Essentional, UI/Add Square.svg" alt="Add"
+                            onclick="window.openAddTaskModal('${dateKey}')" />
+                        <img class="action-btn icon-img note-trigger" src="Bold/Notes/Document Add.svg"
+                            alt="Note" onclick="window.openNote('${dateKey}')" id="icon-${dateKey}" />
                     </div>`;
                 card.appendChild(header);
 
@@ -4728,25 +4794,37 @@
                 console.error('数据完整性检查失败，跳过保存');
                 return;
             }
+            if (typeof window._cloudDebug !== 'object') window._cloudDebug = { lastErr: null, lastOkAt: null, lastBytes: null };
+            try { window._cloudDebug.lastBytes = new Blob([JSON.stringify(fullState)]).size; } catch (_) { /* ignore */ }
             // 始终先保存到本地（本地优先，确保数据不丢）
+            let localSaveOk = true;
             try {
                 const json = JSON.stringify(fullState);
                 localStorage.setItem('study_v2', json);
             } catch (e) {
                 console.error('本地保存失败:', e);
-                return;
+                localSaveOk = false;
+                if (typeof showToast === 'function') showToast('⚠️ 本地保存失败，已尝试仅同步云端');
             }
             // 云端同步
             if (isCloud) {
                 updateStatus('syncing');
                 try {
-                    const { error } = await supabaseClient.from('study_progress').upsert({ id: MY_SYNC_ID, data: fullState });
+                    const { error } = await supabaseClient
+                        .from('study_progress')
+                        .upsert({ id: MY_SYNC_ID, data: fullState }, { onConflict: 'id' });
                     if (error) throw error;
+                    window._cloudDebug.lastErr = null;
+                    window._cloudDebug.lastOkAt = new Date().toISOString();
                     updateStatus('online');
                 } catch (e) {
                     console.error('云端保存失败:', e);
+                    window._cloudDebug.lastErr = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : String(e);
+                    if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${e?.message || '请检查 Supabase 配置'}`);
                     updateStatus('offline');
                 }
+            } else if (!localSaveOk) {
+                updateStatus('offline');
             }
         }
 
@@ -4771,6 +4849,7 @@
 
         async function loadCloud() {
             updateStatus('syncing');
+            let cloudOk = true;
 
             // 1. 先加载本地数据作为基础和备份
             const localBackup = localStorage.getItem('study_v2');
@@ -4796,7 +4875,11 @@
 
             // 3. 尝试拉取云端数据
             try {
-                const { data, error } = await supabaseClient.from('study_progress').select('data').eq('id', MY_SYNC_ID).single();
+                const { data, error } = await supabaseClient
+                    .from('study_progress')
+                    .select('data')
+                    .eq('id', MY_SYNC_ID)
+                    .maybeSingle();
 
                 if (error) throw error;
 
@@ -4830,6 +4913,7 @@
                 // 云端无数据 → 保持本地数据不动（已在步骤2加载）
             } catch (e) {
                 console.error('云端加载失败，使用本地数据:', e);
+                cloudOk = false;
                 // 网络失败 → 保持本地数据，不覆盖
             }
 
@@ -4841,13 +4925,15 @@
 
             inject2026Plan();
             currentState = fullState[CURRENT_YEAR.toString()];
+            // 清洗脏数据（无实质内容的笔记 key）
+            cleanEmptyNotes();
 
             // 5. 合并后立即保存到本地（确保合并结果持久化）
             localStorage.setItem('study_v2', JSON.stringify(fullState));
 
             refresh();
             window.switchYear(CURRENT_YEAR);
-            updateStatus('online');
+            updateStatus(cloudOk ? 'online' : 'offline');
         }
 
         function loadLocal() {
@@ -4878,23 +4964,35 @@
 
             inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
+            // 清洗历史脏数据：删除所有没有实质文字内容的 note key
+            cleanEmptyNotes();
             refresh();
             window.switchYear(CURRENT_YEAR);
+        }
+
+        function cleanEmptyNotes() {
+            ['2025', '2026'].forEach(yr => {
+                const st = fullState[yr];
+                if (!st || !st.notes) return;
+                Object.keys(st.notes).forEach(k => {
+                    const text = textFromHtml(st.notes[k] || '').trim();
+                    if (!text) delete st.notes[k];
+                });
+            });
         }
 
         window.toggle = id => { const i = currentState.done.indexOf(id); i > -1 ? currentState.done.splice(i, 1) : currentState.done.push(id); refresh(); save(); };
 
         function refresh() {
             document.querySelectorAll('.task-item').forEach(el => currentState.done.includes(el.dataset.id) ? el.classList.add('done') : el.classList.remove('done'));
-            // 更新笔记图标颜色
+            // Update note icon state for calendar (img-based icons)
             document.querySelectorAll('.note-trigger').forEach(icon => {
-                icon.classList.remove('text-orange-400', 'opacity-100');
-                icon.classList.add('text-slate-400');
+                icon.classList.remove('has-note-icon');
             });
             const keys = new Set([...Object.keys(currentState.notes), ...getNotebookEntries().map(entry => entry.dateKey)]);
             keys.forEach(k => {
                 const icon = document.getElementById(`icon-${k}`);
-                if (icon) { icon.classList.add('text-orange-400', 'opacity-100'); icon.classList.remove('text-slate-400'); }
+                if (icon) icon.classList.add('has-note-icon');
             });
             updateProgress();
         }
@@ -5459,6 +5557,8 @@
         window.openNote = (key, highlight = null) => {
             curNoteKey = key; isEditMode = false;
             activeRichEditor = editor;
+            closeQuickMenu();
+            document.getElementById('quick-menu-fab')?.classList.add('hidden');
             let title;
             if (key.startsWith('d')) {
                 // 2025 format: d1, d2...
@@ -5505,7 +5605,9 @@
         window.saveNote = () => {
             syncNotebookProjectionEdits();
             const v = stripProjectionHtml(editor.innerHTML);
-            if (v && v !== '<br>') currentState.notes[curNoteKey] = v; else delete currentState.notes[curNoteKey];
+            // 用实际文字内容判断，避免占位符 <div class="note-editable-slot"><br></div> 被误存
+            const hasRealContent = v && textFromHtml(v).trim().length > 0;
+            if (hasRealContent) currentState.notes[curNoteKey] = v; else delete currentState.notes[curNoteKey];
             updateNoteTagBar(curNoteKey);
             refresh(); save(); setMode(false);
         };
@@ -5514,7 +5616,21 @@
             if (openModal) openModal.classList.remove('open');
             hideSubjectMenu();
             hideNoteLinkSuggest();
-            if (isEditMode) saveNote();
+            if (isEditMode) {
+                // 只有真正有内容时才保存，避免仅打开（未输入）就关闭产生空笔记
+                const stripped = stripProjectionHtml(editor.innerHTML);
+                const hasContent = stripped && textFromHtml(stripped).trim().length > 0;
+                if (hasContent) {
+                    saveNote();
+                } else {
+                    // 无实质内容：清理占位符，丢弃，不写入 state
+                    setMode(false);
+                }
+            }
+            // Restore FAB unless notebook modal still owns the hidden state
+            if (!document.getElementById('notebook-modal')?.classList.contains('open')) {
+                document.getElementById('quick-menu-fab')?.classList.remove('hidden');
+            }
         };
 
         // ================= 搜索逻辑（全局，支持高亮 + 直达） =================
