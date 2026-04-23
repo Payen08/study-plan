@@ -4920,12 +4920,14 @@
                         if (cloudState['2026']) fullState['2026'] = cloudState['2026'];
                         if (cloudState.settings) fullState.settings = cloudState.settings;
                     }
+                    if (typeof showToast === 'function') showToast('✅ 云端同步成功');
+                } else {
+                    if (typeof showToast === 'function') showToast('⚠️ 云端无此ID的数据，已使用本地数据');
                 }
-                // 云端无数据 → 保持本地数据不动（已在步骤2加载）
             } catch (e) {
-                console.error('云端加载失败，使用本地数据:', e);
+                console.error('云端加载失败:', e);
                 cloudOk = false;
-                // 网络失败 → 保持本地数据，不覆盖
+                if (typeof showToast === 'function') showToast(`❌ 同步失败: ${e?.message || '网络或配置异常'}`);
             }
 
             // 确保设置存在
