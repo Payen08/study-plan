@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#f8fafc">
 
     <link id="apple-icon" rel="apple-touch-icon" href="icon-512.png">
-    <link id="manifest-link" rel="manifest" href="manifest.json">
+    <link id="manifest-link" rel="manifest">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -4045,6 +4045,9 @@
         const DEFAULT_SYNC_ID = "default";
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
+        const IS_FILE_ORIGIN = window.location.protocol === 'file:';
+        const BUILD_TAG = 'sync-fix-2026-04-26-v8';
+        console.log('[studyplan]', BUILD_TAG);
 
         // 2026 节假日 (补充完整版)
         const HOLIDAYS_2026 = {
@@ -4164,7 +4167,15 @@
         document.getElementById('apple-icon').href = iconUrl;
 
         const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
-        document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+        const manifestLink = document.getElementById('manifest-link');
+        if (manifestLink) {
+            if (IS_FILE_ORIGIN) {
+                // file:// 下浏览器会阻止 manifest，去掉 href 避免无意义报错
+                manifestLink.removeAttribute('href');
+            } else {
+                manifestLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+            }
+        }
 
         // ================= 全局状态 =================
         let CURRENT_YEAR = 2025; // 默认为2025模式
@@ -4377,6 +4388,11 @@
         let MY_SYNC_ID = localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
         let lineHeightIdx = parseInt(localStorage.getItem('study_lh_idx')) || 1;
         const lhClasses = ['lh-tight', 'lh-normal', 'lh-loose'];
+        const PENDING_CLOUD_PAYLOAD_KEY = 'study_pending_cloud_payload';
+        const PENDING_CLOUD_ID_KEY = 'study_pending_cloud_id';
+        let cloudSyncInFlight = false;
+        let queuedCloudSnapshot = null;
+        let queuedCloudJson = '';
 
 
         // ================= 初始化 =================
@@ -4399,6 +4415,12 @@
             applyLineHeight();
             initEditorEvents();
 
+            if (IS_FILE_ORIGIN) {
+                setTimeout(() => {
+                    showToast('⚠️ 当前是 file:// 直开模式，建议用 http://localhost 访问以保证云端/PWA稳定');
+                }, 450);
+            }
+
             // 首次访问：强制设置同步 ID
             if (!localStorage.getItem('study_sync_id')) {
                 document.getElementById('id-cancel-btn').style.display = 'none';
@@ -4412,6 +4434,7 @@
                     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                     isCloud = true;
                     await loadCloud();
+                    await flushPendingCloudSync();
                 } catch (e) {
                     console.error('云端初始化失败，使用本地数据:', e);
                     isCloud = false;
@@ -4833,6 +4856,112 @@
             return merged;
         }
 
+        function getCloudRecordId() {
+            return MY_SYNC_ID;
+        }
+
+        function ensureCloudDebug() {
+            if (typeof window._cloudDebug !== 'object' || !window._cloudDebug) {
+                window._cloudDebug = { lastErr: null, lastOkAt: null, lastBytes: null, lastRecordId: null };
+            }
+            return window._cloudDebug;
+        }
+
+        async function pushCloudState(payload) {
+            const recordId = MY_SYNC_ID;
+            const payloadToWrite = {
+                ...payload,
+                _cloudMeta: {
+                    syncId: MY_SYNC_ID,
+                    idMode: 'raw',
+                    savedAt: new Date().toISOString()
+                }
+            };
+            let { data, error } = await supabaseClient
+                .from('study_progress')
+                .upsert({ id: recordId, data: payloadToWrite })
+                .select('id,data')
+                .maybeSingle();
+
+            if (!error) {
+                const meta = data?.data?._cloudMeta;
+                if (data?.id === recordId && meta?.syncId === MY_SYNC_ID) return recordId;
+            }
+
+            // Read-after-write verification: avoid false-positive "synced" when update is blocked.
+            const verify = await supabaseClient
+                .from('study_progress')
+                .select('id,data')
+                .eq('id', recordId)
+                .maybeSingle();
+            if (!verify.error) {
+                const meta = verify.data?.data?._cloudMeta;
+                if (verify.data?.id === recordId && meta?.syncId === MY_SYNC_ID) return recordId;
+            }
+
+            if (!error) {
+                error = {
+                    code: 'NO_EFFECT',
+                    message: '云端写入未生效',
+                    details: '记录存在但 data 未更新，可能是 RLS update policy 拦截 anon',
+                    hint: '请检查 study_progress 的 UPDATE policy 与表权限'
+                };
+            }
+
+            throw error;
+        }
+
+        async function flushCloudQueue() {
+            if (cloudSyncInFlight || !isCloud || !supabaseClient || !queuedCloudSnapshot) return;
+            const debug = ensureCloudDebug();
+            cloudSyncInFlight = true;
+            updateStatus('syncing');
+            while (queuedCloudSnapshot) {
+                const payload = queuedCloudSnapshot;
+                const payloadJson = queuedCloudJson || JSON.stringify(payload);
+                queuedCloudSnapshot = null;
+                queuedCloudJson = '';
+                try {
+                    const recordId = await pushCloudState(payload);
+                    debug.lastErr = null;
+                    debug.lastOkAt = new Date().toISOString();
+                    debug.lastRecordId = recordId;
+                    localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
+                    localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+                    updateStatus('online');
+                } catch (e) {
+                    debug.lastErr = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : String(e);
+                    localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, payloadJson);
+                    localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
+                    updateStatus('offline');
+                    const reason = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' | ');
+                    if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${reason || '请检查 Supabase 配置/RLS（重点看 UPDATE policy）'}`);
+                    break;
+                }
+            }
+            cloudSyncInFlight = false;
+        }
+
+        function queueCloudSync(payload, payloadJson) {
+            queuedCloudSnapshot = payload;
+            queuedCloudJson = payloadJson;
+            flushCloudQueue();
+        }
+
+        async function flushPendingCloudSync() {
+            if (!isCloud || !supabaseClient) return;
+            const pendingId = localStorage.getItem(PENDING_CLOUD_ID_KEY);
+            const pendingJson = localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY);
+            if (!pendingJson || !pendingId || pendingId !== MY_SYNC_ID) return;
+            try {
+                const pendingPayload = JSON.parse(pendingJson);
+                queueCloudSync(pendingPayload, pendingJson);
+            } catch (_) {
+                localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
+                localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+            }
+        }
+
         async function save() {
             updateProgress();
             // 数据完整性检查
@@ -4840,12 +4969,19 @@
                 console.error('数据完整性检查失败，跳过保存');
                 return;
             }
-            if (typeof window._cloudDebug !== 'object') window._cloudDebug = { lastErr: null, lastOkAt: null, lastBytes: null };
-            try { window._cloudDebug.lastBytes = new Blob([JSON.stringify(fullState)]).size; } catch (_) { /* ignore */ }
+            const debug = ensureCloudDebug();
+            let json = '';
+            try {
+                json = JSON.stringify(fullState);
+                debug.lastBytes = new Blob([json]).size;
+            } catch (e) {
+                console.error('序列化失败，跳过保存:', e);
+                if (typeof showToast === 'function') showToast('⚠️ 保存失败：数据结构异常');
+                return;
+            }
             // 始终先保存到本地（本地优先，确保数据不丢）
             let localSaveOk = true;
             try {
-                const json = JSON.stringify(fullState);
                 localStorage.setItem('study_v2', json);
             } catch (e) {
                 console.error('本地保存失败:', e);
@@ -4854,19 +4990,13 @@
             }
             // 云端同步
             if (isCloud) {
-                updateStatus('syncing');
                 try {
-                    const { error } = await supabaseClient
-                        .from('study_progress')
-                        .upsert({ id: MY_SYNC_ID, data: fullState }, { onConflict: 'id' });
-                    if (error) throw error;
-                    window._cloudDebug.lastErr = null;
-                    window._cloudDebug.lastOkAt = new Date().toISOString();
-                    updateStatus('online');
+                    const snapshot = JSON.parse(json);
+                    queueCloudSync(snapshot, json);
                 } catch (e) {
                     console.error('云端保存失败:', e);
-                    window._cloudDebug.lastErr = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : String(e);
-                    if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${e?.message || '请检查 Supabase 配置'}`);
+                    localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, json);
+                    localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
                     updateStatus('offline');
                 }
             } else if (!localSaveOk) {
@@ -4921,10 +5051,10 @@
 
             // 3. 尝试拉取云端数据
             try {
-                const { data, error } = await supabaseClient
+                let { data, error } = await supabaseClient
                     .from('study_progress')
                     .select('data')
-                    .eq('id', MY_SYNC_ID)
+                    .eq('id', getCloudRecordId())
                     .maybeSingle();
 
                 if (error) throw error;
@@ -6624,7 +6754,10 @@
             updateSyncLabel();
             document.getElementById('id-cancel-btn').style.display = '';
             document.getElementById('id-modal').classList.remove('open');
-            if (isCloud) loadCloud();
+            if (isCloud) {
+                loadCloud();
+                flushPendingCloudSync();
+            }
         };
 
         // Scroll highlight helper
@@ -7533,10 +7666,17 @@
         applyThemeMode(localStorage.getItem('study_theme_mode') === 'dark');
 
         init();
+
+        window.addEventListener('online', () => {
+            if (isCloud) flushPendingCloudSync();
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isCloud) flushPendingCloudSync();
+        });
     </script>
     <!-- PWA Service Worker 注册 -->
     <script>
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then(reg => console.log('✅ SW registered:', reg.scope))
