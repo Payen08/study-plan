@@ -674,10 +674,8 @@
 
         .is-today {
             background: #ffffff;
-            ring: 2px solid #3b82f6;
             box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.25);
             z-index: 10;
-            transform: scale(1.01);
             border-color: #3b82f6;
             scroll-margin-top: 140px;
         }
@@ -861,6 +859,45 @@
             font-size: 14px;
         }
 
+        .day-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .day-actions {
+            flex-shrink: 0;
+        }
+
+        .day-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 9999px;
+            line-height: 1;
+            flex: 0 0 auto;
+        }
+
+        .day-num.day-num-today {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        body.dark-mode .day-num.day-num-today {
+            background: #60a5fa;
+            color: #0b1220;
+        }
+
+        /* Prevent iPad Safari from clipping the pill on some font metrics */
+        .today-badge {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
         /* Inline SVG icons for calendar actions */
         .action-btn.icon-btn {
             width: 28px;
@@ -964,7 +1001,7 @@
             }
 
             /* Mobile: make calendar action icons visibly tappable */
-            .action-btn.icon-img {
+            .action-btn.icon-btn {
                 width: 36px;
                 height: 36px;
             }
@@ -4532,14 +4569,13 @@
                 // Header
                 const header = document.createElement('div');
                 header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
-                let label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
-                    (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
+                let label = `<span class="day-num ${isToday ? 'day-num-today' : ''} text-xl font-bold text-slate-700 font-mono">${i}</span>` +
                     (d && d.note ? `<span class="ml-2 text-[10px] text-red-400 font-medium">${d.note}</span>` : '');
 
                 const hasNote = (currentState.notes[key] || hasProjectedNotebook(key)) ? 'has-note' : '';
 
-                header.innerHTML = `<div>${label}</div> 
-                    <div class="flex gap-2 ${hasNote}">
+                header.innerHTML = `<div class="day-label">${label}</div> 
+                    <div class="day-actions flex gap-2 ${hasNote}">
                         <button class="action-btn icon-btn" onclick="window.openAddTaskModal('${key}')" title="添加任务">${ICON_ADD}</button>
                         <button class="action-btn icon-btn note-trigger" onclick="window.openNote('${key}')" id="icon-${key}" title="查看笔记">${ICON_NOTE}</button>
                     </div>`;
@@ -4593,16 +4629,15 @@
                 card.id = `day-${dateKey}`; // e.g. day-2026-4-11
                 if (isToday) card.classList.add('is-today');
 
-                const label = `<span class="text-xl font-bold text-slate-700 font-mono">${i}</span>` +
-                    (isToday ? `<span class="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">今天</span>` : '') +
+                const label = `<span class="day-num ${isToday ? 'day-num-today' : ''} text-xl font-bold text-slate-700 font-mono">${i}</span>` +
                     (holiday ? `<span class="holiday-tag">${holiday}</span>` : '');
 
                 const hasNote = (currentState.notes[dateKey] || hasProjectedNotebook(dateKey)) ? 'has-note' : '';
 
                 const header = document.createElement('div');
                 header.className = 'day-header-mobile md:w-full md:border-b-0 md:mb-2 md:pb-0 flex justify-between items-center';
-                header.innerHTML = `<div>${label}</div> 
-                    <div class="flex gap-2 ${hasNote}">
+                header.innerHTML = `<div class="day-label">${label}</div> 
+                    <div class="day-actions flex gap-2 ${hasNote}">
                         <button class="action-btn icon-btn" onclick="window.openAddTaskModal('${dateKey}')" title="添加任务">${ICON_ADD}</button>
                         <button class="action-btn icon-btn note-trigger" onclick="window.openNote('${dateKey}')" id="icon-${dateKey}" title="查看笔记">${ICON_NOTE}</button>
                     </div>`;
