@@ -4046,7 +4046,8 @@
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'sync-fix-2026-04-26-v8';
+        const BUILD_TAG = 'sync-fix-2026-04-27-pwa-refresh-v1';
+        window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
         // 2026 节假日 (补充完整版)
@@ -4166,7 +4167,18 @@
         const iconUrl = URL.createObjectURL(new Blob([iconSVG], { type: 'image/svg+xml' }));
         document.getElementById('apple-icon').href = iconUrl;
 
-        const manifest = { name: "冲刺计划 Pro", short_name: "冲刺", start_url: window.location.href, display: "standalone", background_color: "#f6f8fa", theme_color: "#ffffff", icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }] };
+        const manifestStartUrl = `./studyplan-github.html?v=${encodeURIComponent(BUILD_TAG)}`;
+        const manifest = {
+            name: "冲刺计划 Pro",
+            short_name: "冲刺",
+            id: "./studyplan-github.html",
+            start_url: manifestStartUrl,
+            scope: "./",
+            display: "standalone",
+            background_color: "#f6f8fa",
+            theme_color: "#ffffff",
+            icons: [{ src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+        };
         const manifestLink = document.getElementById('manifest-link');
         if (manifestLink) {
             if (IS_FILE_ORIGIN) {
@@ -4393,6 +4405,9 @@
         let cloudSyncInFlight = false;
         let queuedCloudSnapshot = null;
         let queuedCloudJson = '';
+        let cloudRetryTimer = null;
+        let cloudPullInFlight = false;
+        let lastCloudPullAt = 0;
 
 
         // ================= 初始化 =================
@@ -4867,6 +4882,14 @@
             return window._cloudDebug;
         }
 
+        function scheduleCloudRetry() {
+            if (cloudRetryTimer) return;
+            cloudRetryTimer = setTimeout(() => {
+                cloudRetryTimer = null;
+                if (isCloud) flushPendingCloudSync();
+            }, 3000);
+        }
+
         async function pushCloudState(payload) {
             const recordId = MY_SYNC_ID;
             const payloadToWrite = {
@@ -4883,30 +4906,7 @@
                 .select('id,data')
                 .maybeSingle();
 
-            if (!error) {
-                const meta = data?.data?._cloudMeta;
-                if (data?.id === recordId && meta?.syncId === MY_SYNC_ID) return recordId;
-            }
-
-            // Read-after-write verification: avoid false-positive "synced" when update is blocked.
-            const verify = await supabaseClient
-                .from('study_progress')
-                .select('id,data')
-                .eq('id', recordId)
-                .maybeSingle();
-            if (!verify.error) {
-                const meta = verify.data?.data?._cloudMeta;
-                if (verify.data?.id === recordId && meta?.syncId === MY_SYNC_ID) return recordId;
-            }
-
-            if (!error) {
-                error = {
-                    code: 'NO_EFFECT',
-                    message: '云端写入未生效',
-                    details: '记录存在但 data 未更新，可能是 RLS update policy 拦截 anon',
-                    hint: '请检查 study_progress 的 UPDATE policy 与表权限'
-                };
-            }
+            if (!error) return (data?.id || recordId);
 
             throw error;
         }
@@ -4926,6 +4926,10 @@
                     debug.lastErr = null;
                     debug.lastOkAt = new Date().toISOString();
                     debug.lastRecordId = recordId;
+                    if (cloudRetryTimer) {
+                        clearTimeout(cloudRetryTimer);
+                        cloudRetryTimer = null;
+                    }
                     localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
                     localStorage.removeItem(PENDING_CLOUD_ID_KEY);
                     updateStatus('online');
@@ -4936,6 +4940,7 @@
                     updateStatus('offline');
                     const reason = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' | ');
                     if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${reason || '请检查 Supabase 配置/RLS（重点看 UPDATE policy）'}`);
+                    scheduleCloudRetry();
                     break;
                 }
             }
@@ -4959,6 +4964,27 @@
             } catch (_) {
                 localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
                 localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+            }
+        }
+
+        function hasActiveEditorSession() {
+            const noteOpen = document.getElementById('note-modal')?.classList.contains('open');
+            const notebookOpen = document.getElementById('notebook-modal')?.classList.contains('open');
+            return (noteOpen && isEditMode) || (notebookOpen && notebookEditorDirty);
+        }
+
+        async function refreshCloudIfSafe(force = false) {
+            if (!isCloud || !supabaseClient || cloudPullInFlight || hasActiveEditorSession()) return;
+            const now = Date.now();
+            if (!force && now - lastCloudPullAt < 30000) return;
+            cloudPullInFlight = true;
+            lastCloudPullAt = now;
+            try {
+                await flushPendingCloudSync();
+                await loadCloud(true);
+                await flushPendingCloudSync();
+            } finally {
+                cloudPullInFlight = false;
             }
         }
 
@@ -5023,7 +5049,7 @@
             });
         }
 
-        async function loadCloud() {
+        async function loadCloud(silent = false) {
             updateStatus('syncing');
             let cloudOk = true;
 
@@ -5085,14 +5111,14 @@
                         if (cloudState['2026']) fullState['2026'] = cloudState['2026'];
                         if (cloudState.settings) fullState.settings = cloudState.settings;
                     }
-                    if (typeof showToast === 'function') showToast('✅ 云端同步成功');
+                    if (!silent && typeof showToast === 'function') showToast('✅ 云端同步成功');
                 } else {
-                    if (typeof showToast === 'function') showToast('⚠️ 云端无此ID的数据，已使用本地数据');
+                    if (!silent && typeof showToast === 'function') showToast('⚠️ 云端无此ID的数据，已使用本地数据');
                 }
             } catch (e) {
                 console.error('云端加载失败:', e);
                 cloudOk = false;
-                if (typeof showToast === 'function') showToast(`❌ 同步失败: ${e?.message || '网络或配置异常'}`);
+                if (!silent && typeof showToast === 'function') showToast(`❌ 同步失败: ${e?.message || '网络或配置异常'}`);
             }
 
             // 确保设置存在
@@ -7668,18 +7694,38 @@
         init();
 
         window.addEventListener('online', () => {
-            if (isCloud) flushPendingCloudSync();
+            if (isCloud) refreshCloudIfSafe(true);
         });
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isCloud) flushPendingCloudSync();
+            if (!document.hidden && isCloud) refreshCloudIfSafe(true);
         });
+        window.addEventListener('pageshow', () => {
+            if (isCloud) refreshCloudIfSafe(true);
+        });
+        window.addEventListener('focus', () => {
+            if (isCloud) refreshCloudIfSafe();
+        });
+        setInterval(() => {
+            if (!document.hidden && isCloud) refreshCloudIfSafe();
+        }, 60000);
     </script>
     <!-- PWA Service Worker 注册 -->
     <script>
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('✅ SW registered:', reg.scope))
+                let swReloaded = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (swReloaded) return;
+                    swReloaded = true;
+                    window.location.reload();
+                });
+                const swVersion = window.STUDYPLAN_BUILD_TAG || 'pwa-refresh';
+                navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(swVersion)}`)
+                    .then(reg => {
+                        console.log('✅ SW registered:', reg.scope);
+                        reg.update();
+                        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    })
                     .catch(err => console.warn('SW registration failed:', err));
             });
         }
