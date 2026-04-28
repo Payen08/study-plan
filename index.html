@@ -328,6 +328,35 @@
             box-shadow: none !important;
         }
 
+        body.dark-mode .notebook-side-label,
+        body.dark-mode .notebook-entry-meta,
+        body.dark-mode .notebook-note-meta {
+            color: #71717a !important;
+        }
+
+        body.dark-mode .notebook-folder-btn,
+        body.dark-mode .notebook-entry-btn,
+        body.dark-mode .notebook-add-btn {
+            background: #18181b !important;
+            color: #d4d4d8 !important;
+            border-color: #27272a !important;
+        }
+
+        body.dark-mode .notebook-folder-btn.active,
+        body.dark-mode .notebook-entry-btn.active {
+            background: rgba(37, 99, 235, 0.15) !important;
+            color: #60a5fa !important;
+            border-color: rgba(59, 130, 246, 0.4) !important;
+        }
+
+        body.dark-mode .notebook-title-input {
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .notebook-editor-shell {
+            background: #18181b !important;
+        }
+
         body.dark-mode .notebook-subject-head {
             border-bottom-color: #272a2f !important;
         }
@@ -2465,6 +2494,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            background: #fff;
         }
 
         .notebook-layout {
@@ -2494,6 +2524,164 @@
             display: none;
         }
 
+        .notebook-side-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .notebook-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .notebook-side-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0 2px;
+        }
+
+        .notebook-folder-list,
+        .notebook-entry-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .notebook-folder-btn,
+        .notebook-entry-btn,
+        .notebook-add-btn {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #334155;
+            border-radius: 14px;
+            padding: 9px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.16s;
+            box-shadow: none;
+        }
+
+        .notebook-folder-btn.active,
+        .notebook-entry-btn.active {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            box-shadow: 0 10px 18px -18px rgba(37, 99, 235, 0.6);
+        }
+
+        .notebook-entry-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-weight: 700;
+        }
+
+        .notebook-entry-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: inherit;
+        }
+
+        .notebook-entry-meta {
+            font-size: 10px;
+            font-weight: 600;
+            color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notebook-add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #2563eb;
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .notebook-note-section > .notebook-add-btn {
+            display: none;
+        }
+
+        .notebook-add-mini {
+            border: 0;
+            background: transparent;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 8px;
+        }
+
+        .notebook-add-mini:hover {
+            background: #eff6ff;
+        }
+
+        .notebook-add-btn:hover,
+        .notebook-folder-btn:hover,
+        .notebook-entry-btn:hover {
+            transform: translateY(-1px);
+            border-color: #bfdbfe;
+        }
+
+        .notebook-title-input {
+            width: 100%;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 850;
+            letter-spacing: 0;
+            padding: 14px 0 4px;
+        }
+
+        .notebook-title-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .notebook-note-meta {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            padding: 5px 10px;
+            max-width: 48%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notebook-mobile-back {
+            display: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
         .subject-chip-btn {
             border-radius: 14px;
             padding: 9px 10px;
@@ -2510,6 +2698,25 @@
             background: #fff;
             color: #334155;
             min-height: 42px;
+        }
+
+        .notebook-subject-section .subject-chip-btn {
+            border-radius: 999px;
+            min-height: 32px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 750;
+            justify-content: center;
+            color: #64748b;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .notebook-subject-section .subject-chip-btn.active {
+            background: #fff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+            box-shadow: 0 8px 18px -18px rgba(37, 99, 235, 0.5);
         }
 
         .notebook-main {
@@ -2556,6 +2763,7 @@
             padding: 0 14px 8px;
             display: flex;
             flex-direction: column;
+            background: #fff;
         }
 
         .notebook-editor {
@@ -2687,6 +2895,7 @@
         .notebook-save-btn:hover {
             background: #f8fafc;
             border-color: #cbd5e1;
+            color: #334155;
         }
 
         /* === 历史笔记入口按钮 === */
@@ -3379,56 +3588,535 @@
 
         @media (max-width: 900px) {
             .notebook-modal {
-                width: calc(100vw - 12px);
-                height: calc(100vh - 16px);
-                border-radius: 24px 24px 0 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+            }
+
+            .notebook-modal .modal-header {
+                padding: 10px 14px !important;
+                min-height: 54px;
+            }
+
+            .notebook-mobile-back {
+                display: flex;
             }
 
             .notebook-layout {
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
+                height: calc(100dvh - 55px);
             }
 
             .notebook-side {
                 border-right: 0;
-                border-bottom: 1px solid #e2e8f0;
-                padding: 10px;
-                gap: 8px;
-                overflow-x: auto;
-                overflow-y: hidden;
+                border-bottom: 0;
+                padding: 14px 16px 18px;
+                gap: 14px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: none;
+                flex: 1;
+                background: #f7f9fc;
             }
 
-            .subject-chip-row {
-                flex-direction: row;
-                gap: 8px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding-bottom: 2px;
-            }
-
-            .subject-chip-btn {
+            .notebook-side-section {
                 flex: 0 0 auto;
-                min-height: 36px;
-                padding: 8px 12px;
+                gap: 10px;
+            }
+
+            .notebook-side-label {
+                display: block;
+                font-size: 11px;
+                color: #94a3b8;
+                padding: 0 2px 2px;
+            }
+
+            .notebook-subject-section {
+                gap: 7px;
+            }
+
+            .notebook-subject-section .notebook-side-label {
+                display: none;
+            }
+
+            .notebook-subject-section .subject-chip-row {
+                flex-direction: row;
+                gap: 7px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding-bottom: 1px;
+            }
+
+            .notebook-subject-section .subject-chip-btn {
+                flex: 0 0 auto;
+                width: auto;
+                min-height: 32px;
+                padding: 6px 12px;
+                font-size: 12px;
+                border-radius: 999px;
                 white-space: nowrap;
+                border-color: #e2e8f0;
+                background: #fff;
+                color: #64748b;
+            }
+
+            .notebook-subject-section .subject-chip-btn.active {
+                background: #eef6ff;
+                border-color: #9cc8ff;
+                color: #1d4ed8;
+            }
+
+            .notebook-folder-list,
+            .notebook-entry-list {
+                flex-direction: column;
+                overflow: visible;
+                max-width: none;
+                padding-bottom: 0;
+                gap: 10px;
+            }
+
+            .notebook-folder-btn,
+            .notebook-entry-btn,
+            .notebook-add-btn {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                white-space: normal;
+                padding: 13px 15px;
+                min-height: 50px;
+                border-radius: 18px;
+                box-shadow: none;
+                background: #fff;
+                border-color: #dde5ef;
+            }
+
+            .notebook-folder-btn.active,
+            .notebook-entry-btn.active {
+                background: #f1f7ff;
+                border-color: #8dbdff;
+                color: #1e3a8a;
+                box-shadow: none;
+            }
+
+            .notebook-entry-btn {
+                min-width: 0;
+                border-radius: 18px;
+            }
+
+            .notebook-folder-section {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                flex: 1;
+            }
+
+            .notebook-folder-section .notebook-folder-list {
+                max-width: none;
+            }
+
+            .notebook-folder-section .notebook-add-btn {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                padding: 13px 15px;
+            }
+
+            .notebook-folder-section .notebook-add-btn span {
+                display: inline;
+            }
+
+            .notebook-note-section {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .notebook-note-section .notebook-add-btn {
+                display: flex;
+                max-width: none;
+                width: 100%;
+                justify-content: center;
+                border-radius: 14px;
+            }
+
+            .notebook-add-mini {
+                display: none;
+            }
+
+            .notebook-entry-list[data-empty="1"] {
+                display: block;
+            }
+
+            #nb-history-entry-btn {
+                display: none;
             }
 
             .notebook-main {
                 flex: 1;
                 min-height: 0;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
             }
 
             .notebook-subject-head {
-                padding: 10px 12px 8px;
+                padding: 9px 14px 7px;
             }
 
             .notebook-editor-shell {
-                padding: 0 12px 8px;
+                padding: 0 16px 8px;
+                background: #fff;
+            }
+
+            .notebook-title-input {
+                font-size: 20px;
+                letter-spacing: -0.02em;
+                padding-top: 12px;
             }
 
             .notebook-editor {
-                padding: 12px 14px 14px;
+                padding: 10px 0 14px;
+            }
+
+            .notebook-footer {
+                padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+            }
+
+            #notebook-modal.nb-step-subjects .notebook-folder-section,
+            #notebook-modal.nb-step-subjects .notebook-note-section,
+            #notebook-modal.nb-step-subjects .notebook-main,
+            #notebook-modal.nb-step-folders .notebook-note-section,
+            #notebook-modal.nb-step-folders .notebook-main,
+            #notebook-modal.nb-step-notes .notebook-subject-section,
+            #notebook-modal.nb-step-notes .notebook-folder-section,
+            #notebook-modal.nb-step-notes .notebook-main {
+                display: none;
+            }
+
+            #notebook-modal.nb-step-editor .notebook-side {
+                display: none;
+            }
+
+            #notebook-modal.nb-step-editor .notebook-main {
+                display: flex;
+                height: 100%;
+            }
+        }
+
+        /* Multi-dimensional notebook: use the same staged interaction on desktop and mobile. */
+        .notebook-modal {
+            width: min(1040px, calc(100vw - 28px));
+            height: min(84vh, 760px);
+            background: #f7f9fc;
+        }
+
+        .notebook-modal .modal-header {
+            background: #fff !important;
+            min-height: 64px;
+            padding: 14px 18px !important;
+            border-bottom-color: #e8eef6 !important;
+        }
+
+        .notebook-mobile-back {
+            display: flex;
+            background: #eef4fb;
+            border-color: #dbe6f2;
+            color: #475569;
+        }
+
+        .notebook-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            flex: 1;
+            background: #f7f9fc;
+        }
+
+        .notebook-side {
+            flex: 1;
+            border-right: 0;
+            padding: 20px 24px 24px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 30%),
+                #f7f9fc;
+            gap: 18px;
+        }
+
+        .notebook-side-section {
+            gap: 12px;
+        }
+
+        .notebook-subject-section .notebook-side-label {
+            display: none;
+        }
+
+        .notebook-subject-section .subject-chip-row {
+            flex-direction: row;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 2px;
+        }
+
+        .notebook-subject-section .subject-chip-btn {
+            width: auto;
+            flex: 0 0 auto;
+            min-height: 34px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.78);
+            border-color: #dbe6f2;
+            color: #64748b;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+
+        .notebook-subject-section .subject-chip-btn.active {
+            background: #eaf3ff;
+            color: #1d4ed8;
+            border-color: #9cc8ff;
+            box-shadow: none;
+        }
+
+        .notebook-folder-section {
+            flex: 1;
+        }
+
+        .notebook-folder-section .notebook-side-label,
+        .notebook-note-section .notebook-side-label {
+            display: block;
+            color: #7c8ca3;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+
+        .notebook-folder-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(132px, 148px));
+            gap: 14px;
+            align-items: start;
+        }
+
+        .notebook-folder-btn,
+        .notebook-folder-add-card {
+            aspect-ratio: 1 / 1;
+            min-height: 0;
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #dbe6f2;
+            color: #243247;
+            font-size: 14px;
+            line-height: 1.3;
+            box-shadow: 0 18px 36px -34px rgba(15, 23, 42, 0.5);
+        }
+
+        .notebook-folder-btn.active {
+            background: #eaf3ff;
+            border-color: #8dbdff;
+            color: #1d4ed8;
+            box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.12);
+        }
+
+        .notebook-folder-btn i {
+            margin-right: 0 !important;
+            font-size: 22px;
+        }
+
+        .notebook-folder-add-card {
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #475569;
+            background: transparent;
+            border-color: #94a3b8;
+            border-style: dashed;
+            box-shadow: none;
+            text-align: center;
+        }
+
+        .notebook-folder-add-card .folder-add-plus {
+            color: #64748b;
+            font-size: 48px;
+            font-weight: 300;
+            line-height: 0.8;
+        }
+
+        .notebook-folder-add-card span {
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .notebook-note-section {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .notebook-section-head {
+            align-items: center;
+        }
+
+        .notebook-add-mini,
+        #nb-history-entry-btn {
+            display: none;
+        }
+
+        .notebook-note-section > .notebook-add-btn {
+            display: flex;
+            justify-content: center;
+            min-height: 46px;
+            border-radius: 18px;
+            background: #eaf3ff;
+            border-color: #b8d7ff;
+            box-shadow: none;
+        }
+
+        .notebook-entry-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 12px;
+        }
+
+        .notebook-entry-list[data-empty="1"] {
+            display: block;
+        }
+
+        .notebook-entry-btn {
+            min-height: 104px;
+            border-radius: 20px;
+            padding: 14px;
+            background: #fff;
+            border-color: #dbe6f2;
+            justify-content: space-between;
+            box-shadow: 0 16px 34px -34px rgba(15, 23, 42, 0.5);
+        }
+
+        .notebook-entry-btn.active {
+            background: #eef6ff;
+            border-color: #8dbdff;
+            color: #1d4ed8;
+            box-shadow: none;
+        }
+
+        .notebook-main {
+            flex: 1;
+            min-height: 0;
+            background: #fff;
+        }
+
+        .notebook-subject-head {
+            padding: 14px 22px 12px;
+            border-bottom-color: #edf2f7;
+        }
+
+        .notebook-editor-shell {
+            padding: 8px 24px 12px;
+        }
+
+        .notebook-title-input {
+            font-size: 26px;
+            padding-top: 16px;
+        }
+
+        .notebook-footer {
+            padding: 12px 16px;
+        }
+
+        #notebook-modal.nb-step-subjects .notebook-folder-section,
+        #notebook-modal.nb-step-subjects .notebook-note-section,
+        #notebook-modal.nb-step-subjects .notebook-main,
+        #notebook-modal.nb-step-folders .notebook-note-section,
+        #notebook-modal.nb-step-folders .notebook-main,
+        #notebook-modal.nb-step-notes .notebook-subject-section,
+        #notebook-modal.nb-step-notes .notebook-folder-section,
+        #notebook-modal.nb-step-notes .notebook-main {
+            display: none;
+        }
+
+        #notebook-modal.nb-step-editor .notebook-side {
+            display: none;
+        }
+
+        #notebook-modal.nb-step-editor .notebook-main {
+            display: flex;
+            height: 100%;
+        }
+
+        body.dark-mode .notebook-modal,
+        body.dark-mode .notebook-layout,
+        body.dark-mode .notebook-side {
+            background: #111113 !important;
+        }
+
+        body.dark-mode .notebook-modal .modal-header {
+            background: #18181b !important;
+            border-bottom-color: #27272a !important;
+        }
+
+        body.dark-mode .notebook-mobile-back {
+            background: #27272a !important;
+            border-color: #3f3f46 !important;
+            color: #d4d4d8 !important;
+        }
+
+        @media (max-width: 900px) {
+            .notebook-modal {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+            }
+
+            .notebook-modal .modal-header {
+                min-height: 56px;
+                padding: 10px 14px !important;
+            }
+
+            .notebook-side {
+                padding: 14px 16px 18px;
+                gap: 14px;
+                background: #f7f9fc;
+            }
+
+            .notebook-folder-list {
+                grid-template-columns: repeat(auto-fill, minmax(132px, 160px));
+                gap: 12px;
+            }
+
+            .notebook-folder-btn,
+            .notebook-folder-add-card {
+                border-radius: 20px;
+                padding: 14px;
+            }
+
+            .notebook-folder-add-card .folder-add-plus {
+                font-size: 42px;
+            }
+
+            .notebook-entry-list {
+                grid-template-columns: 1fr;
+            }
+
+            .notebook-entry-btn {
+                min-height: 88px;
+            }
+
+            .notebook-editor-shell {
+                padding: 0 16px 8px;
+            }
+
+            .notebook-title-input {
+                font-size: 20px;
+                padding-top: 12px;
             }
 
             .notebook-footer {
@@ -3803,13 +4491,35 @@
     <div id="notebook-modal" class="modal-overlay">
         <div class="modal-content notebook-modal bg-white">
             <div class="modal-header bg-white px-4 py-3 border-b border-slate-100 flex justify-between items-center shrink-0">
-                <div class="text-lg font-bold text-slate-800">多维笔记本</div>
+                <div class="flex items-center min-w-0">
+                    <button id="notebook-mobile-back" class="notebook-mobile-back" onclick="notebookMobileBack()" title="返回">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="notebook-modal-title" class="text-lg font-bold text-slate-800 truncate">多维笔记本</div>
+                </div>
                 <button onclick="closeNotebookModal()"
                     class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center transition text-xl">&times;</button>
             </div>
             <div class="notebook-layout">
                 <aside class="notebook-side">
-                    <div id="notebook-subject-tabs" class="subject-chip-row"></div>
+                    <div class="notebook-side-section notebook-subject-section">
+                        <div class="notebook-side-label">科目</div>
+                        <div id="notebook-subject-tabs" class="subject-chip-row"></div>
+                    </div>
+                    <div class="notebook-side-section notebook-folder-section">
+                        <div class="notebook-side-label">文件夹</div>
+                        <div id="notebook-folder-list" class="notebook-folder-list"></div>
+                    </div>
+                    <div class="notebook-side-section notebook-note-section" style="min-height:0;flex:1;">
+                        <div class="notebook-section-head">
+                            <div class="notebook-side-label">笔记</div>
+                            <button class="notebook-add-mini" onclick="createNotebookNote()">新建</button>
+                        </div>
+                        <button class="notebook-add-btn" onclick="createNotebookNote()">
+                            <i class="fas fa-plus"></i><span>新建笔记</span>
+                        </button>
+                        <div id="notebook-entry-list" class="notebook-entry-list"></div>
+                    </div>
                     <!-- 历史笔记入口 -->
                     <button class="nb-history-entry-btn" id="nb-history-entry-btn" onclick="openNbHistory()">
                         <i class="fas fa-history"></i>
@@ -3822,14 +4532,11 @@
                     <div id="nb-editor-view" style="display:flex;flex-direction:column;height:100%;">
                         <div class="notebook-subject-head">
                             <div id="notebook-current-filter" class="text-sm font-bold text-slate-700">科目笔记</div>
-                            <div class="notebook-date-nav">
-                                <button id="notebook-prev-btn" class="notebook-date-nav-btn" onclick="notebookNavDate(-1)" title="上一条">&#8249;</button>
-                                <span id="notebook-current-date" class="notebook-date-nav-label"></span>
-                                <button id="notebook-next-btn" class="notebook-date-nav-btn" onclick="notebookNavDate(1)" title="下一条">&#8250;</button>
-                                <button id="notebook-today-btn" class="notebook-date-today-badge" onclick="notebookGoToday()" style="display:none">↩ 回今天</button>
-                            </div>
+                            <div id="notebook-current-date" class="notebook-note-meta"></div>
                         </div>
                         <div class="notebook-editor-shell">
+                            <input id="notebook-title-input" class="notebook-title-input" placeholder="无标题笔记"
+                                oninput="handleNotebookComposeInput()">
                             <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="true"
                                 data-placeholder="写点什么..."></div>
                         </div>
@@ -4046,7 +4753,7 @@
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'sync-fix-2026-04-27-pwa-refresh-v1';
+        const BUILD_TAG = 'sync-fix-2026-04-27-pwa-refresh-v2';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -4167,17 +4874,20 @@
         const iconUrl = URL.createObjectURL(new Blob([iconSVG], { type: 'image/svg+xml' }));
         document.getElementById('apple-icon').href = iconUrl;
 
-        const manifestStartUrl = `./studyplan-github.html?v=${encodeURIComponent(BUILD_TAG)}`;
+        const manifestBaseUrl = new URL('./', window.location.href);
+        const manifestAppUrl = new URL(window.location.pathname.endsWith('/') ? './' : window.location.pathname.split('/').pop(), manifestBaseUrl);
+        const manifestStartUrl = new URL(manifestAppUrl.href);
+        manifestStartUrl.searchParams.set('v', BUILD_TAG);
         const manifest = {
             name: "冲刺计划 Pro",
             short_name: "冲刺",
-            id: "./studyplan-github.html",
-            start_url: manifestStartUrl,
-            scope: "./",
+            id: manifestAppUrl.href,
+            start_url: manifestStartUrl.href,
+            scope: manifestBaseUrl.href,
             display: "standalone",
             background_color: "#f6f8fa",
             theme_color: "#ffffff",
-            icons: [{ src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+            icons: [{ src: new URL('icon-512.png', manifestBaseUrl).href, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
         };
         const manifestLink = document.getElementById('manifest-link');
         if (manifestLink) {
@@ -4207,8 +4917,8 @@
         ];
 
         let fullState = {
-            "2025": { done: [], notes: {}, customTasks: {}, notebookEntries: {} },
-            "2026": { done: [], notes: {}, customTasks: {}, notebookEntries: {} },
+            "2025": { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} },
+            "2026": { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} },
             "settings": { targetDate: "2026-12-19", targetName: "距离考研仅剩", categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)) }
         };
 
@@ -4305,16 +5015,17 @@
 
         function getNotebookEntriesByDate(dateKey, state = currentState) {
             return getNotebookEntries(state)
-                .filter(entry => entry.dateKey === dateKey)
-                .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+                .filter(entry => entry.dateKey === dateKey || (entry.linkedDateKeys || []).includes(dateKey))
+                .sort((a, b) => new Date(a.updatedAt || a.createdAt || 0) - new Date(b.updatedAt || b.createdAt || 0));
         }
 
         function getNotebookEntriesBySubject(subjectType, state = currentState) {
             return getNotebookEntries(state)
                 .filter(entry => entry.subjectType === subjectType)
                 .sort((a, b) => {
-                    if (a.dateKey !== b.dateKey) return keyToDateStamp(a.dateKey).localeCompare(keyToDateStamp(b.dateKey));
-                    return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+                    const au = new Date(a.updatedAt || a.createdAt || 0).getTime();
+                    const bu = new Date(b.updatedAt || b.createdAt || 0).getTime();
+                    return bu - au;
                 });
         }
 
@@ -4335,7 +5046,8 @@
                 .replace(/^(\s|<br>|<p><br><\/p>|<div><br><\/div>)+/gi, '')
                 .replace(/(\s|<br>|<p><br><\/p>|<div><br><\/div>)+$/gi, '');
 
-              return `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${html}</div>`;
+              const title = entry.title ? `<div style="font-weight:800;margin-bottom:4px;color:#1d4ed8">${escapeHtml(entry.title)}</div>` : '';
+              return `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${title}${html}</div>`;
               }).join('');
             return `<section class="notebook-projection" data-notebook-projection="1" contenteditable="false"><div class="projection-head">来自 Notebook</div>${items}</section>`;
         }
@@ -4376,9 +5088,17 @@
         function upsertNotebookEntry(entry) {
             const id = entry.id || `nb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
             const now = new Date().toISOString();
+            const dateKey = entry.dateKey || getAutoNotebookDateKey();
             const html = sanitizeRichHtml((entry.html || '').trim());
             const content = textFromHtml(html || entry.content || '');
-            if (!content) {
+            const title = (entry.title || currentState.notebookEntries[id]?.title || '').trim();
+            const linkedDateKeys = Array.from(new Set([
+                ...(currentState.notebookEntries[id]?.linkedDateKeys || []),
+                ...(entry.linkedDateKeys || []),
+                dateKey,
+                getAutoNotebookDateKey()
+            ].filter(Boolean)));
+            if (!content && !title) {
                 delete currentState.notebookEntries[id];
                 return null;
             }
@@ -4386,6 +5106,10 @@
                 ...currentState.notebookEntries[id],
                 ...entry,
                 id,
+                dateKey,
+                folderId: entry.folderId || currentState.notebookEntries[id]?.folderId || getDefaultNotebookFolderId(entry.subjectType || currentState.notebookEntries[id]?.subjectType || notebookComposeSubject),
+                title,
+                linkedDateKeys,
                 content,
                 html: html || escapeHtml(content).replace(/\n/g, '<br>'),
                 createdAt: currentState.notebookEntries[id]?.createdAt || now,
@@ -4774,11 +5498,12 @@
 
         // ================= 数据存取 (统一ID逻辑) =================
         function ensureStateStructure(s) {
-            if (!s) return { done: [], notes: {}, customTasks: {}, notebookEntries: {} };
+            if (!s) return { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} };
             if (!s.done) s.done = [];
             if (!s.notes) s.notes = {};
             if (!s.customTasks) s.customTasks = {};
             if (!s.notebookEntries) s.notebookEntries = {};
+            if (!s.notebookFolders) s.notebookFolders = {};
             return s;
         }
 
@@ -4796,6 +5521,7 @@
                     if (typeof state[year].notes !== 'object') return false;
                     if (typeof state[year].customTasks !== 'object') return false;
                     if (typeof state[year].notebookEntries !== 'object') return false;
+                    if (state[year].notebookFolders && typeof state[year].notebookFolders !== 'object') return false;
                 }
             }
             return true;
@@ -4810,6 +5536,7 @@
                     count += Object.keys(state[year].notes || {}).length;
                     count += Object.values(state[year].customTasks || {}).reduce((sum, arr) => sum + arr.length, 0);
                     count += Object.keys(state[year].notebookEntries || {}).length;
+                    count += Object.keys(state[year].notebookFolders || {}).length;
                 }
             }
             return count;
@@ -4863,6 +5590,17 @@
                         if (localUpdated > cloudUpdated) {
                             merged[year].notebookEntries[entryId] = localNotebook[entryId];
                         }
+                    }
+                });
+                const localFolders = local[year].notebookFolders || {};
+                if (!merged[year].notebookFolders) merged[year].notebookFolders = {};
+                Object.keys(localFolders).forEach(folderId => {
+                    if (!merged[year].notebookFolders[folderId]) {
+                        merged[year].notebookFolders[folderId] = localFolders[folderId];
+                    } else {
+                        const localUpdated = new Date(localFolders[folderId].updatedAt || localFolders[folderId].createdAt || 0);
+                        const cloudUpdated = new Date(merged[year].notebookFolders[folderId].updatedAt || merged[year].notebookFolders[folderId].createdAt || 0);
+                        if (localUpdated > cloudUpdated) merged[year].notebookFolders[folderId] = localFolders[folderId];
                     }
                 });
             }
@@ -5092,7 +5830,7 @@
                     // 数据迁移：处理旧格式
                     if (!raw['2025'] && !raw['2026']) {
                         cloudState['2025'] = ensureStateStructure(raw);
-                        cloudState['2026'] = { done: [], notes: {}, customTasks: {}, notebookEntries: {} };
+                        cloudState['2026'] = { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} };
                     } else {
                         if (raw['2025']) cloudState['2025'] = ensureStateStructure(raw['2025']);
                         if (raw['2026']) cloudState['2026'] = ensureStateStructure(raw['2026']);
@@ -5479,11 +6217,15 @@
         // ================= 笔记 & 高级功能 =================
         let curNoteKey = null, isEditMode = false;
         let notebookComposeSubject = null;
+        let notebookCurrentFolderId = null;
+        let notebookCurrentEntryId = null;
+        let notebookMobileStep = 'subjects';
         let pendingNotebookSelection = null;
         let notebookAutosaveTimer = null;
         let notebookEditorDirty = false; // 追踪用户是否实际编辑过（防止误删已保存数据）
         const editor = document.getElementById('note-editor');
         const notebookEditor = document.getElementById('notebook-editor');
+        const notebookTitleInput = document.getElementById('notebook-title-input');
         let activeRichEditor = editor;
         const subjectMenu = document.getElementById('subject-menu');
         const noteLinkMenu = document.getElementById('note-link-menu');
@@ -6116,7 +6858,144 @@
             });
         }
 
-        // 当前笔记本正在查看的日期key
+        function getDefaultNotebookFolderId(subjectType) {
+            return `folder-default-${subjectType || 'general'}`;
+        }
+
+        function ensureNotebookFolders(state = currentState) {
+            if (!state.notebookFolders) state.notebookFolders = {};
+            const now = new Date().toISOString();
+            getCategories().forEach(cat => {
+                const id = getDefaultNotebookFolderId(cat.type);
+                if (!state.notebookFolders[id]) {
+                    state.notebookFolders[id] = {
+                        id,
+                        subjectType: cat.type,
+                        name: '默认文件夹',
+                        createdAt: now,
+                        updatedAt: now
+                    };
+                }
+            });
+            Object.values(state.notebookEntries || {}).forEach(entry => {
+                if (!entry.subjectType) entry.subjectType = getCategories()[0]?.type || 'default';
+                if (!entry.folderId) entry.folderId = getDefaultNotebookFolderId(entry.subjectType);
+                if (!entry.dateKey) entry.dateKey = getAutoNotebookDateKey();
+                if (!Array.isArray(entry.linkedDateKeys)) entry.linkedDateKeys = [entry.dateKey].filter(Boolean);
+            });
+        }
+
+        function getNotebookFoldersBySubject(subjectType) {
+            ensureNotebookFolders();
+            return Object.values(currentState.notebookFolders || {})
+                .filter(folder => folder.subjectType === subjectType)
+                .sort((a, b) => {
+                    if (a.id === getDefaultNotebookFolderId(subjectType)) return -1;
+                    if (b.id === getDefaultNotebookFolderId(subjectType)) return 1;
+                    return (a.createdAt || '').localeCompare(b.createdAt || '');
+                });
+        }
+
+        function getNotebookEntriesByFolder(folderId) {
+            return getNotebookEntries(currentState)
+                .filter(entry => entry.folderId === folderId)
+                .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+        }
+
+        function getNotebookEntryTitle(entry) {
+            if (!entry) return '无标题笔记';
+            const title = (entry.title || '').trim();
+            if (title) return title;
+            const text = (entry.content || textFromHtml(entry.html || '') || '').trim();
+            return text ? text.split(/\n+/)[0].slice(0, 24) : '无标题笔记';
+        }
+
+        function getNotebookEntryLatestDateKey(entry) {
+            const keys = Array.isArray(entry?.linkedDateKeys) ? entry.linkedDateKeys.filter(Boolean) : [];
+            return keys[keys.length - 1] || entry?.dateKey || getAutoNotebookDateKey();
+        }
+
+        function isNotebookMobile() {
+            return window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+        }
+
+        function getNotebookSubjectName() {
+            return getCategories().find(cat => cat.type === notebookComposeSubject)?.name || '选择科目';
+        }
+
+        function getNotebookFolderName() {
+            return currentState.notebookFolders?.[notebookCurrentFolderId]?.name || '选择文件夹';
+        }
+
+        function setNotebookMobileStep(step) {
+            notebookMobileStep = step;
+            const modal = document.getElementById('notebook-modal');
+            if (!modal) return;
+            modal.classList.remove('nb-step-subjects', 'nb-step-folders', 'nb-step-notes', 'nb-step-editor');
+            modal.classList.add(`nb-step-${step}`);
+
+            const title = document.getElementById('notebook-modal-title');
+            const back = document.getElementById('notebook-mobile-back');
+            if (title) {
+                if (step === 'subjects') title.textContent = '选择科目';
+                else if (step === 'folders') title.textContent = '选择文件夹';
+                else if (step === 'notes') title.textContent = getNotebookFolderName();
+                else title.textContent = getNotebookEntryTitle(currentState.notebookEntries?.[notebookCurrentEntryId]) || '编辑笔记';
+            }
+            if (back) back.style.visibility = 'visible';
+        }
+
+        window.notebookMobileBack = () => {
+            if (notebookMobileStep === 'editor') {
+                if (notebookEditorDirty) commitNotebookDraft();
+                notebookEditorDirty = false;
+                setNotebookMobileStep('notes');
+            } else if (notebookMobileStep === 'notes') {
+                setNotebookMobileStep('folders');
+            } else if (notebookMobileStep === 'folders') {
+                closeNotebookModal();
+            } else {
+                closeNotebookModal();
+            }
+        };
+
+        function renderNotebookFolders() {
+            const root = document.getElementById('notebook-folder-list');
+            if (!root) return;
+            ensureNotebookFolders();
+            const folders = getNotebookFoldersBySubject(notebookComposeSubject);
+            if (!notebookCurrentFolderId || !folders.some(folder => folder.id === notebookCurrentFolderId)) {
+                notebookCurrentFolderId = folders[0]?.id || getDefaultNotebookFolderId(notebookComposeSubject);
+            }
+            root.innerHTML = folders.map(folder =>
+                `<button class="notebook-folder-btn ${folder.id === notebookCurrentFolderId ? 'active' : ''}" onclick="selectNotebookFolder('${folder.id}')">
+                    <i class="fas fa-folder" style="margin-right:6px;color:#60a5fa"></i>${escapeHtml(folder.name || '未命名文件夹')}
+                </button>`
+            ).join('') + `
+                <button class="notebook-folder-add-card border-2 " onclick="createNotebookFolder()" title="新建文件夹">
+                    <span class="folder-add-plus">+</span>
+                    <span>新增文件夹</span>
+                </button>
+            `;
+        }
+
+        function renderNotebookEntries() {
+            const root = document.getElementById('notebook-entry-list');
+            if (!root) return;
+            const entries = getNotebookEntriesByFolder(notebookCurrentFolderId);
+            if (notebookCurrentEntryId && !entries.some(entry => entry.id === notebookCurrentEntryId)) {
+                notebookCurrentEntryId = null;
+            }
+            root.dataset.empty = entries.length ? '0' : '1';
+            root.innerHTML = entries.map(entry => `
+                <button class="notebook-entry-btn ${entry.id === notebookCurrentEntryId ? 'active' : ''}" onclick="selectNotebookEntry('${entry.id}')">
+                    <span class="notebook-entry-title">${escapeHtml(getNotebookEntryTitle(entry))}</span>
+                    <span class="notebook-entry-meta">${escapeHtml((entry.content || textFromHtml(entry.html || '') || '空白笔记').replace(/\s+/g, ' ').trim().slice(0, 32))}</span>
+                </button>
+            `).join('') || '<div class="note-link-empty">这个文件夹还没有笔记</div>';
+        }
+
+        // 当前笔记本正在查看的日期key（兼容旧入口）
         let notebookCurrentDateKey = null;
 
         // dateKey → Date
@@ -6135,32 +7014,22 @@
         }
 
         function renderNotebookList() {
-            const todayKey = getAutoNotebookDateKey();
-            if (!notebookCurrentDateKey) notebookCurrentDateKey = todayKey;
+            ensureNotebookFolders();
+            if (!notebookComposeSubject) notebookComposeSubject = getCategories()[0]?.type || null;
+            renderNotebookFolders();
+            renderNotebookEntries();
+            const currentEntry = notebookCurrentEntryId ? currentState.notebookEntries?.[notebookCurrentEntryId] : null;
+            const subjectName = getCategories().find(cat => cat.type === notebookComposeSubject)?.name || '科目笔记';
+            const folderName = currentState.notebookFolders?.[notebookCurrentFolderId]?.name || '默认文件夹';
 
-            const entries = notebookComposeSubject ? getNotebookEntriesBySubject(notebookComposeSubject) : [];
-            const currentEntry = entries.find(e => e.dateKey === notebookCurrentDateKey) || null;
+            document.getElementById('notebook-current-filter').innerText = subjectName;
 
-            document.getElementById('notebook-current-filter').innerText =
-                getCategories().find(cat => cat.type === notebookComposeSubject)?.name || '科目笔记';
+            document.getElementById('notebook-current-date').textContent = folderName;
 
-            const isToday = notebookCurrentDateKey === todayKey;
-            document.getElementById('notebook-current-date').textContent = keyToLabel(notebookCurrentDateKey);
-
-            const todayBtn = document.getElementById('notebook-today-btn');
-            if (todayBtn) todayBtn.style.display = isToday ? 'none' : '';
-
-            // 前/后按钮：在已有记录的日期间跳（当前科目）
-            const allDateKeys = [...new Set(entries.map(e => e.dateKey))]
-                .sort((a, b) => notebookKeyToDate(a) - notebookKeyToDate(b));
-            const curIdx = allDateKeys.indexOf(notebookCurrentDateKey);
-            const prevBtn = document.getElementById('notebook-prev-btn');
-            const nextBtn = document.getElementById('notebook-next-btn');
-            if (prevBtn) prevBtn.disabled = curIdx <= 0;
-            if (nextBtn) nextBtn.disabled = isToday || (curIdx !== -1 && curIdx >= allDateKeys.length - 1);
-
-            notebookEditor.innerHTML = sanitizeRichHtml(currentEntry?.html || (currentEntry?.content ? escapeHtml(currentEntry.content).replace(/\n/g, '<br>') : ''));
+            if (notebookTitleInput) notebookTitleInput.value = currentEntry ? (currentEntry.title || '') : '';
+            notebookEditor.innerHTML = sanitizeRichHtml(currentEntry?.html || '');
             notebookEditor.contentEditable = 'true';
+            setNotebookMobileStep(notebookMobileStep);
         }
 
         // ===== 历史笔记面板 =====
@@ -6207,7 +7076,7 @@
             if (filterSubject) allEntries = allEntries.filter(e => e.subjectType === filterSubject);
 
             // 按日期降序
-            allEntries.sort((a, b) => notebookKeyToDate(b.dateKey) - notebookKeyToDate(a.dateKey));
+            allEntries.sort((a, b) => notebookKeyToDate(getNotebookEntryLatestDateKey(b)) - notebookKeyToDate(getNotebookEntryLatestDateKey(a)));
 
             if (!allEntries.length) {
                 list.innerHTML = '<div class="nb-history-empty">📭 还没有历史笔记</div>';
@@ -6218,7 +7087,7 @@
             const groups = {};
             const WEEKDAYS = ['日','一','二','三','四','五','六'];
             allEntries.forEach(entry => {
-                const d = notebookKeyToDate(entry.dateKey);
+                const d = notebookKeyToDate(getNotebookEntryLatestDateKey(entry));
                 const groupKey = `${d.getFullYear()}-${d.getMonth() + 1}`;
                 if (!groups[groupKey]) groups[groupKey] = { label: `${d.getFullYear()}年${d.getMonth() + 1}月`, items: [] };
                 groups[groupKey].items.push(entry);
@@ -6232,10 +7101,12 @@
                 list.appendChild(monthEl);
 
                 group.items.forEach(entry => {
-                    const d = notebookKeyToDate(entry.dateKey);
-                    const isToday = entry.dateKey === todayKey;
+                    const latestDateKey = getNotebookEntryLatestDateKey(entry);
+                    const d = notebookKeyToDate(latestDateKey);
+                    const isToday = latestDateKey === todayKey;
                     const plain = entry.content || textFromHtml(entry.html || '');
                     const preview = plain.replace(/#\S+/g, '').trim().slice(0, 80) || '（无内容）';
+                    const title = getNotebookEntryTitle(entry);
                     const subjectName = catMap[entry.subjectType] || entry.subjectType || '未分类';
 
                     const card = document.createElement('div');
@@ -6249,15 +7120,15 @@
                         <div class="nb-history-card-body">
                             <div class="nb-history-card-meta">
                                 <span class="nb-history-subject-tag">${subjectName}</span>
-                                <span class="nb-history-card-date-label">${keyToLabel(entry.dateKey)}</span>
+                                <span class="nb-history-card-date-label">${keyToLabel(latestDateKey)}</span>
                             </div>
-                            <div class="nb-history-card-preview">${escapeHtml(preview)}</div>
+                            <div class="nb-history-card-preview"><b>${escapeHtml(title)}</b>${preview ? ' · ' + escapeHtml(preview) : ''}</div>
                         </div>
                         <button class="nb-history-delete-btn" title="删除" onclick="deleteNbHistoryEntry('${entry.id}', event)">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     `;
-                    card.addEventListener('click', () => notebookJumpToHistory(entry.dateKey, entry.subjectType));
+                    card.addEventListener('click', () => notebookJumpToHistory(entry.id));
                     list.appendChild(card);
                 });
             });
@@ -6276,20 +7147,25 @@
         };
 
         // 从历史列表跳转到编辑某条笔记
-        function notebookJumpToHistory(dateKey, subjectType) {
+        function notebookJumpToHistory(entryId) {
+            const entry = currentState.notebookEntries?.[entryId];
+            if (!entry) return;
             // 只关闭面板，不重置日期（closeNbHistory 会重置到今天，所以这里直接操作）
             document.getElementById('nb-history-panel').classList.remove('open');
             // 切换科目（如果不同）
-            if (subjectType !== notebookComposeSubject) {
+            if (entry.subjectType !== notebookComposeSubject) {
                 if (notebookEditorDirty) commitNotebookDraft();
                 notebookEditorDirty = false;
-                notebookComposeSubject = subjectType;
+                notebookComposeSubject = entry.subjectType;
                 renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
             }
             if (notebookEditorDirty) commitNotebookDraft();
             notebookEditorDirty = false;
-            notebookCurrentDateKey = dateKey; // 跳到目标日期
+            notebookCurrentFolderId = entry.folderId || getDefaultNotebookFolderId(entry.subjectType);
+            notebookCurrentEntryId = entry.id;
+            notebookCurrentDateKey = entry.dateKey || getAutoNotebookDateKey();
             renderNotebookList();
+            setNotebookMobileStep('editor');
             setTimeout(() => notebookEditor.focus(), 60);
         }
 
@@ -6317,6 +7193,66 @@
 
         window.notebookGoToday = () => { notebookJumpToDate(getAutoNotebookDateKey()); };
 
+        window.selectNotebookFolder = (folderId) => {
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
+            notebookCurrentFolderId = folderId;
+            notebookCurrentEntryId = getNotebookEntriesByFolder(folderId)[0]?.id || null;
+            renderNotebookList();
+            setNotebookMobileStep('notes');
+            activeRichEditor = notebookEditor;
+        };
+
+        window.selectNotebookEntry = (entryId) => {
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
+            const entry = currentState.notebookEntries?.[entryId];
+            if (!entry) return;
+            notebookComposeSubject = entry.subjectType || notebookComposeSubject;
+            notebookCurrentFolderId = entry.folderId || getDefaultNotebookFolderId(notebookComposeSubject);
+            notebookCurrentEntryId = entry.id;
+            notebookCurrentDateKey = entry.dateKey || getAutoNotebookDateKey();
+            renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
+            renderNotebookList();
+            setNotebookMobileStep('editor');
+            setTimeout(() => notebookEditor.focus(), 0);
+        };
+
+        window.createNotebookFolder = () => {
+            if (!notebookComposeSubject) return;
+            const name = prompt('文件夹名称', '新文件夹');
+            if (!name || !name.trim()) return;
+            ensureNotebookFolders();
+            const now = new Date().toISOString();
+            const id = `folder-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+            currentState.notebookFolders[id] = {
+                id,
+                subjectType: notebookComposeSubject,
+                name: name.trim(),
+                createdAt: now,
+                updatedAt: now
+            };
+            notebookCurrentFolderId = id;
+            notebookCurrentEntryId = null;
+            save();
+            renderNotebookList();
+            setNotebookMobileStep('notes');
+        };
+
+        window.createNotebookNote = () => {
+            if (notebookEditorDirty) commitNotebookDraft();
+            notebookEditorDirty = false;
+            ensureNotebookFolders();
+            notebookCurrentDateKey = getAutoNotebookDateKey();
+            notebookCurrentEntryId = null;
+            renderNotebookList();
+            setNotebookMobileStep('editor');
+            if (notebookTitleInput) {
+                notebookTitleInput.value = '';
+                setTimeout(() => notebookTitleInput.focus(), 0);
+            }
+        };
+
         function refreshNotebookUI() {
             if (document.getElementById('notebook-modal').classList.contains('open')) {
                 renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
@@ -6330,12 +7266,16 @@
             if (!notebookComposeSubject) notebookComposeSubject = getCategories()[0]?.type || null;
             document.getElementById('notes-sidebar')?.classList.remove('open');
             document.getElementById('notes-sidebar-overlay')?.classList.remove('open');
+            ensureNotebookFolders();
+            if (!notebookCurrentFolderId) notebookCurrentFolderId = getDefaultNotebookFolderId(notebookComposeSubject);
+            if (!notebookCurrentEntryId) notebookCurrentEntryId = getNotebookEntriesByFolder(notebookCurrentFolderId)[0]?.id || null;
             renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
             document.getElementById('notebook-modal').classList.add('open');
             document.getElementById('nb-history-panel')?.classList.remove('open'); // 确保面板关闭
             notebookEditorDirty = false;
             notebookCurrentDateKey = getAutoNotebookDateKey();
             renderNotebookList();
+            setNotebookMobileStep('folders');
             activeRichEditor = notebookEditor;
             setTimeout(() => notebookEditor.focus(), 120);
         };
@@ -6352,23 +7292,41 @@
             if (notebookEditorDirty) commitNotebookDraft();
             notebookEditorDirty = false;
             notebookComposeSubject = type;
-            notebookCurrentDateKey = getAutoNotebookDateKey(); // 切换科目时回到今天
+            ensureNotebookFolders();
+            notebookCurrentFolderId = getDefaultNotebookFolderId(type);
+            notebookCurrentEntryId = getNotebookEntriesByFolder(notebookCurrentFolderId)[0]?.id || null;
+            notebookCurrentDateKey = getAutoNotebookDateKey();
             renderSubjectChips('notebook-subject-tabs', notebookComposeSubject, 'selectNotebookComposeSubject');
             renderNotebookList();
+            setNotebookMobileStep('folders');
             activeRichEditor = notebookEditor;
             setTimeout(() => notebookEditor.focus(), 0);
         };
 
         function commitNotebookDraft() {
-            const dateKey = notebookCurrentDateKey || getAutoNotebookDateKey();
+            const dateKey = notebookCurrentDateKey || currentState.notebookEntries?.[notebookCurrentEntryId]?.dateKey || getAutoNotebookDateKey();
             if (!notebookComposeSubject) return;
-            const existing = getNotebookEntriesBySubject(notebookComposeSubject).find(entry => entry.dateKey === dateKey);
+            ensureNotebookFolders();
+            if (!notebookCurrentFolderId) notebookCurrentFolderId = getDefaultNotebookFolderId(notebookComposeSubject);
+            const existing = notebookCurrentEntryId ? currentState.notebookEntries?.[notebookCurrentEntryId] : null;
             const html = sanitizeRichHtml(notebookEditor.innerHTML);
             const plain = textFromHtml(html);
-            if (!plain.trim()) {
+            const title = (notebookTitleInput?.value || '').trim();
+            if (!plain.trim() && !title) {
                 if (existing && notebookEditorDirty) delete currentState.notebookEntries[existing.id];
             } else {
-                upsertNotebookEntry({ ...(existing || {}), dateKey, subjectType: notebookComposeSubject, html });
+                const savedEntry = upsertNotebookEntry({
+                    ...(existing || {}),
+                    dateKey,
+                    subjectType: notebookComposeSubject,
+                    folderId: notebookCurrentFolderId,
+                    title,
+                    html: html || '<p><br></p>'
+                });
+                if (savedEntry) {
+                    notebookCurrentEntryId = savedEntry.id;
+                    notebookCurrentDateKey = savedEntry.dateKey;
+                }
             }
             refresh();
             if (curNoteKey === dateKey && document.getElementById('note-modal').classList.contains('open')) {
@@ -6377,6 +7335,7 @@
                 setMode(wasEdit);
             }
             save();
+            renderNotebookEntries();
         }
 
         window.handleNotebookComposeInput = () => {
@@ -6556,6 +7515,7 @@
 
         window.assignSelectionToNotebook = (subjectType) => {
             if (!pendingNotebookSelection?.text || !curNoteKey) return;
+            ensureNotebookFolders();
             const existing = getNotebookEntriesBySubject(subjectType).find(entry => entry.dateKey === curNoteKey);
             const existingHtml = existing?.html || (existing?.content ? escapeHtml(existing.content).replace(/\n/g, '<br>') : '');
             const appendedHtml = `${existingHtml}${existingHtml ? '<p><br></p>' : ''}<p>${escapeHtml(pendingNotebookSelection.text)}</p>`;
@@ -6563,6 +7523,8 @@
                 ...(existing || {}),
                 dateKey: curNoteKey,
                 subjectType,
+                folderId: existing?.folderId || getDefaultNotebookFolderId(subjectType),
+                title: existing?.title || keyToLabel(curNoteKey),
                 html: appendedHtml
             });
             hideSubjectMenu();
