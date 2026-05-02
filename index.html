@@ -5091,76 +5091,42 @@
         }
 
         /* PWA Config */
-        function svgToPngDataUrl(svgText, size) {
-            return new Promise(resolve => {
-                const img = new Image();
-                const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(svgBlob);
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = size; canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, size, size);
-                    URL.revokeObjectURL(url);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); resolve(''); };
-                img.src = url;
-            });
-        }
+        const iconBase = new URL('icon-512.png', window.location.href).href;
 
-        const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="background:#3b82f6"><rect width="512" height="512" fill="#3b82f6"/><path d="M368 128h-32V96h-64v32H240V96h-64v32h-32c-17.6 0-32 14.4-32 32v256c0 17.6 14.4 32 32 32h224c17.6 0 32-14.4 32-32V160c0-17.6-14.4-32-32-32zm0 288H144V208h224v208z" fill="white"/><path d="M192 336l48 48 96-96" fill="none" stroke="#10b981" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        // 动态注入多尺寸 apple-touch-icon（iPad 要求明确 sizes）
+        [180, 152, 167].forEach(size => {
+            const link = document.createElement('link');
+            link.rel = 'apple-touch-icon';
+            link.sizes = `${size}x${size}`;
+            link.href = iconBase;
+            document.head.appendChild(link);
+        });
+        document.getElementById('apple-icon').href = iconBase;
 
-        async function setupPwaIcons() {
-            const [png152, png167, png180, png512] = await Promise.all([
-                svgToPngDataUrl(iconSVG, 152),
-                svgToPngDataUrl(iconSVG, 167),
-                svgToPngDataUrl(iconSVG, 180),
-                svgToPngDataUrl(iconSVG, 512)
-            ]);
-            if (!png180) return;
-            const head = document.head;
-
-            function addAppleIcon(size, href) {
-                const link = document.createElement('link');
-                link.rel = 'apple-touch-icon';
-                link.sizes = `${size}x${size}`;
-                link.href = href;
-                head.appendChild(link);
-            }
-            addAppleIcon(180, png180);
-            addAppleIcon(152, png152);
-            addAppleIcon(167, png167);
-            document.getElementById('apple-icon').href = png180;
-
-            const manifestBaseUrl = new URL('./', window.location.href);
-            const manifestAppUrl = new URL(window.location.pathname.endsWith('/') ? './' : window.location.pathname.split('/').pop(), manifestBaseUrl);
-            const manifestStartUrl = new URL(manifestAppUrl.href);
-            manifestStartUrl.searchParams.set('v', BUILD_TAG);
-            const manifest = {
-                name: "冲刺计划 Pro",
-                short_name: "冲刺",
-                id: manifestAppUrl.href,
-                start_url: manifestStartUrl.href,
-                scope: manifestBaseUrl.href,
-                display: "standalone",
-                background_color: "#f6f8fa",
-                theme_color: "#ffffff",
-                icons: [
-                    { src: png512, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-                    { src: png180, sizes: "180x180", type: "image/png", purpose: "any" }
-                ]
-            };
-            const manifestLink = document.getElementById('manifest-link');
-            if (manifestLink) {
-                if (IS_FILE_ORIGIN) {
-                    manifestLink.removeAttribute('href');
-                } else {
-                    manifestLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
-                }
+        const manifestBaseUrl = new URL('./', window.location.href);
+        const manifestAppUrl = new URL(window.location.pathname.endsWith('/') ? './' : window.location.pathname.split('/').pop(), manifestBaseUrl);
+        const manifestStartUrl = new URL(manifestAppUrl.href);
+        manifestStartUrl.searchParams.set('v', BUILD_TAG);
+        const manifest = {
+            name: "冲刺计划 Pro",
+            short_name: "冲刺",
+            id: manifestAppUrl.href,
+            start_url: manifestStartUrl.href,
+            scope: manifestBaseUrl.href,
+            display: "standalone",
+            background_color: "#f6f8fa",
+            theme_color: "#ffffff",
+            icons: [{ src: new URL('icon-512.png', manifestBaseUrl).href, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+        };
+        const manifestLink = document.getElementById('manifest-link');
+        if (manifestLink) {
+            if (IS_FILE_ORIGIN) {
+                // file:// 下浏览器会阻止 manifest，去掉 href 避免无意义报错
+                manifestLink.removeAttribute('href');
+            } else {
+                manifestLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
             }
         }
-        setupPwaIcons();
 
         // ================= 全局状态 =================
         let CURRENT_YEAR = 2025; // 默认为2025模式
