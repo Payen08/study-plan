@@ -3597,10 +3597,12 @@
                 height: 100vh;
                 height: 100dvh;
                 border-radius: 0;
+                padding-top: env(safe-area-inset-top);
             }
 
             .notebook-modal .modal-header {
                 padding: 10px 14px !important;
+                padding-top: 16px !important;
                 min-height: 54px;
             }
 
@@ -3612,7 +3614,7 @@
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
-                height: calc(100dvh - 55px);
+                height: calc(100dvh - env(safe-area-inset-top) - 55px);
             }
 
             .notebook-side {
@@ -4270,7 +4272,7 @@
 
             .notebook-modal .modal-header {
                 min-height: 56px;
-                padding: 10px 14px !important;
+                padding: 40px 16px 16px 16px!important;
             }
 
             .notebook-side {
@@ -5252,22 +5254,34 @@
             return getNotebookEntriesByDate(dateKey).length > 0;
         }
 
+        function computeHtmlDiff(oldHtml, newHtml) {
+            const oldText = textFromHtml(oldHtml || '');
+            const newText = textFromHtml(newHtml || '');
+            if (!oldText) return newHtml || '';
+            const oldLines = new Set(oldText.split('\n').map(s => s.trim()).filter(Boolean));
+            const newLines = newText.split('\n').filter(line => {
+                const t = line.trim();
+                return t && !oldLines.has(t);
+            });
+            if (!newLines.length) return '';
+            return newLines.map(l => `<p>${escapeHtml(l)}</p>`).join('');
+        }
+
         function buildProjectionHtml(dateKey) {
             const entries = getNotebookEntriesByDate(dateKey);
             if (!entries.length) return '';
             const items = entries.map(entry => {
-              let html = sanitizeRichHtml(
+              const fullHtml = sanitizeRichHtml(
                 entry.html || escapeHtml(entry.content).replace(/\n/g, '<br>')
               );
+              const dailyHtml = computeHtmlDiff(entry.snapshotHtml || '', fullHtml);
 
-            // 🔥 去掉前后空行（核心修复）
-              html = html
-                .replace(/^(\s|<br>|<p><br><\/p>|<div><br><\/div>)+/gi, '')
-                .replace(/(\s|<br>|<p><br><\/p>|<div><br><\/div>)+$/gi, '');
+              if (!dailyHtml) return '';
 
               const title = entry.title ? `<div style="font-weight:800;margin-bottom:4px;color:#1d4ed8">${escapeHtml(entry.title)}</div>` : '';
-              return `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${title}${html}</div>`;
-              }).join('');
+              return `<div class="projection-text" data-notebook-entry-id="${entry.id}" contenteditable="false">${title}${dailyHtml}</div>`;
+              }).filter(Boolean).join('');
+            if (!items) return '';
             return `<section class="notebook-projection" data-notebook-projection="1" contenteditable="false"><div class="projection-head">来自 Notebook</div>${items}</section>`;
         }
 
@@ -5279,6 +5293,8 @@
 
         function syncNotebookProjectionEdits() {
             editor.querySelectorAll('[data-notebook-entry-id]').forEach(node => {
+                // skip projection nodes — they are contenteditable=false and only show today's diff
+                if (node.closest('[data-notebook-projection]')) return;
                 const entryId = node.dataset.notebookEntryId;
                 const existing = currentState.notebookEntries?.[entryId];
                 if (!existing) return;
@@ -5307,12 +5323,14 @@
         function upsertNotebookEntry(entry) {
             const id = entry.id || `nb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
             const now = new Date().toISOString();
+            const today = new Date().toDateString();
             const dateKey = entry.dateKey || getAutoNotebookDateKey();
             const html = sanitizeRichHtml((entry.html || '').trim());
             const content = textFromHtml(html || entry.content || '');
             const title = (entry.title || currentState.notebookEntries[id]?.title || '').trim();
+            const existing = currentState.notebookEntries[id];
             const linkedDateKeys = Array.from(new Set([
-                ...(currentState.notebookEntries[id]?.linkedDateKeys || []),
+                ...(existing?.linkedDateKeys || []),
                 ...(entry.linkedDateKeys || []),
                 dateKey,
                 getAutoNotebookDateKey()
@@ -5321,17 +5339,21 @@
                 delete currentState.notebookEntries[id];
                 return null;
             }
+            const snapshotDate = today;
+            const snapshotHtml = (existing && existing.snapshotDate === today) ? (existing.snapshotHtml || '') : (existing?.html || '');
             currentState.notebookEntries[id] = {
-                ...currentState.notebookEntries[id],
+                ...existing,
                 ...entry,
                 id,
                 dateKey,
-                folderId: entry.folderId || currentState.notebookEntries[id]?.folderId || getDefaultNotebookFolderId(entry.subjectType || currentState.notebookEntries[id]?.subjectType || notebookComposeSubject),
+                folderId: entry.folderId || existing?.folderId || getDefaultNotebookFolderId(entry.subjectType || existing?.subjectType || notebookComposeSubject),
                 title,
                 linkedDateKeys,
                 content,
                 html: html || escapeHtml(content).replace(/\n/g, '<br>'),
-                createdAt: currentState.notebookEntries[id]?.createdAt || now,
+                snapshotHtml,
+                snapshotDate,
+                createdAt: existing?.createdAt || now,
                 updatedAt: now
             };
             return currentState.notebookEntries[id];
@@ -7602,12 +7624,11 @@
             renderNotebookList();
             setNotebookMobileStep('folders');
             activeRichEditor = notebookEditor;
-            setTimeout(() => notebookEditor.focus(), 120);
         };
 
         window.closeNotebookModal = () => {
             clearTimeout(notebookAutosaveTimer);
-            commitNotebookDraft();
+            if (notebookEditorDirty) commitNotebookDraft();
             notebookEditorDirty = false;
             document.getElementById('notebook-modal').classList.remove('open');
             document.getElementById('quick-menu-fab')?.classList.remove('hidden');
