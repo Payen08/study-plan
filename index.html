@@ -52,6 +52,20 @@
             box-shadow: none !important;
         }
 
+        body.dark-mode .ai-buddy-panel,
+        body.dark-mode .ai-profile-drawer,
+        body.dark-mode .ai-profile-section,
+        body.dark-mode .ai-input-row,
+        body.dark-mode .ai-input,
+        body.dark-mode .ai-profile-input,
+        body.dark-mode .ai-profile-textarea,
+        body.dark-mode .ai-profile-status {
+            background: #18181b !important;
+            color: #fafafa !important;
+            border-color: #27272a !important;
+            box-shadow: none !important;
+        }
+
         body.dark-mode .text-slate-800,
         body.dark-mode .text-slate-700,
         body.dark-mode .text-slate-600,
@@ -241,6 +255,53 @@
             color: #f5f5f5 !important;
         }
 
+        body.dark-mode .ai-message.assistant {
+            background: #27272a !important;
+            color: #f4f4f5 !important;
+        }
+
+        body.dark-mode .ai-close-btn,
+        body.dark-mode .ai-expand-btn {
+            background: #27272a !important;
+            color: #d4d4d8 !important;
+        }
+
+        body.dark-mode .ai-context-chip,
+        body.dark-mode .ai-quick-chip,
+        body.dark-mode .ai-status-pill,
+        body.dark-mode .ai-test-btn,
+        body.dark-mode .ai-model-segment,
+        body.dark-mode .ai-model-option {
+            background: #27272a !important;
+            color: #d4d4d8 !important;
+            border-color: #3f3f46 !important;
+        }
+
+        body.dark-mode .ai-model-option.active {
+            background: rgba(37, 99, 235, 0.72) !important;
+            color: #fff !important;
+            border-color: rgba(96, 165, 250, 0.5) !important;
+        }
+
+        body.dark-mode .ai-profile-label,
+        body.dark-mode .ai-profile-check,
+        body.dark-mode .ai-profile-hint,
+        body.dark-mode .ai-message-time {
+            color: #a1a1aa !important;
+        }
+
+        body.dark-mode .ai-profile-section-title {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .ai-buddy-title {
+            color: #f5f5f5 !important;
+        }
+
+        body.dark-mode .ai-buddy-subtitle {
+            color: #a1a1aa !important;
+        }
+
         body.dark-mode .timer-tab {
             color: #a1a1aa !important;
         }
@@ -312,6 +373,13 @@
         body.dark-mode .search-highlight {
             background: #854d0e !important;
             color: #fef08a !important;
+        }
+
+        body.dark-mode #note-editor span[style*="background"],
+        body.dark-mode #note-editor font[style*="background"],
+        body.dark-mode .notebook-editor span[style*="background"],
+        body.dark-mode .notebook-editor font[style*="background"] {
+            color: #1e293b !important;
         }
 
         /* -- 暗黑: 笔记本侧栏和编辑器 -- */
@@ -1833,6 +1901,23 @@
             font-size: 20px;
             color: #fff;
         }
+
+        .reminder-toast span {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .reminder-toast button {
+            border: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 5px 9px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+        }
         body.dark-mode .reminder-toast i { color: #93c5fd; }
 
         @keyframes reminderIn {
@@ -1842,6 +1927,691 @@
         @keyframes reminderOut {
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-30px) scale(0.9); }
+        }
+
+        /* === AI 学习伙伴 === */
+        .ai-buddy-fab {
+            position: fixed;
+            bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
+            right: 20px;
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            border: 0;
+            background: linear-gradient(135deg, #2563eb, #0f766e);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 16px 34px -18px rgba(37, 99, 235, 0.82);
+            cursor: pointer;
+            z-index: 222;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .ai-buddy-fab:active {
+            transform: scale(0.9);
+        }
+
+        .ai-buddy-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 7px;
+            border-radius: 999px;
+            background: #f97316;
+            color: #fff;
+            border: 2px solid #fff;
+            font-size: 10px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-buddy-panel {
+            position: fixed;
+            right: 28px;
+            bottom: max(78px, calc(env(safe-area-inset-bottom, 0px) + 78px));
+            width: min(900px, calc(100vw - 56px));
+            height: min(86vh, 840px);
+            max-height: calc(100vh - 108px);
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #dbeafe;
+            border-radius: 24px;
+            box-shadow: 0 28px 70px -30px rgba(15, 23, 42, 0.55);
+            z-index: 223;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px) scale(0.98);
+            transform-origin: bottom right;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .ai-buddy-panel.expanded {
+            inset: 24px;
+            width: auto;
+            height: auto;
+            max-height: none;
+            transform-origin: center;
+        }
+
+        .ai-buddy-panel.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .ai-buddy-header {
+            padding: 14px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+
+        .ai-header-main {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .ai-buddy-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .ai-buddy-subtitle {
+            display: none;
+        }
+
+        .ai-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-close-btn,
+        .ai-expand-btn {
+            width: 44px;
+            height: 44px;
+            border: 0;
+            border-radius: 16px;
+            background: #f1f5f9;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-toolbar-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 0;
+            scrollbar-width: none;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .ai-toolbar-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ai-context-strip {
+            display: flex;
+            gap: 6px;
+            flex: 0 0 auto;
+            padding: 0;
+        }
+
+        .ai-context-chip,
+        .ai-quick-chip {
+            flex: 0 0 auto;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .ai-profile-actions {
+            display: flex;
+            gap: 8px;
+            flex: 0 0 auto;
+            padding: 0;
+        }
+
+        .ai-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 24px 0;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .ai-status-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-status-pill,
+        .ai-test-btn,
+        .ai-model-option {
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .ai-status-pill {
+            min-height: 34px;
+            padding: 0 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+
+        .ai-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #94a3b8;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.16);
+        }
+
+        .ai-status-pill.connected .ai-status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.16);
+        }
+
+        .ai-status-pill.checking .ai-status-dot {
+            background: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+            animation: aiPulse 1s ease-in-out infinite;
+        }
+
+        .ai-status-pill.failed .ai-status-dot,
+        .ai-status-pill.missing .ai-status-dot {
+            background: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16);
+        }
+
+        .ai-test-btn {
+            min-height: 34px;
+            padding: 0 12px;
+            cursor: pointer;
+        }
+
+        .ai-model-segment {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+
+        .ai-model-option {
+            height: 28px;
+            min-width: 38px;
+            padding: 0 10px;
+            cursor: pointer;
+            border-color: transparent;
+            background: transparent;
+        }
+
+        .ai-model-option.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+            box-shadow: 0 8px 18px -14px rgba(37, 99, 235, 0.9);
+        }
+
+        .ai-mini-btn {
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-profile-drawer {
+            display: none;
+            position: absolute;
+            top: 76px;
+            left: 24px;
+            right: 24px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: rgba(248, 250, 252, 0.98);
+            max-height: min(520px, calc(100% - 150px));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            z-index: 3;
+            box-shadow: 0 22px 48px -30px rgba(15, 23, 42, 0.45);
+        }
+
+        .ai-profile-drawer.open {
+            display: block;
+        }
+
+        .ai-profile-backdrop {
+            display: none;
+            position: absolute;
+            inset: 66px 0 0;
+            background: rgba(255, 255, 255, 0.48);
+            z-index: 2;
+        }
+
+        .ai-profile-backdrop.open {
+            display: block;
+        }
+
+        .ai-profile-drawer .ai-controls-row {
+            padding: 0 0 12px;
+        }
+
+        .ai-profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .ai-profile-section {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .ai-profile-section-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .ai-profile-field-wide {
+            grid-column: 1 / -1;
+        }
+
+        .ai-profile-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .ai-profile-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .ai-profile-check input {
+            width: 16px;
+            height: 16px;
+            accent-color: #2563eb;
+        }
+
+        .ai-profile-hint,
+        .ai-profile-status {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .ai-profile-status {
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #f8fafc;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ai-profile-input,
+        .ai-profile-textarea {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 9px 10px;
+            outline: none;
+        }
+
+        .ai-profile-textarea {
+            min-height: 58px;
+            resize: vertical;
+            line-height: 1.45;
+        }
+
+        .ai-messages {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 14px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            align-items: flex-start;
+        }
+
+        .ai-message-row {
+            max-width: min(72%, 560px);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ai-message-row.assistant {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .ai-message-row.user {
+            align-self: flex-end;
+            align-items: flex-end;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            width: fit-content;
+            min-width: 0;
+            max-width: 100%;
+            border-radius: 18px;
+            padding: 12px 15px;
+            font-size: 14px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .ai-message:empty {
+            display: none;
+        }
+
+        .ai-message.assistant {
+            background: #f1f5f9;
+            color: #1e293b;
+            border-bottom-left-radius: 6px;
+        }
+
+        .ai-message.user {
+            background: #2563eb;
+            color: #fff;
+            border-bottom-right-radius: 6px;
+            text-align: left;
+        }
+
+        .ai-message-time {
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            padding: 0 4px;
+        }
+
+        .ai-message-row.user .ai-message-time {
+            color: #94a3b8;
+        }
+
+        .ai-typing-bubble {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: auto;
+        }
+
+        .ai-typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ai-typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #94a3b8;
+            animation: aiTyping 1s ease-in-out infinite;
+        }
+
+        .ai-typing-dot:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .ai-typing-dot:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes aiTyping {
+            0%, 80%, 100% { opacity: 0.35; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-3px); }
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.75; }
+        }
+
+        .ai-quick-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 0 24px 10px;
+            scrollbar-width: none;
+            flex: 0 0 auto;
+        }
+
+        .ai-quick-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ai-quick-chip {
+            cursor: pointer;
+            padding: 5px 9px;
+            font-size: 11px;
+        }
+
+        .ai-input-row {
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 18px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        .ai-input {
+            flex: 1;
+            min-height: 56px;
+            max-height: 136px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 16px 18px;
+            font-size: 15px;
+            line-height: 1.45;
+            outline: none;
+            resize: none;
+            background: #f8fafc;
+            color: #0f172a;
+            box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.02);
+        }
+
+        .ai-send-btn {
+            width: 58px;
+            height: 58px;
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            cursor: pointer;
+            flex-shrink: 0;
+            font-size: 19px;
+            box-shadow: 0 14px 28px -18px rgba(37, 99, 235, 0.8);
+        }
+
+        .ai-send-btn:disabled {
+            cursor: wait;
+            opacity: 0.82;
+        }
+
+        .ai-send-btn.loading i {
+            animation: aiSpin 0.85s linear infinite;
+        }
+
+        @keyframes aiSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .ai-buddy-fab {
+                bottom: max(92px, calc(env(safe-area-inset-bottom, 0px) + 92px));
+                right: 18px;
+            }
+
+            .ai-buddy-panel {
+                left: 10px;
+                right: 10px;
+                bottom: max(88px, calc(env(safe-area-inset-bottom, 0px) + 88px));
+                width: auto;
+                height: min(84vh, 760px);
+                max-height: calc(100vh - 104px);
+                border-radius: 20px;
+            }
+
+            .ai-buddy-panel.expanded {
+                inset: 10px;
+                width: auto;
+                height: auto;
+            }
+
+            .ai-buddy-header {
+                padding: 12px 14px;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .ai-header-main {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .ai-buddy-title {
+                font-size: 17px;
+            }
+
+            .ai-buddy-subtitle {
+                font-size: 12px;
+            }
+
+            .ai-close-btn,
+            .ai-expand-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 14px;
+            }
+
+            .ai-toolbar-row,
+            .ai-quick-row {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .ai-profile-drawer {
+                left: 10px;
+                right: 10px;
+                top: 112px;
+                max-height: min(520px, calc(100% - 176px));
+            }
+
+            .ai-profile-backdrop {
+                inset: 104px 0 0;
+            }
+
+            .ai-messages {
+                padding: 14px;
+            }
+
+            .ai-message {
+                font-size: 13px;
+            }
+
+            .ai-message-row {
+                max-width: 88%;
+            }
+
+            .ai-input-row {
+                padding: 12px;
+            }
+
+            .ai-input {
+                min-height: 50px;
+                font-size: 14px;
+                padding: 13px 14px;
+            }
+
+            .ai-send-btn {
+                width: 52px;
+                height: 52px;
+            }
+
+            .ai-profile-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @keyframes toastIn {
@@ -4677,6 +5447,152 @@
         <i class="fas fa-bars"></i>
     </button>
 
+    <button id="ai-buddy-fab" class="ai-buddy-fab" onclick="toggleAiBuddy()" title="AI 学习伙伴">
+        <span id="ai-buddy-badge" class="ai-buddy-badge">AI</span>
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <div id="ai-buddy-panel" class="ai-buddy-panel" onclick="handleAiPanelClick(event)">
+        <div class="ai-buddy-header">
+            <div class="ai-header-main">
+                <div class="ai-buddy-title"><i class="fas fa-robot text-blue-500"></i> AI 学习伙伴</div>
+                <div id="ai-buddy-subtitle" class="ai-buddy-subtitle"></div>
+                <div class="ai-toolbar-row">
+                    <div id="ai-context-strip" class="ai-context-strip"></div>
+                    <div class="ai-profile-actions">
+                        <button class="ai-mini-btn" onclick="toggleAiProfile(event)"><i
+                                class="fas fa-user-gear"></i> 资料</button>
+                        <button class="ai-mini-btn" onclick="aiQuickPrompt('帮我生成本周备考计划，并写入日历任务')"><i
+                                class="fas fa-calendar-plus"></i> 生成本周任务</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-header-actions">
+                <button id="ai-expand-btn" class="ai-expand-btn" onclick="toggleAiPanelSize()" title="放大">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="ai-close-btn" onclick="closeAiBuddy()" title="收起"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div id="ai-profile-backdrop" class="ai-profile-backdrop" onclick="closeAiProfile()"></div>
+        <div id="ai-profile-drawer" class="ai-profile-drawer">
+            <div class="ai-controls-row">
+                <div class="ai-status-wrap">
+                    <div id="ai-connection-status" class="ai-status-pill missing" title="AI API 连接状态">
+                        <span class="ai-status-dot"></span>
+                        <span id="ai-connection-status-text">未配置</span>
+                    </div>
+                    <button id="ai-test-btn" class="ai-test-btn" onclick="testAiConnection()"
+                        title="测试 AI API 是否可用">测试</button>
+                </div>
+                <div id="ai-model-segment" class="ai-model-segment" role="group" aria-label="模型接口">
+                    <button id="ai-model-flash" class="ai-model-option" onclick="setAiModelPreset('flash')"
+                        title="deepseek-v4-flash，适合日常对话和轻量规划">Flash</button>
+                    <button id="ai-model-pro" class="ai-model-option" onclick="setAiModelPreset('pro')"
+                        title="deepseek-v4-pro，适合复杂规划和难题拆解">Pro</button>
+                    <button id="ai-thinking-toggle" class="ai-model-option ai-thinking-option"
+                        onclick="toggleAiThinkingMode()" title="DeepSeek Thinking mode">思考</button>
+                </div>
+            </div>
+            <div class="ai-profile-section">
+                <div class="ai-profile-section-title">备考资料</div>
+                <div class="ai-profile-grid">
+                    <label>
+                        <span class="ai-profile-label">考试日期</span>
+                        <input id="ai-profile-exam-date" type="date" class="ai-profile-input">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">每天可用小时</span>
+                        <input id="ai-profile-hours" type="number" min="1" max="16" step="0.5" class="ai-profile-input">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">目标院校</span>
+                        <input id="ai-profile-school" type="text" class="ai-profile-input" placeholder="例如：广州美术学院">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">目标专业</span>
+                        <input id="ai-profile-major" type="text" class="ai-profile-input" placeholder="例如：工业设计">
+                    </label>
+                    <label class="ai-profile-field-wide">
+                        <span class="ai-profile-label">备考科目</span>
+                        <textarea id="ai-profile-subjects" class="ai-profile-textarea"
+                            placeholder="用逗号或换行分隔，例如：英语、政治、337、手绘"></textarea>
+                    </label>
+                    <label class="ai-profile-field-wide">
+                        <span class="ai-profile-label">各科基础</span>
+                        <textarea id="ai-profile-bases" class="ai-profile-textarea"
+                            placeholder="英语：阅读弱&#10;政治：选择题一般"></textarea>
+                    </label>
+                    <label class="ai-profile-field-wide">
+                        <span class="ai-profile-label">最近模考成绩</span>
+                        <input id="ai-profile-mock" type="text" class="ai-profile-input" placeholder="例如：英语 62，政治 68">
+                    </label>
+                </div>
+            </div>
+            <div class="ai-profile-section mt-3">
+                <div class="ai-profile-section-title">模型连接</div>
+                <div class="ai-profile-grid">
+                    <label class="ai-profile-field-wide">
+                        <span class="ai-profile-label">AI API 地址</span>
+                        <input id="ai-profile-api" type="url" class="ai-profile-input"
+                            placeholder="例如：https://你的域名/api/study-buddy">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">Flash 模型 ID</span>
+                        <input id="ai-profile-model-flash" type="text" class="ai-profile-input"
+                            placeholder="deepseek-v4-flash">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">Pro 模型 ID</span>
+                        <input id="ai-profile-model-pro" type="text" class="ai-profile-input"
+                            placeholder="deepseek-v4-pro">
+                    </label>
+                </div>
+            </div>
+            <div class="ai-profile-section mt-3">
+                <div class="ai-profile-section-title">微信提醒</div>
+                <div class="ai-profile-grid">
+                    <label class="ai-profile-check ai-profile-field-wide">
+                        <input id="ai-push-enabled" type="checkbox">
+                        <span>开启每日 Server 酱提醒</span>
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">提醒时间</span>
+                        <input id="ai-push-time" type="time" class="ai-profile-input">
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">推送状态</span>
+                        <div id="ai-push-status" class="ai-profile-status">未测试</div>
+                    </label>
+                    <label class="ai-profile-field-wide">
+                        <span class="ai-profile-label">推送内容</span>
+                        <textarea id="ai-push-topics" class="ai-profile-textarea"
+                            placeholder="例如：今日任务、逾期任务、本周进度"></textarea>
+                    </label>
+                    <div class="ai-profile-hint ai-profile-field-wide">
+                        SendKey 放在 Supabase Edge Function Secrets 里，前端不会保存密钥。
+                    </div>
+                </div>
+                <button id="ai-push-test-btn" class="ai-mini-btn mt-3 w-full justify-center" type="button"
+                    onclick="testWechatPush(event)"><i class="fas fa-paper-plane"></i> 发送微信测试</button>
+            </div>
+            <button class="ai-mini-btn mt-3 w-full justify-center" onclick="saveAiProfile()"><i
+                    class="fas fa-check"></i> 保存资料</button>
+        </div>
+        <div id="ai-buddy-messages" class="ai-messages"></div>
+        <div id="ai-quick-row" class="ai-quick-row">
+            <button class="ai-quick-chip" onclick="aiQuickPrompt('今天没状态')">今天没状态</button>
+            <button class="ai-quick-chip" onclick="aiQuickPrompt('进度够吗')">进度够吗</button>
+            <button class="ai-quick-chip" onclick="aiQuickPrompt('复盘本周')">复盘本周</button>
+            <button class="ai-quick-chip" onclick="aiQuickPrompt('这题不会')">这题不会</button>
+        </div>
+        <div class="ai-input-row">
+            <textarea id="ai-buddy-input" class="ai-input" rows="1" placeholder="随时说：今天状态、题目、进度焦虑..."
+                oninput="autoResizeAiInput()" onkeydown="handleAiInputKey(event)"></textarea>
+            <button class="ai-send-btn" onclick="sendAiMessage()" title="发送"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
     <div id="notes-sidebar-overlay" class="notes-sidebar-overlay" onclick="toggleNotesSidebar()"></div>
     <div id="notes-sidebar" class="notes-sidebar">
         <div class="md:hidden w-full pt-2 pb-1 cursor-pointer" onclick="toggleNotesSidebar()">
@@ -4973,8 +5889,11 @@
         const DEFAULT_SYNC_ID = "default";
         const SUPABASE_URL = "https://atpywxgykzhgtzhdpqbe.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cHl3eGd5a3poZ3R6aGRwcWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTAxNzYsImV4cCI6MjA4MDMyNjE3Nn0.UCd3qH2xpR7BpDFkCHUBkEgHXkj3uG1hUW-qMZ7Ys7s";
+        // 默认走 Supabase Edge Function；DeepSeek sk 只放在 Function Secrets，不能放前端。
+        const AI_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-buddy`;
+        const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'sync-fix-2026-04-27-pwa-refresh-v2';
+        const BUILD_TAG = 'wechat-push-debug-2026-05-28-v1';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -5145,15 +6064,120 @@
             { name: '紧急', type: 'cat-6', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
         ];
 
+        const DEFAULT_AI_BUDDY = {
+            profile: {
+                examDate: "2026-12-19",
+                targetSchool: "",
+                major: "",
+                dailyHours: 6,
+                subjects: [],
+                bases: {},
+                recentMock: ""
+            },
+            apiEndpoint: "",
+            modelPreset: "flash",
+            thinkingMode: "disabled",
+            models: {
+                flash: "deepseek-v4-flash",
+                pro: "deepseek-v4-pro"
+            },
+            lastApiStatus: {
+                state: "missing",
+                message: "",
+                model: "",
+                checkedAt: ""
+            },
+            messages: [],
+            reminders: [],
+            push: {
+                enabled: false,
+                provider: "serverchan",
+                time: "08:00",
+                topics: "今日任务、逾期任务、本周进度",
+                lastSentDate: "",
+                lastStatus: {
+                    state: "idle",
+                    message: "",
+                    checkedAt: ""
+                }
+            },
+            lastSummary: "",
+            lastNudgeDate: ""
+        };
+
         let fullState = {
             "2025": { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} },
             "2026": { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} },
-            "settings": { targetDate: "2026-12-19", targetName: "距离考研仅剩", categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)) }
+            "settings": {
+                targetDate: "2026-12-19",
+                targetName: "距离考研仅剩",
+                categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+                aiBuddy: JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY))
+            }
         };
 
         // 获取当前分类列表
         function getCategories() {
             return fullState.settings?.categories || DEFAULT_CATEGORIES;
+        }
+
+        function ensureAiBuddyState() {
+            if (!fullState.settings) fullState.settings = {};
+            const fallback = JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY));
+            const buddy = (fullState.settings.aiBuddy && typeof fullState.settings.aiBuddy === 'object')
+                ? fullState.settings.aiBuddy
+                : fallback;
+            if (!buddy.profile || typeof buddy.profile !== 'object') buddy.profile = fallback.profile;
+            if (!Array.isArray(buddy.messages)) buddy.messages = [];
+            if (!Array.isArray(buddy.reminders)) buddy.reminders = [];
+            if (!buddy.push || typeof buddy.push !== 'object') buddy.push = fallback.push;
+            buddy.push.provider = buddy.push.provider || fallback.push.provider;
+            buddy.push.time = buddy.push.time || fallback.push.time;
+            buddy.push.topics = buddy.push.topics || fallback.push.topics;
+            buddy.push.lastSentDate = buddy.push.lastSentDate || '';
+            buddy.push.lastStatus = (buddy.push.lastStatus && typeof buddy.push.lastStatus === 'object')
+                ? buddy.push.lastStatus
+                : fallback.push.lastStatus;
+            if (typeof buddy.lastSummary !== 'string') buddy.lastSummary = '';
+            if (typeof buddy.lastNudgeDate !== 'string') buddy.lastNudgeDate = '';
+            if (typeof buddy.apiEndpoint !== 'string') buddy.apiEndpoint = '';
+            if (buddy.modelStrength && !buddy.modelPreset) {
+                buddy.modelPreset = buddy.modelStrength === 'deep' ? 'pro' : 'flash';
+            }
+            if (!['flash', 'pro'].includes(buddy.modelPreset)) buddy.modelPreset = fallback.modelPreset;
+            if (!['enabled', 'disabled'].includes(buddy.thinkingMode)) buddy.thinkingMode = fallback.thinkingMode;
+            if (!buddy.models || typeof buddy.models !== 'object') buddy.models = {};
+            buddy.models.flash = buddy.models.flash || fallback.models.flash;
+            buddy.models.pro = buddy.models.pro || fallback.models.pro;
+            if (!buddy.lastApiStatus || typeof buddy.lastApiStatus !== 'object') buddy.lastApiStatus = fallback.lastApiStatus;
+
+            const profile = buddy.profile;
+            profile.examDate = profile.examDate || fullState.settings.targetDate || fallback.profile.examDate;
+            profile.targetSchool = profile.targetSchool || '';
+            profile.major = profile.major || '';
+            profile.dailyHours = Number(profile.dailyHours) || fallback.profile.dailyHours;
+            profile.subjects = Array.isArray(profile.subjects) ? profile.subjects.filter(Boolean) : [];
+            if (!profile.subjects.length) {
+                profile.subjects = getCategories()
+                    .filter(cat => !['生活', '紧急'].includes(cat.name))
+                    .slice(0, 4)
+                    .map(cat => cat.name);
+            }
+            profile.bases = (profile.bases && typeof profile.bases === 'object') ? profile.bases : {};
+            profile.recentMock = profile.recentMock || '';
+            fullState.settings.aiBuddy = buddy;
+            return buddy;
+        }
+
+        function ensureSettingsStructure() {
+            if (!fullState.settings) fullState.settings = {};
+            if (!fullState.settings.targetDate) fullState.settings.targetDate = "2026-12-19";
+            if (!fullState.settings.targetName) fullState.settings.targetName = "距离考研仅剩";
+            if (!fullState.settings.categories || !Array.isArray(fullState.settings.categories) || fullState.settings.categories.length === 0) {
+                fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+            }
+            ensureAiBuddyState();
+            return fullState.settings;
         }
 
         // 通过 type 获取分类颜色信息，兼容老的硬编码 t-pol 等
@@ -5225,6 +6249,19 @@
             if (!year || !month || !day) return null;
             if (year === 2025 && month === 12) return `d${day}`;
             return `${year}-${month}-${day}`;
+        }
+
+        function parseDateStamp(value) {
+            const match = String(value || '').match(/(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})/);
+            if (!match) return null;
+            const [, y, m, d] = match.map(Number);
+            const date = new Date(y, m - 1, d);
+            if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+            return startOfLocalDay(date);
+        }
+
+        function dateToDateStamp(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         }
 
         function getAutoNotebookDateKey() {
@@ -5417,9 +6454,9 @@
                 setTimeout(() => document.getElementById('sync-id-input').focus(), 200);
             }
 
-            if (SUPABASE_URL && SUPABASE_KEY) {
+            if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
                 try {
-                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                     isCloud = true;
                     await loadCloud();
                     await flushPendingCloudSync();
@@ -5791,6 +6828,68 @@
             return count;
         }
 
+        function aiItemTimestamp(item) {
+            const raw = item?.at || item?.createdAt || item?.remindAt || item?.checkedAt || '';
+            const time = raw ? new Date(raw).getTime() : 0;
+            return Number.isFinite(time) ? time : 0;
+        }
+
+        function mergeAiCollections(cloudItems = [], localItems = [], limit = 60) {
+            const map = new Map();
+            [...(cloudItems || []), ...(localItems || [])].forEach((item, idx) => {
+                if (!item || typeof item !== 'object') return;
+                const fallbackKey = [
+                    item.role || item.title || 'item',
+                    item.at || item.createdAt || item.remindAt || idx,
+                    String(item.content || item.message || '').slice(0, 80)
+                ].join('|');
+                map.set(item.id || fallbackKey, { ...(map.get(item.id || fallbackKey) || {}), ...item });
+            });
+            return Array.from(map.values())
+                .sort((a, b) => aiItemTimestamp(a) - aiItemTimestamp(b))
+                .slice(-limit);
+        }
+
+        function mergeAiBuddyState(localBuddy = {}, cloudBuddy = {}) {
+            const fallback = JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY));
+            const localProfile = (localBuddy.profile && typeof localBuddy.profile === 'object') ? localBuddy.profile : {};
+            const cloudProfile = (cloudBuddy.profile && typeof cloudBuddy.profile === 'object') ? cloudBuddy.profile : {};
+            const merged = { ...fallback, ...localBuddy, ...cloudBuddy };
+            merged.profile = { ...fallback.profile, ...localProfile, ...cloudProfile };
+
+            ['targetSchool', 'major', 'recentMock'].forEach(field => {
+                if (!String(merged.profile[field] || '').trim() && String(localProfile[field] || '').trim()) {
+                    merged.profile[field] = localProfile[field];
+                }
+            });
+            if ((!Array.isArray(cloudProfile.subjects) || !cloudProfile.subjects.length) && Array.isArray(localProfile.subjects) && localProfile.subjects.length) {
+                merged.profile.subjects = localProfile.subjects;
+            }
+            if ((!cloudProfile.bases || !Object.keys(cloudProfile.bases).length) && localProfile.bases && Object.keys(localProfile.bases).length) {
+                merged.profile.bases = localProfile.bases;
+            }
+            if (!String(cloudBuddy.apiEndpoint || '').trim() && String(localBuddy.apiEndpoint || '').trim()) {
+                merged.apiEndpoint = localBuddy.apiEndpoint;
+            }
+            if (merged.modelStrength && !merged.modelPreset) {
+                merged.modelPreset = merged.modelStrength === 'deep' ? 'pro' : 'flash';
+            }
+            if (!['flash', 'pro'].includes(merged.modelPreset)) {
+                merged.modelPreset = localBuddy.modelPreset || cloudBuddy.modelPreset || fallback.modelPreset;
+            }
+            if (!['enabled', 'disabled'].includes(merged.thinkingMode)) {
+                merged.thinkingMode = localBuddy.thinkingMode || cloudBuddy.thinkingMode || fallback.thinkingMode;
+            }
+            merged.models = {
+                ...fallback.models,
+                ...(localBuddy.models || {}),
+                ...(cloudBuddy.models || {})
+            };
+            merged.messages = mergeAiCollections(cloudBuddy.messages, localBuddy.messages, 60);
+            merged.reminders = mergeAiCollections(cloudBuddy.reminders, localBuddy.reminders, 80);
+            return merged;
+        }
+
         // 智能合并两份数据（取并集，不丢失任何一方的内容）
         function mergeStates(local, cloud) {
             const merged = JSON.parse(JSON.stringify(cloud)); // 以云端为基础
@@ -5854,7 +6953,16 @@
                 });
             }
             // settings 保留云端的（通常更新）
-            if (!merged.settings && local.settings) merged.settings = local.settings;
+            if (!merged.settings && local.settings) {
+                merged.settings = JSON.parse(JSON.stringify(local.settings));
+            } else if (merged.settings && local.settings) {
+                if (!merged.settings.categories && local.settings.categories) merged.settings.categories = local.settings.categories;
+                if (!merged.settings.targetDate && local.settings.targetDate) merged.settings.targetDate = local.settings.targetDate;
+                if (!merged.settings.targetName && local.settings.targetName) merged.settings.targetName = local.settings.targetName;
+                if (merged.settings.aiBuddy || local.settings.aiBuddy) {
+                    merged.settings.aiBuddy = mergeAiBuddyState(local.settings.aiBuddy || {}, merged.settings.aiBuddy || {});
+                }
+            }
             return merged;
         }
 
@@ -5961,7 +7069,7 @@
         }
 
         async function refreshCloudIfSafe(force = false) {
-            if (!isCloud || !supabaseClient || cloudPullInFlight || hasActiveEditorSession()) return;
+            if (!isCloud || !supabaseClient || cloudPullInFlight || hasActiveEditorSession() || aiSending) return;
             const now = Date.now();
             if (!force && now - lastCloudPullAt < 30000) return;
             cloudPullInFlight = true;
@@ -6109,10 +7217,7 @@
             }
 
             // 确保设置存在
-            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
-            if (!fullState.settings.categories || fullState.settings.categories.length === 0) {
-                fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-            }
+            ensureSettingsStructure();
 
             inject2026Plan();
             currentState = fullState[CURRENT_YEAR.toString()];
@@ -6147,11 +7252,8 @@
                 }
             }
 
-            if (!fullState.settings) fullState.settings = { targetDate: "2026-12-19", targetName: "距离考研仅剩" };
-            // 确保分类存在，如果本地没有，则使用默认
-            if (!fullState.settings.categories || fullState.settings.categories.length === 0) {
-                fullState.settings.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-            }
+            // 确保分类和 AI 学习伙伴设置存在
+            ensureSettingsStructure();
 
             inject2026Plan(); // 注入计划
             currentState = fullState[CURRENT_YEAR.toString()];
@@ -6186,6 +7288,8 @@
                 if (icon) icon.classList.add('has-note-icon');
             });
             updateProgress();
+            if (typeof renderAiCalendarReminder === 'function') renderAiCalendarReminder();
+            if (typeof renderAiContextStrip === 'function') renderAiContextStrip();
         }
 
         function updateProgress() {
@@ -6233,8 +7337,10 @@
             if (!fullState.settings) fullState.settings = {};
             fullState.settings.targetName = name;
             fullState.settings.targetDate = date;
+            ensureAiBuddyState().profile.examDate = date;
 
             updateCountdown();
+            renderAiCalendarReminder();
             save();
             window.closeSettingsModal();
         };
@@ -7898,7 +9004,9 @@
             window.execCmd = (c, v) => { focusActiveEditor(); document.execCommand(c, false, v); updateWordCount(); };
             window.toggleHighlight = () => {
                 const sel = window.getSelection();
-                if (!sel.rangeCount || sel.isCollapsed) { focusActiveEditor(); document.execCommand('backColor', false, '#fef08a'); return; }
+                const isDark = document.body.classList.contains('dark-mode');
+                const hlColor = isDark ? '#854d0e' : '#fef08a';
+                if (!sel.rangeCount || sel.isCollapsed) { focusActiveEditor(); document.execCommand('backColor', false, hlColor); return; }
                 // 检查选区内是否已有高亮
                 let hasHighlight = false;
                 const range = sel.getRangeAt(0);
@@ -7916,7 +9024,7 @@
                 if (hasHighlight) {
                     document.execCommand('backColor', false, 'transparent');
                 } else {
-                    document.execCommand('backColor', false, '#fef08a');
+                    document.execCommand('backColor', false, hlColor);
                 }
                 focusActiveEditor();
                 updateWordCount();
@@ -8427,6 +9535,1599 @@
             }
         };
 
+        // ================= AI 学习伙伴 =================
+        function startOfLocalDay(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function addDays(date, days) {
+            const d = startOfLocalDay(date);
+            d.setDate(d.getDate() + days);
+            return d;
+        }
+
+        function formatDateStampFromDate(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function dateToStudyKey(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            if (year === 2025 && month === 12) return `d${day}`;
+            return `${year}-${month}-${day}`;
+        }
+
+        function studyKeyToDate(key) {
+            if (!key) return null;
+            if (key.startsWith('d')) return new Date(2025, 11, parseInt(key.slice(1), 10));
+            const [year, month, day] = key.split('-').map(Number);
+            if (!year || !month || !day) return null;
+            return new Date(year, month - 1, day);
+        }
+
+        function getSubjectNameByType(type) {
+            const cat = getCategories().find(c => c.type === type);
+            if (cat) return cat.name;
+            const legacy = {
+                't-pol': '政治',
+                't-eng': '英语',
+                't-art': '手绘',
+                't-the': '337',
+                't-work': '手绘',
+                't-study': '学习',
+                't-life': '生活',
+                't-urgent': '紧急'
+            };
+            return legacy[type] || '学习';
+        }
+
+        function getSubjectTypeByName(name) {
+            const clean = String(name || '').trim();
+            if (!clean) return getCategories()[0]?.type || 'cat-0';
+            const exact = getCategories().find(c => c.name === clean);
+            if (exact) return exact.type;
+            const fuzzy = getCategories().find(c => clean.includes(c.name) || c.name.includes(clean));
+            if (fuzzy) return fuzzy.type;
+            return getCategories()[0]?.type || 'cat-0';
+        }
+
+        function guessSubjectTypeFromTask(task) {
+            if (task?.subject) return getSubjectTypeByName(task.subject);
+            const title = `${task?.title || ''} ${task?.text || ''}`;
+            const hit = getCategories().find(c => title.includes(c.name));
+            return hit?.type || getCategories()[0]?.type || 'cat-0';
+        }
+
+        function getTasksForDateKey(dateKey) {
+            const state = getStateByDateKey(dateKey);
+            const doneSet = new Set(state.done || []);
+            let tasks = [];
+            if (dateKey.startsWith('d')) {
+                const day = parseInt(dateKey.slice(1), 10);
+                const builtIn = CALENDAR_DATA_2025.find(item => item.day === day);
+                if (builtIn?.tasks) tasks = tasks.concat(builtIn.tasks);
+            }
+            tasks = tasks.concat(state.customTasks?.[dateKey] || []);
+            return tasks.map(task => ({
+                ...task,
+                key: dateKey,
+                done: doneSet.has(task.id),
+                subjectName: getSubjectNameByType(task.type)
+            }));
+        }
+
+        function normalizeAiSearchText(text) {
+            return String(text || '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function sanitizeAiPromptText(text, maxLen = 800) {
+            return String(text || '')
+                .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+                .replace(/\\/g, '/')
+                .replace(/[\u2028\u2029]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, maxLen);
+        }
+
+        function safeAiPromptJson(value, maxLen = 2000) {
+            try {
+                return sanitizeAiPromptText(JSON.stringify(value || {}), maxLen);
+            } catch (_) {
+                return '{}';
+            }
+        }
+
+        function extractAiSearchTerms(query) {
+            const raw = normalizeAiSearchText(query);
+            const stopWords = new Set(['今天', '这个', '那个', '怎么', '什么', '一下', '帮我', '可以', '需要', '为什么', 'the', 'and', 'what', 'how']);
+            const terms = new Set();
+            raw.match(/[a-z0-9_\-]{2,}|[\u4e00-\u9fff]{2,}/g)?.forEach(chunk => {
+                if (stopWords.has(chunk)) return;
+                terms.add(chunk);
+                if (/^[\u4e00-\u9fff]+$/.test(chunk) && chunk.length > 3) {
+                    for (let i = 0; i < chunk.length - 1; i++) {
+                        const gram = chunk.slice(i, i + 2);
+                        if (!stopWords.has(gram)) terms.add(gram);
+                    }
+                }
+            });
+            getCategories().forEach(cat => {
+                if (raw.includes(cat.name.toLowerCase())) terms.add(cat.name.toLowerCase());
+            });
+            return Array.from(terms).slice(0, 18);
+        }
+
+        function makeAiNoteSnippet(text, terms, maxLen = 220) {
+            const clean = String(text || '').replace(/\s+/g, ' ').trim();
+            if (!clean) return '';
+            const lower = clean.toLowerCase();
+            let idx = -1;
+            for (const term of terms) {
+                idx = lower.indexOf(term.toLowerCase());
+                if (idx > -1) break;
+            }
+            if (idx < 0) return sanitizeAiPromptText(clean, maxLen);
+            const start = Math.max(0, idx - 70);
+            const end = Math.min(clean.length, idx + maxLen - 70);
+            return sanitizeAiPromptText(`${start > 0 ? '...' : ''}${clean.slice(start, end)}${end < clean.length ? '...' : ''}`, maxLen);
+        }
+
+        function scoreAiNoteCandidate(candidate, terms, todayKey) {
+            const haystack = normalizeAiSearchText([
+                candidate.title,
+                candidate.subject,
+                candidate.dateLabel,
+                candidate.text
+            ].filter(Boolean).join(' '));
+            let score = 0;
+            terms.forEach(term => {
+                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const matches = haystack.match(new RegExp(escaped, 'g'));
+                if (matches) score += matches.length * Math.min(16, 4 + term.length);
+            });
+            if (candidate.dateKey === todayKey) score += 18;
+            if (candidate.title && terms.some(term => normalizeAiSearchText(candidate.title).includes(term))) score += 16;
+            const updated = new Date(candidate.updatedAt || candidate.createdAt || 0).getTime();
+            if (Number.isFinite(updated) && updated > 0) {
+                score += Math.max(0, 8 - Math.floor((Date.now() - updated) / 86400000 / 14));
+            }
+            return score;
+        }
+
+        function collectAiRelevantNotes(query, ctx = null, limit = 6) {
+            const terms = extractAiSearchTerms(query);
+            if (!terms.length) return [];
+            const todayKey = ctx?.todayKey || dateToStudyKey(new Date());
+            const candidates = [];
+            ['2025', '2026'].forEach(year => {
+                const state = fullState[year];
+                if (!state) return;
+                Object.entries(state.notes || {}).forEach(([dateKey, html]) => {
+                    const text = textFromHtml(html || '');
+                    if (!text) return;
+                    candidates.push({
+                        id: `daily-${year}-${dateKey}`,
+                        source: '日历笔记',
+                        year,
+                        dateKey,
+                        dateLabel: keyToLabel(dateKey),
+                        title: keyToLabel(dateKey),
+                        subject: '',
+                        text,
+                        updatedAt: ''
+                    });
+                });
+                Object.values(state.notebookEntries || {}).forEach(entry => {
+                    const text = (entry.content || textFromHtml(entry.html || '') || '').trim();
+                    if (!text) return;
+                    candidates.push({
+                        id: entry.id || `entry-${year}-${entry.dateKey}-${entry.title || ''}`,
+                        source: '笔记本',
+                        year,
+                        dateKey: entry.dateKey || '',
+                        dateLabel: entry.dateKey ? keyToLabel(entry.dateKey) : '',
+                        title: entry.title || '未命名笔记',
+                        subject: getSubjectNameByType(entry.subjectType),
+                        text,
+                        updatedAt: entry.updatedAt || entry.createdAt || ''
+                    });
+                });
+            });
+            return candidates
+                .map(candidate => {
+                    const score = scoreAiNoteCandidate(candidate, terms, todayKey);
+                    return {
+                        ...candidate,
+                        score,
+                        snippet: makeAiNoteSnippet(candidate.text, terms)
+                    };
+                })
+                .filter(item => item.score > 0 && item.snippet)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, limit)
+                .map(({ text, score, ...item }) => item);
+        }
+
+        function getDailyNoteText(dateKey) {
+            const state = getStateByDateKey(dateKey);
+            const baseText = textFromHtml(state.notes?.[dateKey] || '');
+            const notebookText = Object.values(state.notebookEntries || {})
+                .filter(entry => entry.dateKey === dateKey || (entry.linkedDateKeys || []).includes(dateKey))
+                .map(entry => [entry.title, entry.content || textFromHtml(entry.html || '')].filter(Boolean).join('：'))
+                .join('\n');
+            return [baseText, notebookText].filter(Boolean).join('\n').trim();
+        }
+
+        function collectTasksInRange(startDate, days) {
+            const rows = [];
+            for (let i = 0; i < days; i++) {
+                const date = addDays(startDate, i);
+                const key = dateToStudyKey(date);
+                getTasksForDateKey(key).forEach(task => rows.push({
+                    ...task,
+                    date,
+                    dateStamp: formatDateStampFromDate(date),
+                    label: keyToLabel(key)
+                }));
+            }
+            return rows;
+        }
+
+        function collectRangeStats(startDate, days) {
+            const bySubject = {};
+            let total = 0;
+            let done = 0;
+            let noteDays = 0;
+            for (let i = 0; i < days; i++) {
+                const date = addDays(startDate, i);
+                const key = dateToStudyKey(date);
+                const tasks = getTasksForDateKey(key);
+                if (getDailyNoteText(key)) noteDays++;
+                tasks.forEach(task => {
+                    total++;
+                    if (task.done) done++;
+                    const name = task.subjectName || '学习';
+                    if (!bySubject[name]) bySubject[name] = { total: 0, done: 0 };
+                    bySubject[name].total++;
+                    if (task.done) bySubject[name].done++;
+                });
+            }
+            return {
+                total,
+                done,
+                left: Math.max(0, total - done),
+                rate: total ? Math.round(done / total * 100) : 0,
+                noteDays,
+                bySubject
+            };
+        }
+
+        function collectNotebookProgress() {
+            const progress = {};
+            getCategories().forEach(cat => {
+                progress[cat.name] = { entries: 0, latest: null };
+            });
+            ['2025', '2026'].forEach(year => {
+                Object.values(fullState[year]?.notebookEntries || {}).forEach(entry => {
+                    const subject = getSubjectNameByType(entry.subjectType);
+                    if (!progress[subject]) progress[subject] = { entries: 0, latest: null };
+                    progress[subject].entries++;
+                    const updated = entry.updatedAt || entry.createdAt || '';
+                    if (updated && (!progress[subject].latest || new Date(updated) > new Date(progress[subject].latest))) {
+                        progress[subject].latest = updated;
+                    }
+                });
+            });
+            return progress;
+        }
+
+        function getProfileSubjects() {
+            const profile = ensureAiBuddyState().profile;
+            const fromProfile = (profile.subjects || [])
+                .map(item => typeof item === 'string' ? item : item?.name)
+                .map(item => String(item || '').trim())
+                .filter(Boolean);
+            if (fromProfile.length) return fromProfile;
+            return getCategories()
+                .filter(cat => !['生活', '紧急'].includes(cat.name))
+                .slice(0, 4)
+                .map(cat => cat.name);
+        }
+
+        function buildAiStudyContext() {
+            ensureSettingsStructure();
+            const buddy = ensureAiBuddyState();
+            const profile = buddy.profile;
+            const today = startOfLocalDay(new Date());
+            const todayKey = dateToStudyKey(today);
+            const targetDateStr = profile.examDate || fullState.settings.targetDate || "2026-12-19";
+            const targetDate = new Date(`${targetDateStr}T00:00:00`);
+            const daysLeft = Math.max(0, Math.ceil((startOfLocalDay(targetDate) - today) / 86400000));
+            const weekStart = addDays(today, -((today.getDay() + 6) % 7));
+            const week = collectRangeStats(weekStart, 7);
+            const last7 = collectRangeStats(addDays(today, -6), 7);
+            const todayTasks = getTasksForDateKey(todayKey);
+            const upcoming = collectTasksInRange(today, 7);
+            const overdue = collectTasksInRange(addDays(today, -14), 14)
+                .filter(task => task.date < today && !task.done)
+                .slice(0, 8);
+            const notebookProgress = collectNotebookProgress();
+            const subjectStats = {};
+            getProfileSubjects().forEach(subject => {
+                const weekSubject = week.bySubject[subject] || { total: 0, done: 0 };
+                const noteInfo = notebookProgress[subject] || { entries: 0, latest: null };
+                subjectStats[subject] = {
+                    total: weekSubject.total,
+                    done: weekSubject.done,
+                    rate: weekSubject.total ? Math.round(weekSubject.done / weekSubject.total * 100) : 0,
+                    noteEntries: noteInfo.entries,
+                    latestNoteAt: noteInfo.latest
+                };
+            });
+
+            return {
+                todayDate: today,
+                todayKey,
+                todayLabel: keyToLabel(todayKey),
+                targetDate: targetDateStr,
+                targetName: fullState.settings.targetName || '距离考试仅剩',
+                daysLeft,
+                profile: {
+                    examDate: targetDateStr,
+                    targetSchool: profile.targetSchool || '',
+                    major: profile.major || '',
+                    dailyHours: Number(profile.dailyHours) || 6,
+                    subjects: getProfileSubjects(),
+                    bases: profile.bases || {},
+                    recentMock: profile.recentMock || ''
+                },
+                today: {
+                    key: todayKey,
+                    total: todayTasks.length,
+                    done: todayTasks.filter(t => t.done).length,
+                    left: todayTasks.filter(t => !t.done).length,
+                    tasks: todayTasks,
+                    noteText: getDailyNoteText(todayKey)
+                },
+                week,
+                last7,
+                upcoming,
+                overdue,
+                subjectStats,
+                reminders: buddy.reminders.filter(item => !item.dismissed).slice(-20),
+                relevantNotes: [],
+                lastSummary: buddy.lastSummary || ''
+            };
+        }
+
+        function makeAiDailyNudge(ctx = buildAiStudyContext()) {
+            const todo = ctx.today.tasks.filter(task => !task.done);
+            let title = '今日学习提醒';
+            let text = '';
+            if (!ctx.profile.targetSchool && !ctx.profile.major) {
+                text = '先把目标院校、科目和每天可用时间补一下，我会按这些信息给你排更贴身的任务。';
+            } else if (ctx.today.total === 0) {
+                text = `今天还没有任务。考试还剩 ${ctx.daysLeft} 天，建议先安排 2 个小任务，别让计划空窗。`;
+            } else if (todo.length === 0) {
+                title = '今天已经收尾得不错';
+                text = `今天 ${ctx.today.total} 个任务都完成了。现在更适合做 10 分钟复盘，把错因或卡点写进笔记。`;
+            } else {
+                const first = todo[0];
+                text = `今天 ${ctx.today.total} 个任务，已完成 ${ctx.today.done} 个。先做「${first.text}」，完成后再看是否需要压缩后面的安排。`;
+            }
+            if (ctx.overdue.length >= 3) {
+                text += ` 另外，近两周还有 ${ctx.overdue.length} 个遗留任务，最好今天处理一个最小版本。`;
+            } else if (ctx.week.total && ctx.week.rate < 50) {
+                text += ` 本周完成率 ${ctx.week.rate}%，计划需要稍微降负荷、提高命中率。`;
+            }
+            return { title, text };
+        }
+
+        function renderAiCalendarReminder() {
+            const ctx = buildAiStudyContext();
+            const badge = document.getElementById('ai-buddy-badge');
+            if (badge) badge.textContent = ctx.today.left ? String(ctx.today.left) : 'AI';
+        }
+
+        function renderAiContextStrip(ctx = buildAiStudyContext()) {
+            const strip = document.getElementById('ai-context-strip');
+            if (!strip) return;
+            strip.innerHTML = [
+                `剩 ${ctx.daysLeft} 天`,
+                `今日 ${ctx.today.done}/${ctx.today.total}`,
+                `本周 ${ctx.week.done}/${ctx.week.total}`,
+                `笔记 ${ctx.week.noteDays} 天`,
+                `${ctx.profile.dailyHours}h/天`
+            ].map(text => `<span class="ai-context-chip">${escapeHtml(text)}</span>`).join('');
+            const subtitle = document.getElementById('ai-buddy-subtitle');
+            if (subtitle) {
+                subtitle.textContent = '';
+            }
+        }
+
+        function formatAiTime(iso) {
+            const d = iso ? new Date(iso) : new Date();
+            return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        }
+
+        function getAiModelConfig() {
+            const buddy = ensureAiBuddyState();
+            const preset = ['flash', 'pro'].includes(buddy.modelPreset) ? buddy.modelPreset : 'flash';
+            const models = buddy.models || {};
+            return {
+                preset,
+                label: preset === 'pro' ? 'Pro' : 'Flash',
+                model: (models[preset] || DEFAULT_AI_BUDDY.models[preset]).trim(),
+                thinking: buddy.thinkingMode === 'enabled' ? 'enabled' : 'disabled'
+            };
+        }
+
+        function setAiApiStatus(state, message = '', meta = {}) {
+            const buddy = ensureAiBuddyState();
+            const model = meta.model || getAiModelConfig().model;
+            buddy.lastApiStatus = {
+                state,
+                message,
+                model,
+                checkedAt: new Date().toISOString()
+            };
+            renderAiConnectionStatus();
+        }
+
+        function getAiStatusText() {
+            const endpoint = getAiApiEndpoint();
+            const buddy = ensureAiBuddyState();
+            const cfg = getAiModelConfig();
+            const status = buddy.lastApiStatus || {};
+            if (!endpoint) return { state: 'missing', text: '未配置' };
+            if (aiSending || status.state === 'checking') return { state: 'checking', text: `等待中 · ${cfg.label}` };
+            if (status.state === 'connected') return { state: 'connected', text: `已连接 · ${cfg.label}` };
+            if (status.state === 'failed') return { state: 'failed', text: `失败 · ${cfg.label}` };
+            return { state: 'idle', text: `待测试 · ${cfg.label}` };
+        }
+
+        function renderAiConnectionStatus() {
+            const pill = document.getElementById('ai-connection-status');
+            const text = document.getElementById('ai-connection-status-text');
+            if (!pill || !text) return;
+            const status = getAiStatusText();
+            pill.className = `ai-status-pill ${status.state}`;
+            text.textContent = status.text;
+            const detail = ensureAiBuddyState().lastApiStatus?.message || '';
+            pill.title = detail ? `AI API 连接状态：${detail}` : 'AI API 连接状态';
+        }
+
+        function renderAiModelControls() {
+            const cfg = getAiModelConfig();
+            ['flash', 'pro'].forEach(preset => {
+                document.getElementById(`ai-model-${preset}`)?.classList.toggle('active', cfg.preset === preset);
+            });
+            const thinking = document.getElementById('ai-thinking-toggle');
+            if (thinking) {
+                thinking.classList.toggle('active', cfg.thinking === 'enabled');
+                thinking.title = cfg.thinking === 'enabled'
+                    ? 'Thinking mode 已开启，适合复杂推理'
+                    : 'Thinking mode 已关闭，回复更轻快';
+            }
+            renderAiConnectionStatus();
+        }
+
+        function renderWechatPushStatus() {
+            const el = document.getElementById('ai-push-status');
+            if (!el) return;
+            const push = ensureAiBuddyState().push || {};
+            const status = push.lastStatus || {};
+            const time = push.time || DEFAULT_AI_BUDDY.push.time;
+            if (status.state === 'sending') {
+                el.textContent = '发送中...';
+                return;
+            }
+            if (status.state === 'failed') {
+                el.textContent = `失败：${status.message || '请检查 Secrets'}`;
+                return;
+            }
+            if (!push.enabled) {
+                el.textContent = '未开启';
+                return;
+            }
+            if (status.state === 'sent') {
+                el.textContent = `已连通 · ${time}${status.message ? ` · ${status.message}` : ''}`;
+                return;
+            }
+            el.textContent = `待测试 · ${time}`;
+        }
+
+        window.setAiModelPreset = (preset) => {
+            const buddy = ensureAiBuddyState();
+            buddy.modelPreset = preset === 'pro' ? 'pro' : 'flash';
+            buddy.lastApiStatus = { state: 'idle', message: '模型已切换，建议测试连接', model: getAiModelConfig().model, checkedAt: new Date().toISOString() };
+            renderAiModelControls();
+            save();
+        };
+
+        window.toggleAiThinkingMode = () => {
+            const buddy = ensureAiBuddyState();
+            buddy.thinkingMode = buddy.thinkingMode === 'enabled' ? 'disabled' : 'enabled';
+            buddy.lastApiStatus = { state: 'idle', message: 'Thinking mode 已切换，建议测试连接', model: getAiModelConfig().model, checkedAt: new Date().toISOString() };
+            renderAiModelControls();
+            save();
+        };
+
+        function addAiMessage(role, content) {
+            if (!String(content || '').trim()) return;
+            const buddy = ensureAiBuddyState();
+            const message = {
+                id: `ai-msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                role,
+                content,
+                at: new Date().toISOString()
+            };
+            buddy.messages.push(message);
+            if (buddy.messages.length > 40) buddy.messages = buddy.messages.slice(-40);
+            updateAiConversationSummary();
+            return message;
+        }
+
+        function ensureAiMessagePresent(message) {
+            if (!message?.id) return;
+            const buddy = ensureAiBuddyState();
+            if (buddy.messages.some(item => item.id === message.id)) return;
+            buddy.messages.push(message);
+            buddy.messages.sort((a, b) => aiItemTimestamp(a) - aiItemTimestamp(b));
+            if (buddy.messages.length > 40) buddy.messages = buddy.messages.slice(-40);
+            updateAiConversationSummary();
+        }
+
+        function updateAiConversationSummary() {
+            const buddy = ensureAiBuddyState();
+            const recent = buddy.messages
+                .filter(msg => msg.role === 'user')
+                .slice(-4)
+                .map(msg => msg.content.trim().slice(0, 28))
+                .filter(Boolean);
+            buddy.lastSummary = recent.length ? `最近聊过：${recent.join(' / ')}` : buddy.lastSummary;
+        }
+
+        function stripAiToolJson(text) {
+            let clean = String(text || '');
+            clean = clean.replace(/```(?:json)?\s*[\s\S]*?"action"\s*:\s*"(?:create_tasks|create_reminders)"[\s\S]*?```/gi, '');
+            const first = clean.indexOf('{');
+            const last = clean.lastIndexOf('}');
+            if (first > -1 && last > first) {
+                const jsonPart = clean.slice(first, last + 1);
+                if (/"action"\s*:\s*"(?:create_tasks|create_reminders)"/.test(jsonPart)) {
+                    clean = `${clean.slice(0, first)}${clean.slice(last + 1)}`;
+                }
+            }
+            return clean
+                .replace(/^\s*```(?:json)?\s*$/gmi, '')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function getDisplayAiMessage(msg) {
+            const raw = String(msg?.content || '');
+            if (msg?.role !== 'assistant') return raw;
+            const clean = stripAiToolJson(raw);
+            if (clean) return clean;
+            const actions = extractAiJsonActions(raw);
+            if (actions.some(action => action.action === 'create_tasks')) return '我已生成日历任务，正在写入。';
+            if (actions.some(action => action.action === 'create_reminders')) return '我已生成提醒，正在写入。';
+            return raw;
+        }
+
+        function renderAiMessages() {
+            const list = document.getElementById('ai-buddy-messages');
+            if (!list) return;
+            const buddy = ensureAiBuddyState();
+            const html = buddy.messages.map(msg => ({ ...msg, displayContent: getDisplayAiMessage(msg) }))
+                .filter(msg => String(msg.displayContent || '').trim()).map(msg => `
+                <div class="ai-message-row ${msg.role === 'user' ? 'user' : 'assistant'}">
+                    <div class="ai-message ${msg.role === 'user' ? 'user' : 'assistant'}">${escapeHtml(msg.displayContent)}</div>
+                    <span class="ai-message-time">${formatAiTime(msg.at)}</span>
+                </div>
+            `).join('');
+            const waiting = aiSending ? `
+                <div class="ai-message-row assistant">
+                    <div class="ai-message assistant ai-typing-bubble">
+                        <span>等待 ${escapeHtml(getAiModelConfig().label)} 回复</span>
+                        <span class="ai-typing-dots" aria-hidden="true">
+                            <span class="ai-typing-dot"></span>
+                            <span class="ai-typing-dot"></span>
+                            <span class="ai-typing-dot"></span>
+                        </span>
+                    </div>
+                    <span class="ai-message-time">正在连接模型</span>
+                </div>
+            ` : '';
+            list.innerHTML = html + waiting;
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function fillAiProfileForm() {
+            const buddy = ensureAiBuddyState();
+            const profile = buddy.profile;
+            const setValue = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value || '';
+            };
+            setValue('ai-profile-exam-date', profile.examDate || fullState.settings.targetDate);
+            setValue('ai-profile-hours', profile.dailyHours || 6);
+            setValue('ai-profile-school', profile.targetSchool || '');
+            setValue('ai-profile-major', profile.major || '');
+            setValue('ai-profile-subjects', getProfileSubjects().join('、'));
+            setValue('ai-profile-mock', profile.recentMock || '');
+            setValue('ai-profile-api', buddy.apiEndpoint || localStorage.getItem('study_ai_api_endpoint') || AI_API_ENDPOINT || '');
+            setValue('ai-profile-model-flash', buddy.models?.flash || DEFAULT_AI_BUDDY.models.flash);
+            setValue('ai-profile-model-pro', buddy.models?.pro || DEFAULT_AI_BUDDY.models.pro);
+            setValue('ai-push-time', buddy.push?.time || DEFAULT_AI_BUDDY.push.time);
+            setValue('ai-push-topics', buddy.push?.topics || DEFAULT_AI_BUDDY.push.topics);
+            const pushEnabled = document.getElementById('ai-push-enabled');
+            if (pushEnabled) pushEnabled.checked = !!buddy.push?.enabled;
+            const basesText = Object.entries(profile.bases || {})
+                .map(([subject, basis]) => `${subject}：${basis}`)
+                .join('\n');
+            setValue('ai-profile-bases', basesText);
+            renderWechatPushStatus();
+        }
+
+        function renderAiSendButton() {
+            const btn = document.querySelector('.ai-send-btn');
+            if (!btn) return;
+            btn.disabled = aiSending;
+            btn.classList.toggle('loading', aiSending);
+            btn.innerHTML = aiSending ? '<i class="fas fa-circle-notch"></i>' : '<i class="fas fa-paper-plane"></i>';
+            btn.title = aiSending ? '等待模型回复' : '发送';
+        }
+
+        function renderAiBuddy() {
+            const ctx = buildAiStudyContext();
+            renderAiContextStrip(ctx);
+            fillAiProfileForm();
+            renderAiModelControls();
+            renderAiMessages();
+            renderAiSendButton();
+        }
+
+        function ensureAiOpeningMessage(mode = '') {
+            const buddy = ensureAiBuddyState();
+            if (buddy.messages.length) return;
+            const ctx = buildAiStudyContext();
+            const nudge = makeAiDailyNudge(ctx);
+            const setup = (!ctx.profile.targetSchool && !ctx.profile.major)
+                ? '\n\n资料还没完整，点上面的「资料」补一下目标院校、科目和每天可用时间。'
+                : '';
+            addAiMessage('assistant', `${nudge.title}\n${nudge.text}${setup}`);
+        }
+
+        window.openAiBuddy = (mode = '') => {
+            closeQuickMenu();
+            ensureAiOpeningMessage(mode);
+            const panel = document.getElementById('ai-buddy-panel');
+            if (panel) panel.classList.add('open');
+            renderAiBuddy();
+            setTimeout(() => document.getElementById('ai-buddy-input')?.focus(), 80);
+        };
+
+        window.closeAiBuddy = () => {
+            document.getElementById('ai-buddy-panel')?.classList.remove('open');
+        };
+
+        window.toggleAiPanelSize = () => {
+            const panel = document.getElementById('ai-buddy-panel');
+            const icon = document.querySelector('#ai-expand-btn i');
+            if (!panel) return;
+            const expanded = panel.classList.toggle('expanded');
+            if (icon) icon.className = expanded ? 'fas fa-compress' : 'fas fa-expand';
+        };
+
+        window.toggleAiBuddy = () => {
+            const panel = document.getElementById('ai-buddy-panel');
+            if (panel?.classList.contains('open')) window.closeAiBuddy();
+            else window.openAiBuddy();
+        };
+
+        window.closeAiProfile = () => {
+            document.getElementById('ai-profile-drawer')?.classList.remove('open');
+            document.getElementById('ai-profile-backdrop')?.classList.remove('open');
+        };
+
+        window.toggleAiProfile = (event) => {
+            event?.stopPropagation();
+            const drawer = document.getElementById('ai-profile-drawer');
+            const backdrop = document.getElementById('ai-profile-backdrop');
+            const nextOpen = !drawer?.classList.contains('open');
+            drawer?.classList.toggle('open', nextOpen);
+            backdrop?.classList.toggle('open', nextOpen);
+            fillAiProfileForm();
+        };
+
+        window.handleAiPanelClick = (event) => {
+            const drawer = document.getElementById('ai-profile-drawer');
+            if (!drawer?.classList.contains('open')) return;
+            if (
+                event.target.closest('#ai-profile-drawer') ||
+                event.target.closest('.ai-profile-actions') ||
+                event.target.closest('#ai-profile-backdrop')
+            ) return;
+            window.closeAiProfile();
+        };
+
+        function parseProfileSubjects(text) {
+            return String(text || '')
+                .split(/[,\n，、]/)
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
+        function parseProfileBases(text) {
+            const bases = {};
+            String(text || '').split('\n').forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                const parts = trimmed.split(/[:：]/);
+                if (parts.length < 2) return;
+                const subject = parts.shift().trim();
+                const basis = parts.join('：').trim();
+                if (subject && basis) bases[subject] = basis;
+            });
+            return bases;
+        }
+
+        function ensureSubjectsAsCategories(subjects) {
+            const cats = getCategories();
+            subjects.forEach(subject => {
+                if (cats.some(cat => cat.name === subject)) return;
+                const color = PALETTE_COLORS[cats.length % PALETTE_COLORS.length];
+                cats.push({
+                    name: subject,
+                    type: `cat-ai-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+                    color,
+                    bg: `${color}15`,
+                    border: `${color}40`
+                });
+            });
+        }
+
+        window.saveAiProfile = () => {
+            const buddy = ensureAiBuddyState();
+            const profile = buddy.profile;
+            const subjects = parseProfileSubjects(document.getElementById('ai-profile-subjects')?.value || '').slice(0, 12);
+            if (subjects.length) ensureSubjectsAsCategories(subjects);
+            profile.examDate = document.getElementById('ai-profile-exam-date')?.value || fullState.settings.targetDate || "2026-12-19";
+            profile.dailyHours = Number(document.getElementById('ai-profile-hours')?.value) || 6;
+            profile.targetSchool = document.getElementById('ai-profile-school')?.value.trim() || '';
+            profile.major = document.getElementById('ai-profile-major')?.value.trim() || '';
+            profile.subjects = subjects.length ? subjects : profile.subjects;
+            profile.bases = parseProfileBases(document.getElementById('ai-profile-bases')?.value || '');
+            profile.recentMock = document.getElementById('ai-profile-mock')?.value.trim() || '';
+            buddy.apiEndpoint = document.getElementById('ai-profile-api')?.value.trim() || '';
+            buddy.models = buddy.models || {};
+            buddy.models.flash = document.getElementById('ai-profile-model-flash')?.value.trim() || DEFAULT_AI_BUDDY.models.flash;
+            buddy.models.pro = document.getElementById('ai-profile-model-pro')?.value.trim() || DEFAULT_AI_BUDDY.models.pro;
+            buddy.push = buddy.push || JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY.push));
+            buddy.push.enabled = !!document.getElementById('ai-push-enabled')?.checked;
+            buddy.push.provider = 'serverchan';
+            buddy.push.time = document.getElementById('ai-push-time')?.value || DEFAULT_AI_BUDDY.push.time;
+            buddy.push.topics = document.getElementById('ai-push-topics')?.value.trim() || DEFAULT_AI_BUDDY.push.topics;
+            if (buddy.apiEndpoint) localStorage.setItem('study_ai_api_endpoint', buddy.apiEndpoint);
+            else localStorage.removeItem('study_ai_api_endpoint');
+            buddy.lastApiStatus = { state: 'idle', message: '配置已更新，建议测试连接', model: getAiModelConfig().model, checkedAt: new Date().toISOString() };
+            fullState.settings.targetDate = profile.examDate;
+            if (!fullState.settings.targetName) fullState.settings.targetName = "距离考研仅剩";
+            updateCountdown();
+            if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            refreshNotebookUI();
+            renderAiCalendarReminder();
+            renderAiBuddy();
+            save();
+            showToast('AI 学习资料已更新');
+        };
+
+        function rankSubjectsForPlan(ctx) {
+            const subjects = ctx.profile.subjects.length ? ctx.profile.subjects : getProfileSubjects();
+            const baseText = JSON.stringify(ctx.profile.bases || {});
+            return subjects.slice().sort((a, b) => {
+                const sa = ctx.subjectStats[a] || { rate: 100, noteEntries: 0 };
+                const sb = ctx.subjectStats[b] || { rate: 100, noteEntries: 0 };
+                const weakA = /弱|差|一般|薄弱|不会|低/.test(`${a}${ctx.profile.bases?.[a] || ''}${baseText}`) ? 25 : 0;
+                const weakB = /弱|差|一般|薄弱|不会|低/.test(`${b}${ctx.profile.bases?.[b] || ''}${baseText}`) ? 25 : 0;
+                const scoreA = (100 - sa.rate) + Math.max(0, 4 - sa.noteEntries) * 6 + weakA;
+                const scoreB = (100 - sb.rate) + Math.max(0, 4 - sb.noteEntries) * 6 + weakB;
+                return scoreB - scoreA;
+            });
+        }
+
+        function titleForSubject(subject, slot, dayIndex) {
+            const name = subject || '学习';
+            if (/英语|英/.test(name)) {
+                return slot === 0 ? '阅读真题1篇并标出错因' : '作文/翻译素材复盘20分钟';
+            }
+            if (/政治|肖|马原|毛中特|史纲|思修/.test(name)) {
+                return slot === 0 ? '选择题错题复盘30题' : '核心知识点背诵并默写框架';
+            }
+            if (/手绘|快题|设计|构成/.test(name)) {
+                return dayIndex % 2 === 0 ? '线稿/快题小稿练习并拍照复盘' : '优秀案例临摹1组并总结模板';
+            }
+            if (/337|史|理论|专业/.test(name)) {
+                return slot === 0 ? '章节框架梳理并写5个名词解释' : '真题论述题拆解1道';
+            }
+            return `${name}推进一小节并写3条笔记`;
+        }
+
+        function generateStudyTasks(ctx, days = 7) {
+            const ranked = rankSubjectsForPlan(ctx);
+            const subjects = ranked.length ? ranked : ['英语', '政治', '专业课'];
+            const dailyMinutes = Math.min(720, Math.max(60, Math.round((Number(ctx.profile.dailyHours) || 4) * 60)));
+            const slots = dailyMinutes >= 360 ? 3 : dailyMinutes >= 180 ? 2 : 1;
+            const periods = ['morning', 'afternoon', 'evening'];
+            const tasks = [];
+            for (let i = 0; i < days; i++) {
+                const date = addDays(ctx.todayDate || new Date(), i);
+                const key = dateToStudyKey(date);
+                const openTasks = getTasksForDateKey(key).filter(task => !task.done).length;
+                const openSlots = Math.max(0, slots - Math.min(openTasks, slots));
+                for (let slot = 0; slot < openSlots; slot++) {
+                    const subject = subjects[(i + slot) % subjects.length];
+                    const duration = Math.max(40, Math.round(dailyMinutes / slots / 10) * 10);
+                    tasks.push({
+                        date: formatDateStampFromDate(date),
+                        title: titleForSubject(subject, slot, i),
+                        subject,
+                        duration,
+                        period: periods[slot] || 'evening',
+                        priority: ctx.daysLeft <= 30 || slot === 0 ? 'high' : 'medium'
+                    });
+                }
+                if (i === 6) {
+                    tasks.push({
+                        date: formatDateStampFromDate(date),
+                        title: '本周复盘：完成率、卡点、下周取舍',
+                        subject: subjects[0] || '学习',
+                        duration: 35,
+                        period: 'evening',
+                        priority: 'high'
+                    });
+                }
+            }
+            if (!tasks.length) {
+                const tomorrow = addDays(new Date(), 1);
+                tasks.push({
+                    date: formatDateStampFromDate(tomorrow),
+                    title: '轻量复盘：整理今天遗留任务并删减一个不必要任务',
+                    subject: subjects[0] || '学习',
+                    duration: 30,
+                    period: 'evening',
+                    priority: 'medium'
+                });
+            }
+            return { action: 'create_tasks', tasks };
+        }
+
+        function buildAiSystemPrompt(ctx) {
+            return `你是一个专属备考学习伙伴，服务于一位正在备考研究生的学生。
+
+## 你的角色
+你不只是回答问题，你是这位同学的学习规划师和学习伙伴。
+你了解他的备考状态，会主动关心进度，帮他做决策，陪他解决学习上的困惑。
+
+<user_info>
+考试日期：${ctx.profile.examDate}
+目标院校/专业：${[ctx.profile.targetSchool, ctx.profile.major].filter(Boolean).join(' / ') || '未填写'}
+备考科目列表：${ctx.profile.subjects.join('、') || '未填写'}
+每天可用学习时长：${ctx.profile.dailyHours} 小时
+当前各科自评基础：${safeAiPromptJson(ctx.profile.bases || {})}
+</user_info>
+
+<progress>
+今天日期：${formatDateStampFromDate(ctx.todayDate)}（${ctx.todayLabel}）
+本周任务完成情况：${ctx.week.done}/${ctx.week.total}，完成率 ${ctx.week.rate}%
+各科目笔记进度：${safeAiPromptJson(ctx.subjectStats)}
+最近模考成绩：${sanitizeAiPromptText(ctx.profile.recentMock || '未填写', 300)}
+上次对话摘要：${sanitizeAiPromptText(ctx.lastSummary || '暂无', 500)}
+</progress>
+
+<relevant_notes>
+${(ctx.relevantNotes || []).length
+    ? ctx.relevantNotes.map((note, idx) => `${idx + 1}. 来源：${sanitizeAiPromptText(note.source, 80)}；日期：${sanitizeAiPromptText(note.dateLabel || '无日期', 80)}；科目：${sanitizeAiPromptText(note.subject || '未分类', 80)}；标题：${sanitizeAiPromptText(note.title || '无标题', 120)}；片段：${sanitizeAiPromptText(note.snippet, 260)}`).join('\n')
+    : '未检索到与本次问题直接相关的笔记片段'}
+</relevant_notes>
+
+回答规则：
+- 如果 relevant_notes 有内容，优先结合这些笔记片段回答，并说明哪些判断来自笔记。
+- 如果笔记没有覆盖问题，不要假装笔记里有；可以说“我没在你的笔记里找到这一点”，再给通用解释。
+- 用户问知识点或题目时，先用笔记片段对齐他的已有理解，再补充解释。
+
+当需要为用户生成日历任务时，输出 action=create_tasks 的 JSON，字段为 date、title、subject、duration、period、priority。
+生成任务日期规则：今天/本周任务必须从 ${formatDateStampFromDate(ctx.todayDate)} 开始，不允许写入今天之前的日期；如果需要连续多天计划，按 ${formatDateStampFromDate(ctx.todayDate)}、后续日期依次排。
+当需要设置提醒时，输出 action=create_reminders 的 JSON，字段为 datetime、title、message、requiresInput。`;
+        }
+
+        window.buildAiPromptPayload = (userMessage = '', ctxOverride = null) => {
+            const ctx = ctxOverride || buildAiStudyContext();
+            if (!Array.isArray(ctx.relevantNotes) || !ctx.relevantNotes.length) {
+                ctx.relevantNotes = collectAiRelevantNotes(userMessage, ctx);
+            }
+            const buddy = ensureAiBuddyState();
+            const history = buddy.messages.slice(-12);
+            const last = history[history.length - 1];
+            const cleanHistory = (last?.role === 'user' && last.content === userMessage)
+                ? history.slice(0, -1)
+                : history;
+            return [
+                { role: 'system', content: buildAiSystemPrompt(ctx) },
+                ...cleanHistory.map(msg => ({ role: msg.role, content: msg.content })),
+                { role: 'user', content: userMessage }
+            ];
+        };
+
+        function getAiApiEndpoint() {
+            const buddy = ensureAiBuddyState();
+            return (buddy.apiEndpoint || localStorage.getItem('study_ai_api_endpoint') || AI_API_ENDPOINT || '').trim();
+        }
+
+        function getSupabaseProjectRef() {
+            try {
+                return new URL(SUPABASE_URL).hostname.split('.')[0];
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function buildAiApiHeaders(endpoint) {
+            const headers = { 'Content-Type': 'application/json' };
+            try {
+                const url = new URL(endpoint, window.location.href);
+                const projectRef = getSupabaseProjectRef();
+                const supabaseHost = new URL(SUPABASE_URL).hostname;
+                const isSameSupabaseFunction = projectRef
+                    && (
+                        url.hostname === `${projectRef}.functions.supabase.co`
+                        || (url.hostname === supabaseHost && url.pathname.startsWith('/functions/v1/'))
+                    );
+                if (isSameSupabaseFunction && SUPABASE_KEY) {
+                    headers.apikey = SUPABASE_KEY;
+                    headers.Authorization = `Bearer ${SUPABASE_KEY}`;
+                }
+            } catch (_) {}
+            return headers;
+        }
+
+        function buildAiApiRequest(userMessage, ctx = buildAiStudyContext()) {
+            const cfg = getAiModelConfig();
+            ctx.relevantNotes = collectAiRelevantNotes(userMessage, ctx);
+            return {
+                messages: window.buildAiPromptPayload(userMessage, ctx),
+                model: cfg.model,
+                modelPreset: cfg.preset,
+                thinking: cfg.thinking,
+                context: {
+                    user_info: ctx.profile,
+                    progress: {
+                        today: ctx.today,
+                        week: ctx.week,
+                        last7: ctx.last7,
+                        subjectStats: ctx.subjectStats,
+                        overdue: ctx.overdue,
+                        upcoming: ctx.upcoming.slice(0, 20),
+                        reminders: ctx.reminders,
+                        relevantNotes: ctx.relevantNotes,
+                        lastSummary: ctx.lastSummary
+                    },
+                    targetDate: ctx.targetDate,
+                    daysLeft: ctx.daysLeft,
+                    todayDate: formatDateStampFromDate(ctx.todayDate),
+                    todayKey: ctx.todayKey
+                },
+                actionSchemas: {
+                    create_tasks: {
+                        action: 'create_tasks',
+                        tasks: [{ date: 'YYYY-MM-DD', title: '任务名称', subject: '科目', duration: 60, period: 'morning/afternoon/evening', priority: 'high/medium/low' }]
+                    },
+                    create_reminders: {
+                        action: 'create_reminders',
+                        reminders: [{ datetime: 'YYYY-MM-DDTHH:mm', title: '提醒标题', message: '提醒内容', requiresInput: false }]
+                    }
+                }
+            };
+        }
+
+        function pickAiResponseText(data) {
+            if (typeof data === 'string') return data;
+            if (!data || typeof data !== 'object') return '';
+            return data.reply
+                || data.content
+                || data.message
+                || data.text
+                || data.choices?.[0]?.message?.content
+                || data.choices?.[0]?.text
+                || '';
+        }
+
+        function summarizeAiActionForChat(data) {
+            const actions = collectApiActions(data);
+            if (!actions.length) return '';
+            return actions.map(action => {
+                if (action.action === 'create_tasks') {
+                    return `我已生成 ${action.tasks.length} 个日历任务，正在写入。`;
+                }
+                if (action.action === 'create_reminders') {
+                    return `我已生成 ${action.reminders.length} 条提醒，提醒会保留到你手动关闭。`;
+                }
+                return '';
+            }).filter(Boolean).join('\n');
+        }
+
+        async function callAiApi(userMessage, ctx) {
+            const endpoint = getAiApiEndpoint();
+            if (!endpoint) return null;
+            const cfg = getAiModelConfig();
+            setAiApiStatus('checking', `正在请求 ${cfg.model}`, { model: cfg.model });
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: buildAiApiHeaders(endpoint),
+                body: JSON.stringify(buildAiApiRequest(userMessage, ctx))
+            });
+            const contentType = response.headers.get('content-type') || '';
+            if (!response.ok) {
+                let detail = '';
+                try {
+                    const errorData = contentType.includes('application/json') ? await response.json() : await response.text();
+                    if (typeof errorData === 'string') {
+                        detail = errorData;
+                    } else {
+                        detail = [
+                            errorData.error,
+                            errorData.status ? `上游状态 ${errorData.status}` : '',
+                            errorData.detail || errorData.message
+                        ].filter(Boolean).join('：');
+                    }
+                } catch (_) {}
+                throw new Error(detail ? `AI API ${response.status}：${detail}` : `AI API ${response.status}`);
+            }
+            const data = contentType.includes('application/json') ? await response.json() : await response.text();
+            const text = pickAiResponseText(data) || summarizeAiActionForChat(data);
+            setAiApiStatus('connected', `已收到 ${data?.model || cfg.model} 回复`, { model: data?.model || cfg.model });
+            return {
+                text: text || (typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data || '')),
+                data
+            };
+        }
+
+        function buildWechatPushSummary(ctx = buildAiStudyContext()) {
+            return {
+                todayDate: formatDateStampFromDate(ctx.todayDate),
+                todayLabel: ctx.todayLabel,
+                targetName: ctx.targetName,
+                daysLeft: ctx.daysLeft,
+                profile: {
+                    targetSchool: ctx.profile.targetSchool,
+                    major: ctx.profile.major,
+                    dailyHours: ctx.profile.dailyHours
+                },
+                today: {
+                    total: ctx.today.total,
+                    done: ctx.today.done,
+                    left: ctx.today.left,
+                    tasks: ctx.today.tasks.map(task => ({
+                        text: task.text,
+                        done: !!task.done,
+                        subjectName: task.subjectName || ''
+                    }))
+                },
+                week: {
+                    total: ctx.week.total,
+                    done: ctx.week.done,
+                    left: ctx.week.left,
+                    rate: ctx.week.rate,
+                    noteDays: ctx.week.noteDays
+                },
+                overdue: ctx.overdue.slice(0, 6).map(task => ({
+                    text: task.text,
+                    done: !!task.done,
+                    subjectName: task.subjectName || '',
+                    label: task.label || ''
+                }))
+            };
+        }
+
+        async function readApiError(response) {
+            const contentType = response.headers.get('content-type') || '';
+            try {
+                const errorData = contentType.includes('application/json') ? await response.json() : await response.text();
+                if (typeof errorData === 'string') return errorData;
+                return [errorData.error, errorData.detail, errorData.message].filter(Boolean).join('：') || JSON.stringify(errorData);
+            } catch (_) {
+                return '';
+            }
+        }
+
+        async function callStudyPushApi(mode = 'test') {
+            const buddy = ensureAiBuddyState();
+            const response = await fetch(STUDY_PUSH_ENDPOINT, {
+                method: 'POST',
+                headers: buildAiApiHeaders(STUDY_PUSH_ENDPOINT),
+                body: JSON.stringify({
+                    mode,
+                    syncId: MY_SYNC_ID,
+                    pushConfig: buddy.push || {},
+                    summary: buildWechatPushSummary()
+                })
+            });
+            if (!response.ok) {
+                const detail = await readApiError(response);
+                throw new Error(detail ? `推送 API ${response.status}：${detail}` : `推送 API ${response.status}`);
+            }
+            const contentType = response.headers.get('content-type') || '';
+            return contentType.includes('application/json') ? response.json() : response.text();
+        }
+
+        function formatServerChanResult(result) {
+            const data = result?.serverChan;
+            if (!data) return result?.sent ? 'Server 酱已接收' : '未拿到 Server 酱返回';
+            if (typeof data === 'string') return data.slice(0, 120);
+            return [
+                data.message || data.msg || data.errmsg,
+                data.data?.pushid ? `pushid:${data.data.pushid}` : '',
+                typeof data.code !== 'undefined' ? `code:${data.code}` : '',
+                typeof data.errno !== 'undefined' ? `errno:${data.errno}` : ''
+            ].filter(Boolean).join(' · ') || JSON.stringify(data).slice(0, 160);
+        }
+
+        function jsonActionText(action) {
+            return JSON.stringify(action, null, 2);
+        }
+
+        function composePlanReply(ctx) {
+            const action = generateStudyTasks(ctx, 7);
+            const totalMinutes = action.tasks.reduce((sum, task) => sum + (Number(task.duration) || 0), 0);
+            return `我按你现在的日历空位、本周完成率和每天 ${ctx.profile.dailyHours} 小时来排，不把每天塞满。重点先补低完成/低笔记的科目，最后一天留复盘。\n\n${jsonActionText(action)}\n\n系统会把这些任务写入日历。`;
+        }
+
+        function composeProgressReply(ctx) {
+            const subjectLines = Object.entries(ctx.subjectStats)
+                .map(([name, s]) => `${name} ${s.done}/${s.total}，笔记 ${s.noteEntries} 条`)
+                .join('；') || '还没有足够的科目数据';
+            if (!ctx.week.total) {
+                return `现在还不好判断来不来得及，因为本周日历里任务太少。考试还剩 ${ctx.daysLeft} 天，先排一周可执行任务，再用完成率判断会更准。\n\n当前科目状态：${subjectLines}`;
+            }
+            const verdict = ctx.week.rate >= 70
+                ? '节奏是稳的，可以继续推进，但要保证每周有复盘。'
+                : ctx.week.rate >= 45
+                    ? '还来得及，但计划需要减一点量，把完成率拉上去。'
+                    : '有风险。不是说没机会，而是现在的计划命中率偏低，要马上取舍。';
+            return `诚实说：${verdict}\n\n考试还剩 ${ctx.daysLeft} 天，本周完成 ${ctx.week.done}/${ctx.week.total}，完成率 ${ctx.week.rate}%。${ctx.overdue.length ? `近两周遗留 ${ctx.overdue.length} 个任务。` : '暂时没有明显遗留堆积。'}\n\n科目观察：${subjectLines}`;
+        }
+
+        function composeWeeklyReview(ctx) {
+            const lagging = Object.entries(ctx.subjectStats)
+                .filter(([, s]) => s.total > 0 && s.rate < 60)
+                .map(([name]) => name);
+            return `本周复盘先看三件事：\n1. 完成：${ctx.week.done}/${ctx.week.total}，完成率 ${ctx.week.rate}%。\n2. 笔记：本周 ${ctx.week.noteDays} 天有记录，${ctx.today.noteText ? '今天已经有笔记。' : '今天还没写笔记。'}\n3. 调整：${lagging.length ? `${lagging.join('、')}落后，下一周先给它们固定黄金时间。` : '目前没有特别拖后的科目，可以保持滚动复盘。'}\n\n建议今晚只做一个动作：删掉一个低价值任务，把一个高价值任务拆成 30-45 分钟的小块。`;
+        }
+
+        function composeMoodReply(ctx) {
+            const todo = ctx.today.tasks.filter(task => !task.done);
+            const smallest = todo[0]?.text || '打开笔记，写下今天最卡的一点';
+            return `先别急着证明自己很有状态。状态差的时候，目标不是逆天改命，是把链条接住。\n\n现在只做一个最小动作：${smallest}。给它 15 分钟，做完就允许自己休息 5 分钟。今天能保住一个小闭环，就不算崩。`;
+        }
+
+        function formatRelevantNotesForReply(ctx) {
+            const notes = (ctx.relevantNotes || []).slice(0, 3);
+            if (!notes.length) return '';
+            return `我先翻了你的笔记，相关的有：\n${notes.map((note, idx) =>
+                `${idx + 1}. ${note.title || note.dateLabel || '笔记'}：${note.snippet}`
+            ).join('\n')}\n\n`;
+        }
+
+        function composeQuestionReply(ctx, userText) {
+            const relevant = formatRelevantNotesForReply(ctx);
+            const noteHint = ctx.today.noteText ? `我看到你今天的笔记里有这些关键词：${ctx.today.noteText.slice(0, 60)}。` : '今天还没有相关笔记。';
+            if (userText.trim().length <= 5) {
+                return `${relevant || `${noteHint}\n\n`}把题目、知识点或你卡住的那一步发我。我会按「先判断考点 → 拆步骤 → 给你一个可记的笔记版本」来讲。`;
+            }
+            return `${relevant || `${noteHint}\n\n`}这类问题先按三步拆：\n1. 找题干里的限定词，确定它问的是概念、过程还是比较。\n2. 写出你已经会的半步，不要空着。\n3. 把不会的地方变成一个具体问题，例如“这个概念为什么推出下一步”。\n\n你这题可以继续把原题贴全，我再按你的笔记口径讲。`;
+        }
+
+        function composeDailyReply(ctx) {
+            const nudge = makeAiDailyNudge(ctx);
+            const todo = ctx.today.tasks.filter(task => !task.done).slice(0, 3).map(task => `- ${task.text}`).join('\n');
+            return `${nudge.title}\n${nudge.text}\n\n${todo ? `今日优先顺序：\n${todo}` : '今天还没有明确任务，可以让我生成一组轻量计划。'}`;
+        }
+
+        function generateAiReply(userText, ctx) {
+            const text = userText.trim();
+            if (/生成|安排|计划|写入|任务/.test(text)) return composePlanReply(ctx);
+            if (/来得及|够吗|进度|风险|落后/.test(text)) return composeProgressReply(ctx);
+            if (/复盘|总结|周末|本周/.test(text)) return composeWeeklyReview(ctx);
+            if (/没状态|不想学|想放弃|焦虑|崩|累|摆烂/.test(text)) return composeMoodReply(ctx);
+            if (/不会|不懂|题|知识点|怎么/.test(text)) return composeQuestionReply(ctx, text);
+            if (/今天|今日/.test(text)) return composeDailyReply(ctx);
+            return `${composeDailyReply(ctx)}\n\n你也可以直接说“生成本周任务”“进度够吗”或把不会的题贴过来。`;
+        }
+
+        function normalizeAiAction(action) {
+            if (!action || typeof action !== 'object') return null;
+            if (action.action === 'create_tasks' && Array.isArray(action.tasks)) return action;
+            if (action.action === 'create_reminders' && Array.isArray(action.reminders)) return action;
+            return null;
+        }
+
+        function extractAiJsonActions(text) {
+            const raw = String(text || '');
+            const fenced = raw.match(/```json\s*([\s\S]*?)```/i);
+            const candidates = [];
+            if (fenced) candidates.push(fenced[1]);
+            const first = raw.indexOf('{');
+            const last = raw.lastIndexOf('}');
+            if (first > -1 && last > first) candidates.push(raw.slice(first, last + 1));
+            for (const candidate of candidates) {
+                try {
+                    const parsed = JSON.parse(candidate);
+                    if (Array.isArray(parsed)) return parsed.map(normalizeAiAction).filter(Boolean);
+                    const one = normalizeAiAction(parsed);
+                    if (one) return [one];
+                } catch (_) {}
+            }
+            return [];
+        }
+
+        function periodLabel(period) {
+            return ({ morning: '上午', afternoon: '下午', evening: '晚上' })[period] || '';
+        }
+
+        function normalizeAiTaskDateRows(tasks) {
+            const today = startOfLocalDay(new Date());
+            const rows = (tasks || []).map((task, idx) => ({
+                task,
+                idx,
+                originalDate: String(task?.date || ''),
+                date: parseDateStamp(task?.date)
+            }));
+            const validDates = rows.map(row => row.date).filter(Boolean);
+            let shiftDays = 0;
+            if (validDates.length) {
+                const minDate = new Date(Math.min(...validDates.map(date => date.getTime())));
+                if (minDate < today) {
+                    shiftDays = Math.round((today - minDate) / 86400000);
+                }
+            }
+            return rows.map(row => {
+                let date = row.date ? addDays(row.date, shiftDays) : addDays(today, row.idx);
+                if (date < today) date = addDays(today, row.idx);
+                const adjustedDate = dateToDateStamp(date);
+                return {
+                    task: row.task,
+                    idx: row.idx,
+                    key: dateToStudyKey(date),
+                    originalDate: row.originalDate,
+                    adjustedDate,
+                    adjusted: row.originalDate && row.originalDate !== adjustedDate
+                };
+            });
+        }
+
+        function applyAiTaskAction(action) {
+            let added = 0;
+            let firstKey = null;
+            let adjustedDates = 0;
+            normalizeAiTaskDateRows(action.tasks || []).forEach(({ task, idx, key, adjusted }) => {
+                if (!key) return;
+                const state = getStateByDateKey(key);
+                if (!state.customTasks[key]) state.customTasks[key] = [];
+                const label = periodLabel(task.period);
+                const duration = Number(task.duration) ? ` (${Number(task.duration)}min)` : '';
+                const text = `${label ? `[${label}] ` : ''}${task.title || '学习任务'}${duration}`;
+                if (state.customTasks[key].some(existing => existing.text === text)) return;
+                state.customTasks[key].push({
+                    id: `ai-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+                    text,
+                    type: guessSubjectTypeFromTask(task),
+                    aiGenerated: true,
+                    priority: task.priority || 'medium'
+                });
+                added++;
+                if (adjusted) adjustedDates++;
+                if (!firstKey) firstKey = key;
+            });
+            if (firstKey) {
+                const date = studyKeyToDate(firstKey);
+                if (date) {
+                    if (date.getFullYear() === 2026) currentMonth2026 = date.getMonth();
+                    switchYear(date.getFullYear() === 2025 ? 2025 : 2026);
+                }
+            } else {
+                if (CURRENT_YEAR === 2025) render2025(); else render2026(currentMonth2026);
+            }
+            refresh();
+            return { added, adjustedDates };
+        }
+
+        function normalizeReminderAt(reminder) {
+            if (reminder.datetime || reminder.remindAt) return reminder.datetime || reminder.remindAt;
+            if (reminder.date && reminder.time) return `${reminder.date}T${reminder.time}`;
+            if (reminder.date) return `${reminder.date}T09:00`;
+            return '';
+        }
+
+        function applyAiReminderAction(action) {
+            const buddy = ensureAiBuddyState();
+            let addedReminders = 0;
+            (action.reminders || []).forEach((reminder, idx) => {
+                const remindAt = normalizeReminderAt(reminder);
+                const date = remindAt ? new Date(remindAt) : null;
+                if (!date || Number.isNaN(date.getTime())) return;
+                const title = String(reminder.title || '学习提醒').trim();
+                const message = String(reminder.message || reminder.content || title).trim();
+                const duplicate = buddy.reminders.some(item =>
+                    item.remindAt === date.toISOString() && item.title === title && !item.dismissed
+                );
+                if (duplicate) return;
+                buddy.reminders.push({
+                    id: `air-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+                    title,
+                    message,
+                    remindAt: date.toISOString(),
+                    requiresInput: !!reminder.requiresInput,
+                    dismissed: false,
+                    notified: false,
+                    createdAt: new Date().toISOString()
+                });
+                addedReminders++;
+            });
+            return { addedReminders };
+        }
+
+        function collectApiActions(data) {
+            if (!data || typeof data !== 'object') return [];
+            const actions = [];
+            const direct = normalizeAiAction(data);
+            if (direct) actions.push(direct);
+            if (Array.isArray(data.actions)) {
+                data.actions.forEach(action => {
+                    const normalized = normalizeAiAction(action);
+                    if (normalized) actions.push(normalized);
+                });
+            }
+            return actions;
+        }
+
+        function handleAiActions(text, apiData = null) {
+            const actions = [
+                ...extractAiJsonActions(text),
+                ...collectApiActions(apiData)
+            ];
+            const result = { added: 0, adjustedDates: 0, addedReminders: 0 };
+            actions.forEach(action => {
+                if (action.action === 'create_tasks') {
+                    const r = applyAiTaskAction(action);
+                    result.added += r.added || 0;
+                    result.adjustedDates += r.adjustedDates || 0;
+                }
+                if (action.action === 'create_reminders') {
+                    const r = applyAiReminderAction(action);
+                    result.addedReminders += r.addedReminders || 0;
+                }
+            });
+            return result;
+        }
+
+        window.handleAiInputKey = (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendAiMessage();
+            }
+        };
+
+        window.autoResizeAiInput = () => {
+            const input = document.getElementById('ai-buddy-input');
+            if (!input) return;
+            input.style.height = 'auto';
+            input.style.height = `${Math.min(input.scrollHeight, 136)}px`;
+        };
+
+        window.aiQuickPrompt = (text) => {
+            const input = document.getElementById('ai-buddy-input');
+            if (input) input.value = text;
+            window.openAiBuddy();
+            sendAiMessage();
+        };
+
+        let aiSending = false;
+        let aiPushSending = false;
+        let aiDailyPushInFlight = false;
+
+        function syncWechatPushFormToState() {
+            const buddy = ensureAiBuddyState();
+            buddy.push = buddy.push || JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY.push));
+            buddy.push.enabled = !!document.getElementById('ai-push-enabled')?.checked;
+            buddy.push.provider = 'serverchan';
+            buddy.push.time = document.getElementById('ai-push-time')?.value || DEFAULT_AI_BUDDY.push.time;
+            buddy.push.topics = document.getElementById('ai-push-topics')?.value.trim() || DEFAULT_AI_BUDDY.push.topics;
+            return buddy.push;
+        }
+
+        window.testWechatPush = async (event) => {
+            event?.stopPropagation?.();
+            if (aiPushSending) return;
+            const buddy = ensureAiBuddyState();
+            const push = syncWechatPushFormToState();
+            aiPushSending = true;
+            push.lastStatus = { state: 'sending', message: '正在发送测试', checkedAt: new Date().toISOString() };
+            renderWechatPushStatus();
+            showToast('正在发送微信测试...');
+            const btn = document.getElementById('ai-push-test-btn');
+            if (btn) btn.setAttribute('disabled', 'disabled');
+            try {
+                const result = await callStudyPushApi('test');
+                const detail = formatServerChanResult(result);
+                push.lastStatus = {
+                    state: result?.sent ? 'sent' : 'idle',
+                    message: result?.sent ? detail : '测试完成',
+                    checkedAt: new Date().toISOString()
+                };
+                buddy.push.enabled = true;
+                const enabledInput = document.getElementById('ai-push-enabled');
+                if (enabledInput) enabledInput.checked = true;
+                showToast(result?.sent ? `微信测试已发送：${detail}` : '微信测试完成');
+            } catch (err) {
+                console.error('微信推送测试失败:', err);
+                push.lastStatus = {
+                    state: 'failed',
+                    message: err.message || String(err),
+                    checkedAt: new Date().toISOString()
+                };
+                showToast('微信测试失败，检查 Server 酱 Secret');
+            } finally {
+                aiPushSending = false;
+                if (btn) btn.removeAttribute('disabled');
+                renderWechatPushStatus();
+                save();
+            }
+        };
+
+        function parseDailyPushTime(value) {
+            const match = String(value || '').match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
+            if (!match) return { h: 8, m: 0 };
+            return { h: Number(match[1]), m: Number(match[2]) };
+        }
+
+        async function triggerWechatDailyPush(now = new Date()) {
+            if (aiDailyPushInFlight) return;
+            const buddy = ensureAiBuddyState();
+            const push = buddy.push || {};
+            if (!push.enabled) return;
+            aiDailyPushInFlight = true;
+            push.lastStatus = { state: 'sending', message: '正在发送今日提醒', checkedAt: new Date().toISOString() };
+            renderWechatPushStatus();
+            try {
+                const result = await callStudyPushApi('daily');
+                if (result?.sent || result?.skipped) {
+                    push.lastSentDate = formatDateStampFromDate(now);
+                    push.lastStatus = {
+                        state: result?.sent ? 'sent' : 'idle',
+                        message: result?.sent ? '今日提醒已发送' : (result?.reason || '今日无需发送'),
+                        checkedAt: new Date().toISOString()
+                    };
+                    if (result?.sent) showToast('微信学习提醒已发送');
+                    save();
+                }
+            } catch (err) {
+                console.error('微信每日提醒失败:', err);
+                push.lastStatus = {
+                    state: 'failed',
+                    message: err.message || String(err),
+                    checkedAt: new Date().toISOString()
+                };
+                save();
+            } finally {
+                aiDailyPushInFlight = false;
+                renderWechatPushStatus();
+            }
+        }
+
+        function checkWechatPushReminder(now = new Date()) {
+            const buddy = ensureAiBuddyState();
+            const push = buddy.push || {};
+            if (!push.enabled) return;
+            const todayStamp = formatDateStampFromDate(now);
+            if (push.lastSentDate === todayStamp) return;
+            const scheduled = parseDailyPushTime(push.time);
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            const scheduledMinutes = scheduled.h * 60 + scheduled.m;
+            if (nowMinutes >= scheduledMinutes) triggerWechatDailyPush(now);
+        }
+
+        window.testAiConnection = async () => {
+            if (aiSending) return;
+            const endpoint = getAiApiEndpoint();
+            if (!endpoint) {
+                setAiApiStatus('missing', '还没有配置 AI API 地址');
+                renderAiBuddy();
+                showToast('请先填写 AI API 地址');
+                return;
+            }
+            aiSending = true;
+            renderAiBuddy();
+            const ctx = buildAiStudyContext();
+            try {
+                const cfg = getAiModelConfig();
+                const result = await callAiApi('请只回复一句中文：连接正常，并说明当前模型名称。', ctx);
+                const modelText = result?.data?.model || cfg.model;
+                addAiMessage('assistant', `连接测试通过。\n当前模型：${modelText}${cfg.thinking === 'enabled' ? '\nThinking mode：开启' : ''}`);
+                showToast(`AI 已连接：${cfg.label}`);
+            } catch (err) {
+                console.error('AI 连接测试失败:', err);
+                setAiApiStatus('failed', err.message || String(err));
+                addAiMessage('assistant', `连接测试失败：${err.message || err}\n\n如果你已经在 Supabase 填了 DEEPSEEK_API_KEY，还要确认 study-buddy Edge Function 已经部署。`);
+                showToast('AI 连接测试失败');
+            } finally {
+                aiSending = false;
+                renderAiBuddy();
+                save();
+            }
+        };
+
+        window.sendAiMessage = async () => {
+            if (aiSending) return;
+            const input = document.getElementById('ai-buddy-input');
+            const text = input?.value.trim();
+            if (!text) return;
+            if (input) {
+                input.value = '';
+                input.style.height = '';
+            }
+            aiSending = true;
+            const userMessage = addAiMessage('user', text);
+            save();
+            const ctx = buildAiStudyContext();
+            ctx.relevantNotes = collectAiRelevantNotes(text, ctx);
+            renderAiBuddy();
+            try {
+                let reply = '';
+                let apiData = null;
+                const apiResult = await callAiApi(text, ctx);
+                reply = apiResult?.text || generateAiReply(text, ctx);
+                apiData = apiResult?.data || null;
+                ensureAiMessagePresent(userMessage);
+                addAiMessage('assistant', stripAiToolJson(reply) || summarizeAiActionForChat(apiData) || '我已生成操作，正在处理。');
+                try {
+                    const result = handleAiActions(reply, apiData);
+                    if (result?.added) {
+                        const dateNote = result.adjustedDates ? `我已把模型返回的过去日期校正到今天起。` : '';
+                        addAiMessage('assistant', `已写入 ${result.added} 个日历任务。${dateNote}你可以直接在对应日期勾选、修改或删掉。`);
+                        showToast(`AI 已写入 ${result.added} 个任务`);
+                    }
+                    if (result?.addedReminders) {
+                        addAiMessage('assistant', `已创建 ${result.addedReminders} 条提醒。到点会弹出，需要你手动关闭。`);
+                        showToast(`AI 已创建 ${result.addedReminders} 条提醒`);
+                        checkAiReminders();
+                    }
+                } catch (actionErr) {
+                    console.error('AI 动作执行失败:', actionErr);
+                    addAiMessage('assistant', `任务写入失败：${actionErr.message || actionErr}\n\nAI 回复已经保留，你可以让我重新写入，或把上面的任务手动导入。`);
+                    showToast('AI 任务写入失败');
+                }
+            } catch (err) {
+                console.error('AI API 调用失败:', err);
+                setAiApiStatus('failed', err.message || String(err));
+                const fallbackReply = `AI 连接失败，暂时没有拿到模型回复。\n\n错误详情：${err.message || err}\n\n我没有用本地规则冒充 AI 回答。先点「资料」里的「测试」看连接是否通过；如果测试也失败，通常是 Supabase Secrets、DeepSeek 余额/Key、模型 ID 或 Edge Function 版本的问题。`;
+                ensureAiMessagePresent(userMessage);
+                addAiMessage('assistant', fallbackReply);
+                showToast('AI 连接失败，已显示详情');
+            } finally {
+                aiSending = false;
+                renderAiBuddy();
+                renderAiCalendarReminder();
+                save();
+            }
+        };
+
         // ================= Toast =================
         window.showToast = (msg) => {
             const container = document.getElementById('toast-container');
@@ -8466,15 +11167,41 @@
             } catch(e) {}
         }
 
-        function showReminderToast(msg) {
+        function showReminderToast(msg, options = {}) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'reminder-toast';
-            toast.innerHTML = `<i class="fas fa-bell"></i> <span>日程提醒: ${escapeHtml(msg)}</span>`;
-            toast.onclick = () => toast.remove(); // 点击关闭
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-bell';
+            const text = document.createElement('span');
+            text.textContent = options.title ? `${options.title}: ${msg}` : `日程提醒: ${msg}`;
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            if (options.actionLabel) {
+                const actionBtn = document.createElement('button');
+                actionBtn.className = 'ml-auto px-2 py-1 rounded-lg bg-white/20 text-white text-xs font-bold';
+                actionBtn.textContent = options.actionLabel;
+                actionBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    options.onAction?.();
+                    toast.remove();
+                };
+                toast.appendChild(actionBtn);
+            }
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'ml-1 px-2 py-1 rounded-lg bg-white/20 text-white text-xs font-bold';
+            closeBtn.textContent = '关闭';
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                options.onClose?.();
+                toast.remove();
+            };
+            toast.appendChild(closeBtn);
+            toast.onclick = () => {
+                options.onClick?.();
+            };
             container.appendChild(toast);
             playReminderBeep();
-            setTimeout(() => toast.remove(), 10500); // 10秒后自动移除
         }
 
         function parseReminderTime(text) {
@@ -8517,9 +11244,10 @@
 
         function checkReminders() {
             const now = new Date();
-            const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-            const tasksToday = currentState.customTasks ? (currentState.customTasks[dateKey] || []) : [];
-            const doneSet = new Set(currentState.done || []);
+            const dateKey = dateToStudyKey(now);
+            const todayState = getStateByDateKey(dateKey);
+            const tasksToday = todayState.customTasks ? (todayState.customTasks[dateKey] || []) : [];
+            const doneSet = new Set(todayState.done || []);
 
             tasksToday.forEach(task => {
                 // 如果已完成或者今天已经提醒过，跳过
@@ -8533,6 +11261,36 @@
                         notifiedTaskIds.add(task.id);
                     }
                 }
+            });
+            checkAiReminders(now);
+            checkWechatPushReminder(now);
+        }
+
+        function dismissAiReminder(id) {
+            const buddy = ensureAiBuddyState();
+            const reminder = buddy.reminders.find(item => item.id === id);
+            if (reminder) {
+                reminder.dismissed = true;
+                reminder.dismissedAt = new Date().toISOString();
+                save();
+            }
+        }
+
+        function checkAiReminders(now = new Date()) {
+            const buddy = ensureAiBuddyState();
+            buddy.reminders.forEach(reminder => {
+                if (reminder.dismissed || reminder.notified) return;
+                const due = new Date(reminder.remindAt);
+                if (Number.isNaN(due.getTime()) || due > now) return;
+                reminder.notified = true;
+                showReminderToast(reminder.message || reminder.title, {
+                    title: reminder.title || 'AI提醒',
+                    actionLabel: reminder.requiresInput ? '填写' : '打开',
+                    onAction: () => openAiBuddy('reminder'),
+                    onClick: () => openAiBuddy('reminder'),
+                    onClose: () => dismissAiReminder(reminder.id)
+                });
+                save();
             });
         }
 
@@ -9009,6 +11767,7 @@
         applyThemeMode(localStorage.getItem('study_theme_mode') === 'dark');
 
         init();
+        setupReminderService();
 
         window.addEventListener('online', () => {
             if (isCloud) refreshCloudIfSafe(true);
