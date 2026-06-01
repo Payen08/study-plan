@@ -141,9 +141,10 @@
         body.dark-mode .bg-blue-500,
         body.dark-mode .timer-btn-main,
         body.dark-mode .countdown-box,
-        body.dark-mode .quick-menu-fab {
-            background: rgba(37, 99, 235, 0.15) !important;
-            color: #93c5fd !important;
+        body.dark-mode .quick-menu-fab,
+        body.dark-mode .ai-buddy-fab {
+            background: #2563eb !important;
+            color: #fff !important;
             border: 1px solid rgba(59, 130, 246, 0.4) !important;
             box-shadow: none !important;
         }
@@ -1938,13 +1939,13 @@
             height: 58px;
             border-radius: 18px;
             border: 0;
-            background: linear-gradient(135deg, #2563eb, #0f766e);
+            background: #2563eb;
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            box-shadow: 0 16px 34px -18px rgba(37, 99, 235, 0.82);
+            box-shadow: 0 16px 34px -18px rgba(37, 99, 235, 0.65);
             cursor: pointer;
             z-index: 222;
             transition: transform 0.2s, opacity 0.2s;
@@ -2006,6 +2007,22 @@
             opacity: 1;
             pointer-events: auto;
             transform: translateY(0) scale(1);
+        }
+
+        /* AI 面板背景遮罩 */
+        .ai-buddy-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.15);
+            z-index: 222;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .ai-buddy-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .ai-buddy-header {
@@ -2495,12 +2512,12 @@
             height: 58px;
             border: 0;
             border-radius: 18px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: #2563eb;
             color: #fff;
             cursor: pointer;
             flex-shrink: 0;
             font-size: 19px;
-            box-shadow: 0 14px 28px -18px rgba(37, 99, 235, 0.8);
+            box-shadow: 0 14px 28px -18px rgba(37, 99, 235, 0.65);
         }
 
         .ai-send-btn:disabled {
@@ -2530,39 +2547,44 @@
                 height: min(84vh, 760px);
                 max-height: calc(100vh - 104px);
                 border-radius: 20px;
+                padding-top: env(safe-area-inset-top, 0px);
             }
 
             .ai-buddy-panel.expanded {
                 inset: 10px;
                 width: auto;
                 height: auto;
+                border-radius: 20px;
             }
 
             .ai-buddy-header {
-                padding: 12px 14px;
-                align-items: flex-start;
-                gap: 8px;
+                padding: 10px 16px 14px 16px;
+                align-items: center;
+                gap: 10px;
+                position: relative;
             }
 
             .ai-header-main {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 8px;
+                flex: 1;
+                min-width: 0;
             }
 
             .ai-buddy-title {
                 font-size: 17px;
+                margin-bottom: 4px;
             }
 
-            .ai-buddy-subtitle {
-                font-size: 12px;
+            .ai-header-actions {
+                flex-shrink: 0;
             }
 
+            /* 移动端关闭按钮更大更靠下 */
             .ai-close-btn,
             .ai-expand-btn {
-                width: 38px;
-                height: 38px;
-                border-radius: 14px;
+                width: 44px;
+                height: 44px;
+                border-radius: 16px;
+                font-size: 18px;
             }
 
             .ai-toolbar-row,
@@ -5452,6 +5474,7 @@
         <i class="fas fa-comments"></i>
     </button>
 
+    <div id="ai-buddy-backdrop" class="ai-buddy-backdrop" onclick="closeAiBuddy()"></div>
     <div id="ai-buddy-panel" class="ai-buddy-panel" onclick="handleAiPanelClick(event)">
         <div class="ai-buddy-header">
             <div class="ai-header-main">
@@ -5554,23 +5577,62 @@
                 <div class="ai-profile-grid">
                     <label class="ai-profile-check ai-profile-field-wide">
                         <input id="ai-push-enabled" type="checkbox">
-                        <span>开启每日 Server 酱提醒</span>
+                        <span>开启每日微信提醒</span>
+                    </label>
+                    <label>
+                        <span class="ai-profile-label">推送方式</span>
+                        <select id="ai-push-provider" class="ai-profile-input" onchange="onPushProviderChange()">
+                            <option value="wechatwork">企业微信自建应用</option>
+                            <option value="messagepusher">自建 message-pusher</option>
+                            <option value="serverchan">Server 酱</option>
+                        </select>
                     </label>
                     <label>
                         <span class="ai-profile-label">提醒时间</span>
                         <input id="ai-push-time" type="time" class="ai-profile-input">
                     </label>
-                    <label>
+                    <label class="ai-profile-field-wide">
                         <span class="ai-profile-label">推送状态</span>
                         <div id="ai-push-status" class="ai-profile-status">未测试</div>
                     </label>
+                    <!-- message-pusher 专属配置 -->
+                    <div id="ai-push-mp-config" class="ai-profile-field-wide" style="display:none;">
+                        <div class="ai-profile-grid" style="margin-top:4px;">
+                            <label class="ai-profile-field-wide">
+                                <span class="ai-profile-label">message-pusher 地址</span>
+                                <input id="ai-push-mp-url" type="text" class="ai-profile-input"
+                                    placeholder="http://你的服务器:3000">
+                            </label>
+                            <label>
+                                <span class="ai-profile-label">用户名</span>
+                                <input id="ai-push-mp-username" type="text" class="ai-profile-input"
+                                    placeholder="你的用户名">
+                            </label>
+                            <label>
+                                <span class="ai-profile-label">推送 Token</span>
+                                <input id="ai-push-mp-token" type="password" class="ai-profile-input"
+                                    placeholder="Bearer Token">
+                            </label>
+                            <label class="ai-profile-field-wide">
+                                <span class="ai-profile-label">渠道名称</span>
+                                <input id="ai-push-mp-channel" type="text" class="ai-profile-input"
+                                    placeholder="微信测试号渠道名">
+                            </label>
+                        </div>
+                    </div>
                     <label class="ai-profile-field-wide">
                         <span class="ai-profile-label">推送内容</span>
                         <textarea id="ai-push-topics" class="ai-profile-textarea"
                             placeholder="例如：今日任务、逾期任务、本周进度"></textarea>
                     </label>
-                    <div class="ai-profile-hint ai-profile-field-wide">
-                        SendKey 放在 Supabase Edge Function Secrets 里，前端不会保存密钥。
+                    <div id="ai-push-hint-sc" class="ai-profile-hint ai-profile-field-wide">
+                        SendKey 放在 Supabase Secrets 的 SERVERCHAN_SENDKEY。
+                    </div>
+                    <div id="ai-push-hint-mp" class="ai-profile-hint ai-profile-field-wide" style="display:none;">
+                        Token 会发到 Supabase Edge Function，不会暴露给前端。
+                    </div>
+                    <div id="ai-push-hint-ww" class="ai-profile-hint ai-profile-field-wide">
+                        CorpId / AgentId / Secret 配置在 Supabase Secrets。<br>可见范围需包含你自己，否则收不到。
                     </div>
                 </div>
                 <button id="ai-push-test-btn" class="ai-mini-btn mt-3 w-full justify-center" type="button"
@@ -6091,7 +6153,7 @@
             reminders: [],
             push: {
                 enabled: false,
-                provider: "serverchan",
+                provider: "wechatwork",
                 time: "08:00",
                 topics: "今日任务、逾期任务、本周进度",
                 lastSentDate: "",
@@ -6099,7 +6161,11 @@
                     state: "idle",
                     message: "",
                     checkedAt: ""
-                }
+                },
+                messagePusherUrl: "",
+                messagePusherUsername: "",
+                messagePusherToken: "",
+                messagePusherChannel: ""
             },
             lastSummary: "",
             lastNudgeDate: ""
@@ -6138,6 +6204,10 @@
             buddy.push.lastStatus = (buddy.push.lastStatus && typeof buddy.push.lastStatus === 'object')
                 ? buddy.push.lastStatus
                 : fallback.push.lastStatus;
+            buddy.push.messagePusherUrl = buddy.push.messagePusherUrl || '';
+            buddy.push.messagePusherUsername = buddy.push.messagePusherUsername || '';
+            buddy.push.messagePusherToken = buddy.push.messagePusherToken || '';
+            buddy.push.messagePusherChannel = buddy.push.messagePusherChannel || '';
             if (typeof buddy.lastSummary !== 'string') buddy.lastSummary = '';
             if (typeof buddy.lastNudgeDate !== 'string') buddy.lastNudgeDate = '';
             if (typeof buddy.apiEndpoint !== 'string') buddy.apiEndpoint = '';
@@ -10023,12 +10093,13 @@
             const push = ensureAiBuddyState().push || {};
             const status = push.lastStatus || {};
             const time = push.time || DEFAULT_AI_BUDDY.push.time;
+            const providerLabel = push.provider === 'messagepusher' ? 'MP' : 'SC';
             if (status.state === 'sending') {
-                el.textContent = '发送中...';
+                el.textContent = `发送中...`;
                 return;
             }
             if (status.state === 'failed') {
-                el.textContent = `失败：${status.message || '请检查 Secrets'}`;
+                el.textContent = `失败：${status.message || '请检查配置'}`;
                 return;
             }
             if (!push.enabled) {
@@ -10041,6 +10112,20 @@
             }
             el.textContent = `待测试 · ${time}`;
         }
+
+        // 切换推送方式时显示/隐藏对应配置
+        window.onPushProviderChange = () => {
+            const provider = document.getElementById('ai-push-provider')?.value || 'wechatwork';
+            const mpConfig = document.getElementById('ai-push-mp-config');
+            const hintSc = document.getElementById('ai-push-hint-sc');
+            const hintMp = document.getElementById('ai-push-hint-mp');
+            const hintWw = document.getElementById('ai-push-hint-ww');
+            const showMp = provider === 'messagepusher';
+            if (mpConfig) mpConfig.style.display = showMp ? '' : 'none';
+            if (hintSc) hintSc.style.display = provider === 'serverchan' ? '' : 'none';
+            if (hintMp) hintMp.style.display = showMp ? '' : 'none';
+            if (hintWw) hintWw.style.display = provider === 'wechatwork' ? '' : 'none';
+        };
 
         window.setAiModelPreset = (preset) => {
             const buddy = ensureAiBuddyState();
@@ -10165,10 +10250,21 @@
             setValue('ai-profile-api', buddy.apiEndpoint || localStorage.getItem('study_ai_api_endpoint') || AI_API_ENDPOINT || '');
             setValue('ai-profile-model-flash', buddy.models?.flash || DEFAULT_AI_BUDDY.models.flash);
             setValue('ai-profile-model-pro', buddy.models?.pro || DEFAULT_AI_BUDDY.models.pro);
-            setValue('ai-push-time', buddy.push?.time || DEFAULT_AI_BUDDY.push.time);
-            setValue('ai-push-topics', buddy.push?.topics || DEFAULT_AI_BUDDY.push.topics);
+            // 微信推送配置
+            const push = buddy.push || DEFAULT_AI_BUDDY.push;
+            const providerEl = document.getElementById('ai-push-provider');
+            if (providerEl) providerEl.value = push.provider || 'wechatwork';
+            setValue('ai-push-time', push.time || DEFAULT_AI_BUDDY.push.time);
+            setValue('ai-push-topics', push.topics || DEFAULT_AI_BUDDY.push.topics);
             const pushEnabled = document.getElementById('ai-push-enabled');
-            if (pushEnabled) pushEnabled.checked = !!buddy.push?.enabled;
+            if (pushEnabled) pushEnabled.checked = !!push.enabled;
+            // message-pusher 专属字段
+            setValue('ai-push-mp-url', push.messagePusherUrl || '');
+            setValue('ai-push-mp-username', push.messagePusherUsername || '');
+            setValue('ai-push-mp-token', push.messagePusherToken || '');
+            setValue('ai-push-mp-channel', push.messagePusherChannel || '');
+            // 根据 provider 显示/隐藏配置区域
+            onPushProviderChange();
             const basesText = Object.entries(profile.bases || {})
                 .map(([subject, basis]) => `${subject}：${basis}`)
                 .join('\n');
@@ -10209,13 +10305,16 @@
             closeQuickMenu();
             ensureAiOpeningMessage(mode);
             const panel = document.getElementById('ai-buddy-panel');
+            const backdrop = document.getElementById('ai-buddy-backdrop');
             if (panel) panel.classList.add('open');
+            if (backdrop) backdrop.classList.add('open');
             renderAiBuddy();
             setTimeout(() => document.getElementById('ai-buddy-input')?.focus(), 80);
         };
 
         window.closeAiBuddy = () => {
             document.getElementById('ai-buddy-panel')?.classList.remove('open');
+            document.getElementById('ai-buddy-backdrop')?.classList.remove('open');
         };
 
         window.toggleAiPanelSize = () => {
@@ -10310,11 +10409,8 @@
             buddy.models = buddy.models || {};
             buddy.models.flash = document.getElementById('ai-profile-model-flash')?.value.trim() || DEFAULT_AI_BUDDY.models.flash;
             buddy.models.pro = document.getElementById('ai-profile-model-pro')?.value.trim() || DEFAULT_AI_BUDDY.models.pro;
-            buddy.push = buddy.push || JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY.push));
-            buddy.push.enabled = !!document.getElementById('ai-push-enabled')?.checked;
-            buddy.push.provider = 'serverchan';
-            buddy.push.time = document.getElementById('ai-push-time')?.value || DEFAULT_AI_BUDDY.push.time;
-            buddy.push.topics = document.getElementById('ai-push-topics')?.value.trim() || DEFAULT_AI_BUDDY.push.topics;
+            // 微信推送配置 — 统一用 syncWechatPushFormToState
+            syncWechatPushFormToState();
             if (buddy.apiEndpoint) localStorage.setItem('study_ai_api_endpoint', buddy.apiEndpoint);
             else localStorage.removeItem('study_ai_api_endpoint');
             buddy.lastApiStatus = { state: 'idle', message: '配置已更新，建议测试连接', model: getAiModelConfig().model, checkedAt: new Date().toISOString() };
@@ -10667,8 +10763,16 @@ ${(ctx.relevantNotes || []).length
             return contentType.includes('application/json') ? response.json() : response.text();
         }
 
-        function formatServerChanResult(result) {
-            const data = result?.serverChan;
+        function formatPushResult(result) {
+            const provider = result?.provider || 'serverchan';
+            if (provider === 'messagepusher') {
+                const data = result?.pushResult;
+                if (!data) return result?.sent ? '已发送' : '未拿到返回';
+                if (typeof data === 'string') return data.slice(0, 120);
+                return data.message || JSON.stringify(data).slice(0, 160);
+            }
+            // Server 酱
+            const data = result?.pushResult || result?.serverChan;
             if (!data) return result?.sent ? 'Server 酱已接收' : '未拿到 Server 酱返回';
             if (typeof data === 'string') return data.slice(0, 120);
             return [
@@ -10946,9 +11050,14 @@ ${(ctx.relevantNotes || []).length
             const buddy = ensureAiBuddyState();
             buddy.push = buddy.push || JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY.push));
             buddy.push.enabled = !!document.getElementById('ai-push-enabled')?.checked;
-            buddy.push.provider = 'serverchan';
+            buddy.push.provider = document.getElementById('ai-push-provider')?.value || 'messagepusher';
             buddy.push.time = document.getElementById('ai-push-time')?.value || DEFAULT_AI_BUDDY.push.time;
             buddy.push.topics = document.getElementById('ai-push-topics')?.value.trim() || DEFAULT_AI_BUDDY.push.topics;
+            // message-pusher 专属配置
+            buddy.push.messagePusherUrl = (document.getElementById('ai-push-mp-url')?.value || '').trim();
+            buddy.push.messagePusherUsername = (document.getElementById('ai-push-mp-username')?.value || '').trim();
+            buddy.push.messagePusherToken = (document.getElementById('ai-push-mp-token')?.value || '').trim();
+            buddy.push.messagePusherChannel = (document.getElementById('ai-push-mp-channel')?.value || '').trim();
             return buddy.push;
         }
 
@@ -10965,7 +11074,7 @@ ${(ctx.relevantNotes || []).length
             if (btn) btn.setAttribute('disabled', 'disabled');
             try {
                 const result = await callStudyPushApi('test');
-                const detail = formatServerChanResult(result);
+                const detail = formatPushResult(result);
                 push.lastStatus = {
                     state: result?.sent ? 'sent' : 'idle',
                     message: result?.sent ? detail : '测试完成',
@@ -10974,7 +11083,7 @@ ${(ctx.relevantNotes || []).length
                 buddy.push.enabled = true;
                 const enabledInput = document.getElementById('ai-push-enabled');
                 if (enabledInput) enabledInput.checked = true;
-                showToast(result?.sent ? `微信测试已发送：${detail}` : '微信测试完成');
+                showToast(result?.sent ? `微信测试通过：${detail}` : '微信测试完成');
             } catch (err) {
                 console.error('微信推送测试失败:', err);
                 push.lastStatus = {
@@ -10982,7 +11091,12 @@ ${(ctx.relevantNotes || []).length
                     message: err.message || String(err),
                     checkedAt: new Date().toISOString()
                 };
-                showToast('微信测试失败，检查 Server 酱 Secret');
+                const hint = push.provider === 'messagepusher'
+                    ? '检查 message-pusher 地址/Token/渠道名，以及 Supabase Secrets'
+                    : push.provider === 'wechatwork'
+                        ? '检查企业微信 CorpId/AgentId/Secret 是否正确，以及可见范围是否包含你'
+                        : '检查 Server 酱 SendKey';
+                showToast(`微信测试失败：${hint}`);
             } finally {
                 aiPushSending = false;
                 if (btn) btn.removeAttribute('disabled');
