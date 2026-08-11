@@ -6336,10 +6336,556 @@
                 gap: 8px !important;
             }
         }
+
+        /* ================================================================
+           HeroUI component pass v2 — component shapes, not only color tokens
+           ================================================================ */
+        body.hero-ui {
+            --hero-default-50: color-mix(in srgb, var(--surface) 82%, var(--background));
+            --hero-default-100: var(--surface-secondary);
+            --hero-default-200: var(--surface-tertiary);
+            --hero-content1: var(--surface);
+            --hero-content2: var(--surface-secondary);
+            --hero-divider: var(--border);
+            --hero-focus-ring: color-mix(in srgb, var(--accent) 32%, transparent);
+        }
+
+        /* HeroUI Tabs: one shared track with a raised selected cursor. */
+        body.hero-ui .sticky-header-wrapper {
+            padding-bottom: 12px !important;
+            border-bottom: 0 !important;
+        }
+
+        body.hero-ui .month-nav {
+            width: max-content;
+            max-width: 100%;
+            padding: 4px !important;
+            gap: 2px !important;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--hero-default-200) 62%, var(--hero-content1));
+        }
+
+        body.hero-ui .nav-pill,
+        body.hero-ui .nav-pill.year-pill,
+        body.hero-ui.dark-mode .nav-pill,
+        body.hero-ui.dark-mode .nav-pill.year-pill {
+            min-height: 36px !important;
+            padding: 0 14px !important;
+            border: 0 !important;
+            border-radius: 999px !important;
+            background: transparent !important;
+            color: var(--muted) !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        body.hero-ui .nav-pill:hover {
+            background: color-mix(in srgb, var(--foreground) 5%, transparent) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui .nav-pill.active,
+        body.hero-ui .nav-pill.year-pill.active,
+        body.hero-ui.dark-mode .nav-pill.active,
+        body.hero-ui.dark-mode .nav-pill.year-pill.active {
+            background: var(--hero-content1) !important;
+            color: var(--foreground) !important;
+            box-shadow: 0 1px 3px rgba(24, 24, 27, 0.10), 0 1px 2px rgba(24, 24, 27, 0.06) !important;
+        }
+
+        body.hero-ui .nav-separator {
+            height: 20px;
+            margin-inline: 6px;
+            background: var(--border-strong);
+        }
+
+        body.hero-ui .week-header {
+            margin-top: 10px;
+            margin-bottom: 0 !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            letter-spacing: 0.08em;
+        }
+
+        /* HeroUI Card: clean content surface, low shadow, soft selected state. */
+        body.hero-ui .calendar-wrapper { gap: 12px !important; }
+
+        body.hero-ui .day-card,
+        body.hero-ui.dark-mode .day-card,
+        body.hero-ui.dark-mode .day-card.has-note-card {
+            border: 1px solid var(--hero-divider) !important;
+            border-radius: 18px !important;
+            background: var(--hero-content1) !important;
+            box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 2px 8px rgba(24, 24, 27, 0.04) !important;
+        }
+
+        body.hero-ui .day-card:hover {
+            border-color: var(--border-strong) !important;
+            box-shadow: 0 3px 10px rgba(24, 24, 27, 0.07) !important;
+        }
+
+        body.hero-ui .day-card.is-today,
+        body.hero-ui.dark-mode .day-card.is-today {
+            border-color: color-mix(in srgb, var(--accent) 28%, var(--hero-divider)) !important;
+            background: color-mix(in srgb, var(--accent-soft) 34%, var(--hero-content1)) !important;
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent) !important;
+        }
+
+        body.hero-ui .day-num {
+            width: 32px;
+            height: 32px;
+            color: var(--foreground);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        body.hero-ui .day-num.day-num-today,
+        body.hero-ui.dark-mode .day-num.day-num-today {
+            background: var(--accent) !important;
+            color: var(--accent-foreground) !important;
+        }
+
+        /* Keep a 44px hit area while reducing each calendar icon from 24px to 20px. */
+        body.hero-ui .action-btn.icon-btn,
+        body.hero-ui.dark-mode .action-btn.icon-btn {
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--muted) !important;
+            opacity: 1 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        body.hero-ui .action-btn.icon-btn svg {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+        body.hero-ui .action-btn.icon-btn:hover {
+            background: var(--hero-default-200) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui .action-btn.icon-btn:active { transform: scale(0.96) !important; }
+
+        body.hero-ui .note-trigger.has-note-icon {
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+        }
+
+        /* HeroUI Modal + Input: compact command palette instead of a blank sheet. */
+        body.hero-ui #search-modal {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 24px !important;
+        }
+
+        body.hero-ui .search-modal {
+            position: relative !important;
+            inset: auto !important;
+            width: min(520px, calc(100vw - 48px)) !important;
+            max-width: 520px !important;
+            height: auto !important;
+            min-height: 410px;
+            max-height: min(680px, calc(100dvh - 48px)) !important;
+            border: 1px solid var(--hero-divider) !important;
+            border-radius: 20px !important;
+            background: var(--hero-content1) !important;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22) !important;
+            transform: translateY(8px) scale(0.98) !important;
+        }
+
+        body.hero-ui #search-modal.open .search-modal {
+            transform: translateY(0) scale(1) !important;
+        }
+
+        body.hero-ui .search-header {
+            display: flex;
+            align-items: center;
+            gap: 12px !important;
+            padding: 16px !important;
+            border: 0 !important;
+            background: transparent !important;
+        }
+
+        body.hero-ui .search-field {
+            min-width: 0;
+            flex: 1;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            background: var(--hero-default-100);
+            color: var(--muted);
+            transition: background 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        body.hero-ui .search-field:hover { background: var(--hero-default-200); }
+
+        body.hero-ui .search-field:focus-within {
+            border-color: var(--accent);
+            background: var(--hero-content1);
+            box-shadow: 0 0 0 3px var(--hero-focus-ring);
+        }
+
+        body.hero-ui .search-field > i {
+            flex: 0 0 auto;
+            width: 18px;
+            font-size: 18px;
+            color: var(--muted);
+        }
+
+        body.hero-ui .search-input,
+        body.hero-ui.dark-mode .search-input {
+            width: 100%;
+            min-width: 0;
+            height: 100%;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            outline: 0 !important;
+            background: transparent !important;
+            color: var(--foreground) !important;
+            box-shadow: none !important;
+            font-size: 14px !important;
+            font-weight: 500;
+        }
+
+        body.hero-ui .search-input:focus-visible { outline: 0 !important; }
+
+        body.hero-ui .search-cancel-btn {
+            min-width: 52px;
+            min-height: 40px;
+            padding: 0 10px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        body.hero-ui .search-cancel-btn:hover {
+            background: var(--hero-default-100);
+            color: var(--foreground);
+        }
+
+        body.hero-ui .search-tags-area,
+        body.hero-ui.dark-mode .search-tags-area {
+            padding: 0 16px 14px !important;
+            border: 0 !important;
+        }
+
+        body.hero-ui .search-tags-label {
+            margin: 0 0 8px !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        body.hero-ui .search-tags-row { gap: 8px; margin: 0; }
+
+        body.hero-ui .tag-chip,
+        body.hero-ui.dark-mode .tag-chip {
+            min-height: 30px;
+            padding: 5px 10px;
+            border: 0 !important;
+            border-radius: 999px !important;
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        body.hero-ui .search-results {
+            flex: 1 1 auto;
+            min-height: 280px;
+            max-height: 520px;
+            padding: 8px 16px 16px !important;
+            border-top: 1px solid var(--hero-divider);
+        }
+
+        body.hero-ui .search-results > .empty-state {
+            min-height: 260px;
+            padding: 64px 24px 32px !important;
+            color: var(--muted) !important;
+            font-size: 14px;
+        }
+
+        body.hero-ui .search-results > .empty-state::before {
+            content: "\f002";
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 16px;
+            border-radius: 14px;
+            background: var(--hero-default-100);
+            color: var(--muted);
+            font-family: "Font Awesome 6 Free";
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        body.hero-ui .search-results > .empty-state span {
+            color: var(--muted) !important;
+            opacity: 0.72;
+        }
+
+        body.hero-ui .search-item {
+            margin-bottom: 8px;
+            padding: 12px 14px;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: transparent !important;
+        }
+
+        body.hero-ui .search-item:hover { background: var(--hero-default-100) !important; }
+
+        /* Normalize the rest of the app to HeroUI base components. */
+        body.hero-ui :is(.center-modal-content, .add-task-modal, .id-modal-content, .category-modal,
+        .export-modal, .transfer-hub-modal, .timer-modal, .template-modal-content) {
+            border: 1px solid var(--hero-divider) !important;
+            border-radius: 20px !important;
+            background: var(--hero-content1) !important;
+            box-shadow: 0 20px 56px rgba(0, 0, 0, 0.20) !important;
+        }
+
+        body.hero-ui :is(.modal-content, .ai-buddy-panel, .notebook-modal) h3 {
+            color: var(--foreground) !important;
+            font-size: 16px !important;
+            line-height: 24px;
+            font-weight: 600 !important;
+        }
+
+        body.hero-ui .hero-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.hero-ui .hero-modal-title > i {
+            width: 18px;
+            color: var(--muted);
+            font-size: 15px;
+            text-align: center;
+        }
+
+        body.hero-ui #add-task-modal .legacy-title-accent,
+        body.hero-ui #note-modal .legacy-title-accent { display: none !important; }
+
+        body.hero-ui .task-schedule-row {
+            margin: 0 0 16px !important;
+            padding: 12px !important;
+            border: 0 !important;
+            border-radius: 14px;
+            background: var(--hero-default-100);
+            flex-wrap: wrap;
+        }
+
+        body.hero-ui .task-schedule-row > .flex {
+            width: 100%;
+            margin-left: 0 !important;
+            gap: 4px !important;
+            justify-content: space-between;
+        }
+
+        body.hero-ui .task-schedule-row label {
+            min-height: 28px;
+            padding: 0 8px;
+            border-radius: 9px;
+            white-space: nowrap;
+        }
+
+        body.hero-ui .task-schedule-row label:hover { background: var(--hero-default-200); }
+
+        body.hero-ui :is(.center-modal-content, .category-modal, .export-modal, .transfer-hub-modal,
+        .template-modal-content) button[class*="bg-blue-600"],
+        body.hero-ui :is(.notebook-save-btn, .timer-btn-main) {
+            min-height: 44px;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: var(--accent) !important;
+            color: var(--accent-foreground) !important;
+            box-shadow: none !important;
+            font-weight: 600 !important;
+        }
+
+        body.hero-ui :is(.center-modal-content, .category-modal, .export-modal, .transfer-hub-modal,
+        .template-modal-content) button[class*="bg-slate-100"] {
+            min-height: 44px;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--foreground) !important;
+            box-shadow: none !important;
+            font-weight: 600 !important;
+        }
+
+        body.hero-ui .cat-add-row {
+            min-height: 44px;
+            border: 1px dashed var(--border-strong) !important;
+            border-radius: 12px !important;
+            background: transparent !important;
+            color: var(--muted) !important;
+        }
+
+        body.hero-ui .cat-add-row:hover {
+            border-style: solid !important;
+            background: var(--hero-default-100) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui #type-selector-container { gap: 8px !important; }
+
+        body.hero-ui #type-selector-container .type-option {
+            min-height: 32px;
+            padding: 6px 12px !important;
+            border: 1px solid transparent !important;
+            border-radius: 999px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--muted) !important;
+            box-shadow: none !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+        }
+
+        body.hero-ui #type-selector-container .type-option:hover {
+            background: var(--hero-default-200) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui #type-selector-container .type-option.selected {
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+        }
+
+        body.hero-ui :is(input:not(.search-input), textarea, select, .ai-input, .ai-profile-input,
+        .ai-profile-textarea, .notes-search-input, .notebook-title-input) {
+            min-height: 44px;
+            border: 1px solid transparent !important;
+            border-radius: 12px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--foreground) !important;
+            box-shadow: none !important;
+        }
+
+        body.hero-ui :is(input:not(.search-input), textarea, select, .ai-input, .ai-profile-input,
+        .ai-profile-textarea, .notes-search-input, .notebook-title-input):focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--hero-focus-ring) !important;
+        }
+
+        body.hero-ui :is(.transfer-choice, .cat-row, .ai-profile-section, .preview-card, .preview-summary,
+        .notebook-folder-btn, .notebook-folder-add-card, .notebook-entry-btn) {
+            border: 1px solid transparent !important;
+            border-radius: 14px !important;
+            background: var(--hero-default-100) !important;
+            box-shadow: none !important;
+        }
+
+        body.hero-ui :is(.transfer-choice, .cat-row, .notebook-folder-btn, .notebook-folder-add-card,
+        .notebook-entry-btn):hover {
+            border-color: var(--hero-divider) !important;
+            background: var(--hero-default-200) !important;
+        }
+
+        body.hero-ui :is(.timer-tabs, .ai-model-selector) {
+            padding: 4px !important;
+            border: 0 !important;
+            border-radius: 999px !important;
+            background: var(--hero-default-100) !important;
+            box-shadow: none !important;
+        }
+
+        body.hero-ui .timer-tab { border-radius: 999px !important; }
+        body.hero-ui .timer-tab.active {
+            background: var(--hero-content1) !important;
+            color: var(--foreground) !important;
+            box-shadow: 0 1px 3px rgba(24, 24, 27, 0.10) !important;
+        }
+
+        body.hero-ui :is(.ai-buddy-panel, .notebook-modal, .notes-sidebar, .notebook-main, .notebook-side) {
+            border-color: var(--hero-divider) !important;
+            background: var(--hero-content1) !important;
+        }
+
+        body.hero-ui :is(.ai-close-btn, .ai-expand-btn, .ai-mini-btn, .notebook-entry-action-btn,
+        .notebook-close-btn, .toolbar-btn) {
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--muted) !important;
+            box-shadow: none !important;
+        }
+
+        body.hero-ui :is(.ai-close-btn, .ai-expand-btn, .ai-mini-btn, .notebook-entry-action-btn,
+        .notebook-close-btn, .toolbar-btn):hover {
+            background: var(--hero-default-200) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui .maimemo-card {
+            border-radius: 16px !important;
+            box-shadow: none !important;
+        }
+
+        body.hero-ui .maimemo-section { border-radius: 12px !important; }
+
+        @media (max-width: 768px) {
+            body.hero-ui #search-modal {
+                align-items: center !important;
+                padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) !important;
+            }
+
+            body.hero-ui .search-modal {
+                width: min(520px, calc(100vw - 32px)) !important;
+                max-width: 520px !important;
+                height: auto !important;
+                min-height: min(440px, calc(100dvh - 32px));
+                max-height: calc(100dvh - 32px) !important;
+                border-radius: 20px !important;
+            }
+
+            body.hero-ui .nav-pill,
+            body.hero-ui .nav-pill.year-pill { min-height: 40px !important; }
+        }
+
+        @media (max-width: 480px) {
+            body.hero-ui #search-modal {
+                align-items: flex-end !important;
+                padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
+            }
+
+            body.hero-ui .search-modal {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: min(560px, calc(100dvh - 24px));
+                max-height: calc(100dvh - 24px) !important;
+            }
+
+            body.hero-ui .search-header { padding: 12px !important; gap: 8px !important; }
+            body.hero-ui .search-field { height: 46px; padding-inline: 12px; }
+            body.hero-ui .search-cancel-btn { min-width: 48px; padding-inline: 6px; }
+        }
     </style>
 </head>
 
-<body class="safe-area-top safe-area-bottom pb-20 md:pb-10">
+<body class="hero-ui safe-area-top safe-area-bottom pb-20 md:pb-10">
 
     <div class="max-w-8xl mx-auto px-4 pt-6 md:pt-10">
         <div class="hero-overview-card bg-white rounded-2xl p-5 md:p-6 mb-4 shadow-sm border border-slate-100 relative overflow-hidden">
@@ -6450,16 +6996,15 @@
     <!-- 添加任务 Modal -->
     <div id="add-task-modal" class="modal-overlay">
         <div class="modal-content center-modal-content bg-white">
-            <h3 class="font-bold text-lg mb-3 text-slate-800 flex items-center gap-2">
-                <span class="w-1 h-5 bg-blue-500 rounded-full"></span> 新增任务
+            <h3 class="hero-modal-title font-bold text-lg mb-3 text-slate-800">
+                <i class="fas fa-plus" aria-hidden="true"></i><span>新增任务</span>
             </h3>
             <input type="text" id="new-task-input"
                 class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 placeholder="例如：背诵英语单词..." onkeydown="if(event.key === 'Enter') confirmAddTask()">
 
             <!-- 日期 + 时段行 -->
-            <div class="flex items-center gap-4 py-3 mb-4 border-t border-b border-slate-100"
-                style="margin:0 -24px;padding:12px 24px">
+            <div class="task-schedule-row flex items-center gap-4 py-3 mb-4 border-t border-b border-slate-100">
                 <i class="far fa-clock text-slate-400" style="font-size:15px"></i>
                 <span id="add-task-start-date" class="font-bold text-slate-800 text-sm"></span>
                 <div class="flex items-center gap-4 ml-auto">
@@ -6507,11 +7052,12 @@
     <div id="search-modal" class="modal-overlay">
         <div class="modal-content search-modal bg-white flex flex-col">
             <div class="search-header">
-                <i class="fas fa-search text-slate-400"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记、任务或英文单词..."
-                    oninput="handleSearch(this.value)">
-                <button onclick="toggleSearch()"
-                    class="text-slate-400 hover:text-slate-600 text-sm font-bold">取消</button>
+                <div class="search-field">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="搜索笔记、任务或英文单词..."
+                        aria-label="搜索笔记、任务或英文单词" oninput="handleSearch(this.value)">
+                </div>
+                <button onclick="toggleSearch()" class="search-cancel-btn">取消</button>
             </div>
             <div id="search-tags-area" class="search-tags-area" style="display:none;">
                 <div class="search-tags-label">热门标签</div>
@@ -7061,7 +7607,7 @@
     <div id="pomodoro-modal" class="modal-overlay">
         <div class="modal-content timer-modal bg-white">
             <div class="timer-header">
-                <h3 class="text-lg font-bold text-slate-800">🍅 番茄钟</h3>
+                <h3 class="hero-modal-title text-lg font-bold text-slate-800"><i class="fas fa-stopwatch" aria-hidden="true"></i><span>番茄钟</span></h3>
             </div>
             <div class="timer-tabs">
                 <div class="timer-tab active" onclick="switchTimerMode('pomodoro')" id="tab-pomodoro">专注 25分</div>
@@ -7119,8 +7665,8 @@
             <div
                 class="modal-header bg-white px-5 py-3 border-b border-slate-100 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-2">
-                    <span class="w-1 h-5 bg-blue-500 rounded-full"></span>
-                    <h3 class="font-bold text-slate-800 text-lg">📝 <span id="modal-date-title"></span></h3>
+                    <span class="legacy-title-accent w-1 h-5 bg-blue-500 rounded-full"></span>
+                    <h3 class="hero-modal-title font-bold text-slate-800 text-lg"><i class="fas fa-note-sticky" aria-hidden="true"></i><span id="modal-date-title"></span></h3>
                     <span id="mode-badge"
                         class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">查看模式</span>
                     <span id="word-count-badge"
@@ -7227,7 +7773,7 @@
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'heroui-global-theme-2026-08-11-v4';
+        const BUILD_TAG = 'heroui-components-2026-08-11-v5';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -7956,8 +8502,8 @@
         }
 
         // ================= 日历图标：内联 SVG（无外部依赖，手机/网络均可用）=================
-        const ICON_ADD = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22ZM12 8.25C12.4142 8.25 12.75 8.58579 12.75 9V11.25H15C15.4142 11.25 15.75 11.5858 15.75 12C15.75 12.4142 15.4142 12.75 15 12.75H12.75L12.75 15C12.75 15.4142 12.4142 15.75 12 15.75C11.5858 15.75 11.25 15.4142 11.25 15V12.75H9C8.58579 12.75 8.25 12.4142 8.25 12C8.25 11.5858 8.58579 11.25 9 11.25H11.25L11.25 9C11.25 8.58579 11.5858 8.25 12 8.25Z" fill="currentColor"/></svg>`;
-        const ICON_NOTE = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5189 16.5013C16.6939 16.3648 16.8526 16.2061 17.1701 15.8886L21.1275 11.9312C21.2231 11.8356 21.1793 11.6708 21.0515 11.6264C20.5844 11.4644 19.9767 11.1601 19.4083 10.5917C18.8399 10.0233 18.5356 9.41561 18.3736 8.94849C18.3292 8.82066 18.1644 8.77687 18.0688 8.87254L14.1114 12.8299C13.7939 13.1474 13.6352 13.3061 13.4987 13.4811C13.3377 13.6876 13.1996 13.9109 13.087 14.1473C12.9915 14.3476 12.9205 14.5606 12.7786 14.9865L12.5951 15.5368L12.3034 16.4118L12.0299 17.2323C11.9601 17.4419 12.0146 17.6729 12.1708 17.8292C12.3271 17.9854 12.5581 18.0399 12.7677 17.9701L13.5882 17.6966L14.4632 17.4049L15.0135 17.2214L15.0136 17.2214C15.4394 17.0795 15.6524 17.0085 15.8527 16.913C16.0891 16.8004 16.3124 16.6623 16.5189 16.5013Z" fill="currentColor"/><path d="M22.3665 10.6922C23.2112 9.84754 23.2112 8.47812 22.3665 7.63348C21.5219 6.78884 20.1525 6.78884 19.3078 7.63348L19.1806 7.76071C19.0578 7.88348 19.0022 8.05496 19.0329 8.22586C19.0522 8.33336 19.0879 8.49053 19.153 8.67807C19.2831 9.05314 19.5288 9.54549 19.9917 10.0083C20.4545 10.4712 20.9469 10.7169 21.3219 10.847C21.5095 10.9121 21.6666 10.9478 21.7741 10.9671C21.945 10.9978 22.1165 10.9422 22.2393 10.8194L22.3665 10.6922Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.17157 3.17157C3 4.34315 3 6.22876 3 10V14C3 17.7712 3 19.6569 4.17157 20.8284C5.34315 22 7.22876 22 11 22H13C16.7712 22 18.6569 22 19.8284 20.8284C20.9812 19.6756 20.9997 17.8316 21 14.1801L18.1817 16.9984C17.9119 17.2683 17.691 17.4894 17.4415 17.6841C17.1491 17.9121 16.8328 18.1076 16.4981 18.2671C16.2124 18.4032 15.9159 18.502 15.5538 18.6225L13.2421 19.3931C12.4935 19.6426 11.6682 19.4478 11.1102 18.8898C10.5523 18.3318 10.3574 17.5065 10.607 16.7579L10.8805 15.9375L11.3556 14.5121L11.3775 14.4463C11.4981 14.0842 11.5968 13.7876 11.7329 13.5019C11.8924 13.1672 12.0879 12.8509 12.316 12.5586C12.5106 12.309 12.7317 12.0881 13.0017 11.8183L17.0081 7.81188L18.12 6.70004L18.2472 6.57282C18.9626 5.85741 19.9003 5.49981 20.838 5.5C20.6867 4.46945 20.3941 3.73727 19.8284 3.17157C18.6569 2 16.7712 2 13 2H11C7.22876 2 5.34315 2 4.17157 3.17157ZM7.25 9C7.25 8.58579 7.58579 8.25 8 8.25H14.5C14.9142 8.25 15.25 8.58579 15.25 9C15.25 9.41421 14.9142 9.75 14.5 9.75H8C7.58579 9.75 7.25 9.41421 7.25 9ZM7.25 13C7.25 12.5858 7.58579 12.25 8 12.25H10.5C10.9142 12.25 11.25 12.5858 11.25 13C11.25 13.4142 10.9142 13.75 10.5 13.75H8C7.58579 13.75 7.25 13.4142 7.25 13ZM7.25 17C7.25 16.5858 7.58579 16.25 8 16.25H9.5C9.91421 16.25 10.25 16.5858 10.25 17C10.25 17.4142 9.91421 17.75 9.5 17.75H8C7.58579 17.75 7.25 17.4142 7.25 17Z" fill="currentColor"/></svg>`;
+        const ICON_ADD = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4.5v15m7.5-7.5h-15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const ICON_NOTE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 12.75v5.625A2.625 2.625 0 0 1 16.875 21H5.625A2.625 2.625 0 0 1 3 18.375V7.125A2.625 2.625 0 0 1 5.625 4.5h5.625" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
         // ================= 渲染：2025 冲刺 =================
         function render2025() {
