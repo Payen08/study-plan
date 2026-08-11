@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="冲刺计划">
     <meta name="theme-color" content="#f8fafc">
 
-    <link id="apple-icon" rel="apple-touch-icon" href="icon-512.png">
+    <link id="apple-icon" rel="apple-touch-icon">
     <link id="manifest-link" rel="manifest">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -653,6 +653,9 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
             align-items: center;
+            scroll-padding-inline: 16px;
+            overscroll-behavior-inline: contain;
+            touch-action: pan-x;
         }
 
         .month-nav::-webkit-scrollbar {
@@ -663,7 +666,8 @@
         .sticky-header-wrapper {
             position: -webkit-sticky;
             position: sticky;
-            top: 0;
+            /* iOS standalone/PWA 状态栏会覆盖 viewport 顶部，吸顶后也要保留安全区 */
+            top: env(safe-area-inset-top, 0px);
             z-index: 30;
             background-color: #f6f8fa;
             padding-top: 8px;
@@ -673,6 +677,17 @@
             padding-left: 16px;
             padding-right: 16px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .sticky-header-wrapper::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 100%;
+            height: env(safe-area-inset-top, 0px);
+            background: #f6f8fa;
+            pointer-events: none;
         }
 
         .nav-pill {
@@ -1100,14 +1115,52 @@
 
             /* Mobile: make calendar action icons visibly tappable */
             .action-btn.icon-btn {
-                width: 36px;
-                height: 36px;
+                width: 44px;
+                height: 44px;
+            }
+
+            .nav-pill {
+                min-height: 44px;
+                padding-inline: 16px;
             }
 
             .delete-btn {
                 opacity: 1;
             }
         }
+
+        /* 登录门禁 */
+        /* 账号功能暂时隐藏；底层同步逻辑保留，方便后续恢复。 */
+        #auth-gate,
+        #auth-modal,
+        #sync-btn {
+            display: none !important;
+        }
+
+        .auth-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #f6f8fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-gate.hidden { display: none; }
+        .auth-gate-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+        body.dark-mode .auth-gate { background: #09090b; }
+        body.dark-mode .auth-gate-card { background: #18181b; }
+        body.dark-mode .auth-gate-card h2 { color: #f5f5f5 !important; }
+        body.dark-mode .auth-gate-card input { background: #09090b !important; color: #fafafa !important; border-color: #27272a !important; }
+        body.dark-mode .auth-gate-card .bg-slate-100 { background: #27272a !important; color: #d4d4d8 !important; }
 
         .modal-overlay {
             background: rgba(0, 0, 0, 0.4);
@@ -2419,6 +2472,43 @@
             padding: 0 4px;
         }
 
+        .ai-message-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .ai-copy-btn {
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .ai-copy-btn:hover { color: #2563eb; background: rgba(37,99,235,0.08); }
+
+        .ai-stop-btn {
+            border: 1px solid #fca5a5;
+            background: #fef2f2;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .ai-stop-btn:hover { background: #fecaca; }
+
+        body.dark-mode .ai-copy-btn { color: #71717a; }
+        body.dark-mode .ai-copy-btn:hover { color: #93c5fd; background: rgba(37,99,235,0.15); }
+        body.dark-mode .ai-stop-btn { background: #3b0f0f; border-color: #7f1d1d; color: #fca5a5; }
+        body.dark-mode .ai-stop-btn:hover { background: #7f1d1d; }
+
         .ai-message-row.user .ai-message-time {
             color: #94a3b8;
         }
@@ -2821,12 +2911,16 @@
             transform: rotate(90deg);
         }
 
+        .quick-menu-fab.open {
+            z-index: 232;
+        }
+
         .quick-menu-overlay {
             position: fixed;
             inset: 0;
             background: rgba(15, 23, 42, 0.2);
             backdrop-filter: blur(1px);
-            z-index: 218;
+            z-index: 230;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
@@ -2841,7 +2935,7 @@
             position: fixed;
             right: 20px;
             bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
-            z-index: 220;
+            z-index: 231;
             width: min(260px, calc(100vw - 28px));
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid #e2e8f0;
@@ -2859,6 +2953,13 @@
             opacity: 1;
             pointer-events: auto;
             transform: translateY(0) scale(1);
+        }
+
+        /* 快捷菜单展开时，AI 入口退出点击层，避免遮住菜单项。 */
+        body.quick-menu-open .ai-buddy-fab {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px) scale(0.92);
         }
 
         .quick-menu-item {
@@ -4383,6 +4484,68 @@
             color: #64748b;
         }
 
+        /* AI 选中文字浮动工具栏 */
+        .ai-selection-menu {
+            position: fixed;
+            z-index: 300;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 4px;
+            display: none;
+            gap: 2px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .ai-selection-menu.open { display: flex; }
+        .ai-selection-menu button {
+            border: 0;
+            background: transparent;
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 7px;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .ai-selection-menu button:hover { background: rgba(255,255,255,0.12); }
+        .ai-selection-menu button i { margin-right: 4px; }
+
+        /* AI 笔记选择器 */
+        .ai-selection-menu.ai-picker { min-width: 260px; }
+        .ai-picker-header {
+            font-size: 12px; font-weight: 800; color: #e2e8f0;
+            padding: 4px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px;
+        }
+        .ai-picker-subject-name {
+            font-size: 11px; font-weight: 800; color: #93c5fd; padding: 4px 0 2px;
+        }
+        .ai-picker-folder {
+            font-size: 10px; font-weight: 700; color: #94a3b8; padding: 3px 0 2px 4px;
+        }
+        .ai-picker-entry {
+            display: block; width: 100%; text-align: left;
+            background: rgba(255,255,255,0.06); border: 0; border-radius: 6px;
+            color: #e2e8f0; font-size: 11px; font-weight: 600;
+            padding: 6px 8px; margin: 2px 0; cursor: pointer;
+        }
+        .ai-picker-entry:hover { background: rgba(255,255,255,0.14); }
+        .ai-picker-entry span { display: block; font-size: 9px; color: #94a3b8; font-weight: 400; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ai-picker-new {
+            display: block; width: 100%; text-align: left;
+            background: transparent; border: 1px dashed rgba(255,255,255,0.2); border-radius: 6px;
+            color: #60a5fa; font-size: 11px; font-weight: 700;
+            padding: 6px 8px; margin: 4px 0; cursor: pointer;
+        }
+        .ai-picker-new:hover { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.4); }
+        .ai-picker-cancel {
+            display: block; width: 100%; text-align: center;
+            background: transparent; border: 0; color: #94a3b8; font-size: 11px; font-weight: 700;
+            padding: 6px; margin-top: 4px; cursor: pointer;
+        }
+        .ai-picker-cancel:hover { color: #e2e8f0; }
+
         @media (max-width: 900px) {
             .notebook-modal {
                 width: 100vw;
@@ -5204,10 +5367,13 @@
         <div class="mt-12 text-center pb-8">
             <div id="sync-btn"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-xs text-slate-500 font-bold shadow-sm hover:shadow-md cursor-pointer mb-3"
-                onclick="changeSyncID()">
-                <i class="fas fa-fingerprint text-blue-500"></i> 同步ID: <span id="sync-id-label"
-                    class="text-slate-800 font-mono">LOCAL</span> <i class="fas fa-pen text-[10px] ml-1 opacity-50"></i>
+                onclick="toggleAuthModal()">
+                <i id="sync-btn-icon" class="fas fa-fingerprint text-blue-500"></i>
+                <span id="sync-btn-label">账号</span>
+                <i class="fas fa-pen text-[10px] ml-1 opacity-50"></i>
             </div>
+            <button id="sync-id-manual-btn" onclick="changeSyncID()"
+                class="mx-auto block text-[10px] text-slate-400 hover:text-blue-500 font-bold mb-2">手动设置同步 ID</button>
             <p class="text-[11px] text-slate-400">右下角菜单可打开笔记本 / 番茄钟 / 导入导出 / 分类</p>
             <p class="text-[10px] text-slate-300 mt-2">ID 通用：自动合并 2025/2026 数据</p>
         </div>
@@ -5438,6 +5604,60 @@
         </div>
     </div>
 
+    <!-- 登录门禁：未登录时全屏遮罩 -->
+    <div id="auth-gate" class="auth-gate">
+        <div class="auth-gate-card">
+            <div class="text-center mb-4">
+                <div class="text-4xl mb-2">📚</div>
+                <h2 class="text-xl font-black text-slate-800">冲刺计划 Pro</h2>
+                <p class="text-xs text-slate-400 mt-1">登录或注册以开始使用</p>
+            </div>
+            <div id="auth-gate-form">
+                <input type="text" id="auth-gate-username" placeholder="你的 ID / 用户名"
+                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold">
+                <input type="email" id="auth-gate-email" placeholder="邮箱账号"
+                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold">
+                <input type="password" id="auth-gate-password" placeholder="密码（至少6位）"
+                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button onclick="doGateLogin()"
+                        class="bg-blue-500 text-white font-bold py-3 rounded-xl text-sm hover:bg-blue-600 transition">登录</button>
+                    <button onclick="doGateRegister()"
+                        class="bg-slate-100 text-slate-600 font-bold py-3 rounded-xl text-sm hover:bg-slate-200 transition">注册</button>
+                </div>
+                <button onclick="doGateResetPassword()"
+                    class="w-full text-[11px] font-bold text-slate-400 hover:text-blue-500 py-1">忘记密码？点此重置</button>
+            </div>
+            <div id="auth-gate-offline" style="display:none;" class="text-center">
+                <p class="text-sm text-slate-500 mb-4">当前为离线模式或 file:// 直开，无法连接云端账号。</p>
+                <button onclick="skipAuthGate()"
+                    class="bg-blue-500 text-white font-bold py-3 px-6 rounded-xl text-sm hover:bg-blue-600 transition">跳过登录，本地使用</button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-4 text-center leading-relaxed">
+                注册后数据自动云端同步，换设备也能用。
+            </p>
+        </div>
+    </div>
+
+    <!-- 账号管理弹窗（已登录时使用） -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content center-modal-content bg-white" style="max-width:360px;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-slate-800">账号</h3>
+                <button onclick="closeAuthModal()" class="text-slate-400 text-lg px-1">&times;</button>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4 mb-3 text-center">
+                <div class="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i class="fas fa-user-check text-lg"></i>
+                </div>
+                <p class="text-sm font-bold text-slate-800" id="auth-user-email"></p>
+                <p class="text-[10px] text-green-600 font-bold mt-1">已登录 · 自动云同步</p>
+            </div>
+            <button onclick="doLogout()"
+                class="w-full bg-slate-100 text-slate-500 font-bold py-3 rounded-xl text-sm hover:bg-red-50 hover:text-red-500 transition">退出登录</button>
+        </div>
+    </div>
+
     <!-- Toast 容器 -->
     <div class="toast-container" id="toast-container"></div>
 
@@ -5649,7 +5869,7 @@
             <button class="ai-quick-chip" onclick="aiQuickPrompt('这题不会')">这题不会</button>
         </div>
         <div class="ai-input-row">
-            <textarea id="ai-buddy-input" class="ai-input" rows="1" placeholder="随时说：今天状态、题目、进度焦虑..."
+            <textarea id="ai-buddy-input" class="ai-input" rows="1" placeholder="随时聊… Ctrl+Enter 发送"
                 oninput="autoResizeAiInput()" onkeydown="handleAiInputKey(event)"></textarea>
             <button class="ai-send-btn" onclick="sendAiMessage()" title="发送"><i class="fas fa-paper-plane"></i></button>
         </div>
@@ -5945,6 +6165,7 @@
 
     <div id="subject-menu" class="subject-menu"></div>
     <div id="note-link-menu" class="note-link-menu"></div>
+    <div id="ai-selection-menu" class="ai-selection-menu"></div>
 
     <script>
         // ================= 配置区 =================
@@ -6072,39 +6293,41 @@
         }
 
         /* PWA Config */
-        const iconBase = new URL('icon-512.png', window.location.href).href;
-
-        // 动态注入多尺寸 apple-touch-icon（iPad 要求明确 sizes）
-        [180, 152, 167].forEach(size => {
-            const link = document.createElement('link');
-            link.rel = 'apple-touch-icon';
-            link.sizes = `${size}x${size}`;
-            link.href = iconBase;
-            document.head.appendChild(link);
-        });
-        document.getElementById('apple-icon').href = iconBase;
-
-        const manifestBaseUrl = new URL('./', window.location.href);
-        const manifestAppUrl = new URL(window.location.pathname.endsWith('/') ? './' : window.location.pathname.split('/').pop(), manifestBaseUrl);
-        const manifestStartUrl = new URL(manifestAppUrl.href);
-        manifestStartUrl.searchParams.set('v', BUILD_TAG);
-        const manifest = {
-            name: "冲刺计划 Pro",
-            short_name: "冲刺",
-            id: manifestAppUrl.href,
-            start_url: manifestStartUrl.href,
-            scope: manifestBaseUrl.href,
-            display: "standalone",
-            background_color: "#f6f8fa",
-            theme_color: "#ffffff",
-            icons: [{ src: new URL('icon-512.png', manifestBaseUrl).href, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
-        };
         const manifestLink = document.getElementById('manifest-link');
-        if (manifestLink) {
-            if (IS_FILE_ORIGIN) {
-                // file:// 下浏览器会阻止 manifest，去掉 href 避免无意义报错
-                manifestLink.removeAttribute('href');
-            } else {
+        const appleIcon = document.getElementById('apple-icon');
+        if (IS_FILE_ORIGIN) {
+            // file:// 页面在嵌入式预览 frame 中属于独立安全源，不加载任何本地 PWA 子资源。
+            manifestLink?.removeAttribute('href');
+            appleIcon?.removeAttribute('href');
+        } else {
+            const iconBase = new URL('book.svg', window.location.href).href;
+
+            // 动态注入多尺寸 apple-touch-icon（iPad 要求明确 sizes）
+            [180, 152, 167].forEach(size => {
+                const link = document.createElement('link');
+                link.rel = 'apple-touch-icon';
+                link.sizes = `${size}x${size}`;
+                link.href = iconBase;
+                document.head.appendChild(link);
+            });
+            if (appleIcon) appleIcon.href = iconBase;
+
+            const manifestBaseUrl = new URL('./', window.location.href);
+            const manifestAppUrl = new URL(window.location.pathname.endsWith('/') ? './' : window.location.pathname.split('/').pop(), manifestBaseUrl);
+            const manifestStartUrl = new URL(manifestAppUrl.href);
+            manifestStartUrl.searchParams.set('v', BUILD_TAG);
+            const manifest = {
+                name: "冲刺计划 Pro",
+                short_name: "冲刺",
+                id: manifestAppUrl.href,
+                start_url: manifestStartUrl.href,
+                scope: manifestBaseUrl.href,
+                display: "standalone",
+                background_color: "#f6f8fa",
+                theme_color: "#ffffff",
+                icons: [{ src: new URL('book.svg', manifestBaseUrl).href, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }]
+            };
+            if (manifestLink) {
                 manifestLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
             }
         }
@@ -6113,6 +6336,7 @@
         let CURRENT_YEAR = 2025; // 默认为2025模式
         let currentMonth2026 = new Date().getMonth();
         let supabaseClient = null, isCloud = false;
+        let authSession = null, authUser = null;
 
         // 统一的大状态对象，包含所有年份和设置
         // 默认分类列表
@@ -6516,27 +6740,46 @@
                 }, 450);
             }
 
-            // 首次访问：强制设置同步 ID
+            // 首次访问：自动设置默认同步 ID，然后打开登录注册
             if (!localStorage.getItem('study_sync_id')) {
-                document.getElementById('id-cancel-btn').style.display = 'none';
-                document.getElementById('sync-id-input').value = '';
-                document.getElementById('id-modal').classList.add('open');
-                setTimeout(() => document.getElementById('sync-id-input').focus(), 200);
+                MY_SYNC_ID = DEFAULT_SYNC_ID;
+                localStorage.setItem('study_sync_id', DEFAULT_SYNC_ID);
+                updateSyncLabel();
             }
 
-            if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
+            if (!IS_FILE_ORIGIN && SUPABASE_URL && SUPABASE_KEY && window.supabase) {
                 try {
                     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                     isCloud = true;
-                    await loadCloud();
-                    await flushPendingCloudSync();
+
+                    // 首屏最多等待 5 秒，但不能把慢启动/项目唤醒误判成永久离线。
+                    // 后台请求会继续完成；页面 focus 与每分钟轮询也会再次尝试拉取。
+                    const startupSync = Promise.allSettled([
+                        initAuth(),
+                        loadCloud().then(() => flushPendingCloudSync())
+                    ]);
+                    const startupWait = new Promise(resolve => setTimeout(resolve, 5000));
+                    await Promise.race([startupSync, startupWait]);
                 } catch (e) {
-                    console.error('云端初始化失败，使用本地数据:', e);
+                    console.error('云端初始化失败:', e);
                     isCloud = false;
+                    supabaseClient = null;
                     loadLocal();
                     updateStatus('offline');
                 }
             } else { loadLocal(); updateStatus('offline'); }
+
+            // 确保门禁状态正确
+            renderAuthState();
+
+            // 兜底：3 秒后门禁如果还在，自动跳过
+            setTimeout(() => {
+                const gate = document.getElementById('auth-gate');
+                if (gate && !gate.classList.contains('hidden') && !authUser) {
+                    gate.classList.add('hidden');
+                    console.log('[auth] gate auto-skipped after timeout');
+                }
+            }, 3000);
 
             // Render initial UI based on loaded year
             switchYear(CURRENT_YEAR);
@@ -6600,6 +6843,15 @@
         }
 
         // ================= 渲染：统一导航栏 (集成年份切换) =================
+        function revealActiveMonth() {
+            const nav = document.getElementById('unified-nav');
+            const activeMonth = nav?.querySelector('.nav-pill[data-month].active');
+            if (!nav || !activeMonth) return;
+            const centeredLeft = activeMonth.offsetLeft - (nav.clientWidth - activeMonth.offsetWidth) / 2;
+            const maxLeft = Math.max(0, nav.scrollWidth - nav.clientWidth);
+            nav.scrollLeft = Math.min(maxLeft, Math.max(0, centeredLeft));
+        }
+
         function renderNav() {
             const nav = document.getElementById('unified-nav');
             let html = '';
@@ -6619,13 +6871,14 @@
             if (CURRENT_YEAR === 2026) {
                 const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
                 html += months.map((m, i) =>
-                    `<div class="nav-pill ${i === currentMonth2026 ? 'active' : ''}" onclick="currentMonth2026=${i};switchYear(2026)">${m}</div>`
+                    `<div class="nav-pill ${i === currentMonth2026 ? 'active' : ''}" data-month="${i}" onclick="currentMonth2026=${i};switchYear(2026)">${m}</div>`
                 ).join('');
             } else {
                 html += `<div class="nav-pill active" style="opacity:0.5; pointer-events:none;">冲刺月</div>`;
             }
 
             nav.innerHTML = html;
+            requestAnimationFrame(revealActiveMonth);
         }
 
         // ================= 双击/双触新增任务（兼容手机） =================
@@ -7037,7 +7290,7 @@
         }
 
         function getCloudRecordId() {
-            return MY_SYNC_ID;
+            return effectiveSyncId();
         }
 
         function ensureCloudDebug() {
@@ -7214,6 +7467,23 @@
             });
         }
 
+        // 从云端拉取指定 syncId 的数据（用于数据迁移）
+        async function fetchStateBySyncId(syncId) {
+            if (!syncId || !supabaseClient) return null;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('study_progress')
+                    .select('data')
+                    .eq('id', syncId)
+                    .maybeSingle();
+                if (error || !data?.data) return null;
+                const state = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+                return isValidState(state) ? state : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
         async function loadCloud(silent = false) {
             updateStatus('syncing');
             let cloudOk = true;
@@ -7371,10 +7641,49 @@
             document.getElementById('progress-fill').style.width = p + '%';
         }
 
+        function renderAuthState() {
+            const gate = document.getElementById('auth-gate');
+
+            // file:// 直开 → 永远不拦
+            if (IS_FILE_ORIGIN) {
+                if (gate) gate.classList.add('hidden');
+                return;
+            }
+
+            const userEmail = document.getElementById('auth-user-email');
+
+            if (authUser) {
+                if (gate) gate.classList.add('hidden');
+                if (userEmail) userEmail.textContent = authUser.email || authUser.id;
+            } else {
+                if (gate) gate.classList.remove('hidden');
+            }
+
+            // 更新底部同步栏
+            const btnLabel = document.getElementById('sync-btn-label');
+            const btnIcon = document.getElementById('sync-btn-icon');
+            const manualBtn = document.getElementById('sync-id-manual-btn');
+            if (authUser) {
+                const name = authUser.user_metadata?.display_name || authUser.email || authUser.id;
+                if (btnLabel) btnLabel.innerHTML = '已登录: <span class="text-blue-600 font-mono">' + escapeHtml(name) + '</span>';
+                if (btnIcon) { btnIcon.className = 'fas fa-user-check text-green-500'; }
+                if (manualBtn) manualBtn.style.display = 'none';
+            } else {
+                updateSyncLabel();
+                if (btnIcon) { btnIcon.className = 'fas fa-fingerprint text-blue-500'; }
+                if (manualBtn) manualBtn.style.display = '';
+            }
+        }
+
+        window.skipAuthGate = () => {
+            document.getElementById('auth-gate').classList.add('hidden');
+        };
+
         function updateSyncLabel() {
-            const display = MY_SYNC_ID === DEFAULT_SYNC_ID ? 'LOCAL' : MY_SYNC_ID;
             const el = document.getElementById('sync-id-label');
-            if (el) el.innerText = display;
+            if (!el) return;
+            const display = MY_SYNC_ID === DEFAULT_SYNC_ID ? 'LOCAL' : MY_SYNC_ID;
+            el.innerText = display;
         }
 
         // ================= 自定义倒计时逻辑 =================
@@ -9239,16 +9548,187 @@
         }
         function updateStatus(s) {
             const badge = document.getElementById('cloud-status-badge');
+            if (!badge) return;
             if (s === 'online') {
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> ${timeStr} 已同步`;
+                badge.title = `云端同步正常 · ID: ${getCloudRecordId()}`;
             } else if (s === 'syncing') {
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中`;
+                badge.title = '正在连接 Supabase…';
+            } else if (IS_FILE_ORIGIN) {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 本地模式`;
+                badge.title = 'file:// 直开不会连接 Supabase，请使用 HTTP 地址';
             } else {
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 未同步`;
+                badge.title = ensureCloudDebug().lastErr || '暂时无法连接 Supabase，页面会自动重试';
             }
         }
+
+        // ================= Supabase Auth 账号系统 =================
+        function effectiveSyncId() {
+            return authUser?.id || MY_SYNC_ID;
+        }
+
+        async function initAuth() {
+            if (!supabaseClient) return;
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                authSession = data?.session || null;
+                authUser = authSession?.user || null;
+                if (authUser) MY_SYNC_ID = authUser.id;
+            } catch (_) {}
+
+            supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+                const wasLoggedIn = !!authUser;
+                const oldSyncId = MY_SYNC_ID; // 记住旧的，比如 "payen"
+                authSession = session;
+                authUser = session?.user || null;
+                if (authUser) MY_SYNC_ID = authUser.id;
+                renderAuthState();
+
+                if (!wasLoggedIn && authUser) {
+                    // 刚登录：把旧 sync ID 的数据迁移到新账号下
+                    const needMigration = oldSyncId && oldSyncId !== authUser.id && oldSyncId !== DEFAULT_SYNC_ID;
+                    if (needMigration) {
+                        try {
+                            // 拉取旧 ID 的云端数据，合并进来
+                            const oldCloud = await fetchStateBySyncId(oldSyncId);
+                            if (oldCloud) {
+                                fullState = mergeStates(fullState, oldCloud);
+                                currentState = fullState[CURRENT_YEAR.toString()];
+                                cleanEmptyNotes();
+                                save();
+                                showToast(`数据已从「${oldSyncId}」迁移到你的账号`);
+                            }
+                        } catch (_) {}
+                    }
+                    // 加载新账号下的云端数据
+                    await loadCloud(true);
+                    showToast('已登录，数据已同步');
+                }
+            });
+
+            renderAuthState();
+        }
+
+        function renderAuthState() {
+            const loggedOutView = document.getElementById('auth-logged-out-view');
+            const loggedInView = document.getElementById('auth-logged-in-view');
+            const userEmail = document.getElementById('auth-user-email');
+            const title = document.getElementById('auth-modal-title');
+
+            if (authUser) {
+                if (loggedOutView) loggedOutView.style.display = 'none';
+                if (loggedInView) loggedInView.style.display = '';
+                if (userEmail) userEmail.textContent = authUser.email || authUser.id;
+                if (title) title.textContent = '账号';
+            } else {
+                if (loggedOutView) loggedOutView.style.display = '';
+                if (loggedInView) loggedInView.style.display = 'none';
+                if (title) title.textContent = '登录 / 注册';
+            }
+
+            // 更新底部同步栏
+            const btnLabel = document.getElementById('sync-btn-label');
+            const btnIcon = document.getElementById('sync-btn-icon');
+            const manualBtn = document.getElementById('sync-id-manual-btn');
+            if (authUser) {
+                const displayName = authUser.user_metadata?.display_name || authUser.email || authUser.id;
+                if (btnLabel) btnLabel.innerHTML = '已登录: <span class="text-blue-600 font-mono">' + escapeHtml(displayName) + '</span>';
+                if (btnIcon) { btnIcon.className = 'fas fa-user-check text-green-500'; }
+                if (manualBtn) manualBtn.style.display = 'none';
+            } else {
+                updateSyncLabel();
+                if (btnIcon) { btnIcon.className = 'fas fa-fingerprint text-blue-500'; }
+                if (manualBtn) manualBtn.style.display = '';
+            }
+        }
+
+        function setAuthButtonsLoading(loading) {
+            document.querySelectorAll('#auth-gate button[onclick]').forEach(btn => {
+                btn.disabled = loading;
+                btn.classList.toggle('opacity-60', loading);
+            });
+        }
+
+        function authErrorMsg(msg) {
+            const t = String(msg || '');
+            if (/Invalid login credentials/i.test(t)) return '邮箱或密码不正确。';
+            if (/Email not confirmed/i.test(t)) return '邮箱未确认，需先确认邮箱或在 Supabase 关闭邮箱确认后再试。';
+            if (/already registered/i.test(t)) return '该邮箱已注册，请直接登录。';
+            if (/Password should be at least/i.test(t)) return '密码至少需要 6 位。';
+            return t || '操作失败，请重试。';
+        }
+
+        function gateUsername() { return document.getElementById('auth-gate-username').value.trim(); }
+        function gateEmail() { return document.getElementById('auth-gate-email').value.trim(); }
+        function gatePassword() { return document.getElementById('auth-gate-password').value; }
+
+        window.doGateLogin = async () => {
+            if (!supabaseClient) return showToast('正在连接服务器...');
+            const email = gateEmail();
+            const password = gatePassword();
+            if (!email || !password) return showToast('请输入邮箱和密码');
+            setAuthButtonsLoading(true);
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            setAuthButtonsLoading(false);
+            if (error) return showToast(authErrorMsg(error.message));
+        };
+
+        window.doGateRegister = async () => {
+            if (!supabaseClient) return showToast('正在连接服务器...');
+            const username = gateUsername();
+            const email = gateEmail();
+            const password = gatePassword();
+            if (!username) return showToast('请输入你的 ID / 用户名');
+            if (!email || !password) return showToast('请输入邮箱和密码');
+            if (password.length < 6) return showToast('密码至少需要 6 位');
+            setAuthButtonsLoading(true);
+            const { data, error } = await supabaseClient.auth.signUp({
+                email, password,
+                options: { data: { display_name: username } }
+            });
+            setAuthButtonsLoading(false);
+            if (error) return showToast(authErrorMsg(error.message));
+            if (data?.session) {
+                showToast('注册成功！欢迎 ' + username);
+            } else {
+                showToast('注册成功！查看邮箱确认（可能在垃圾邮件），或去 Supabase 关闭邮箱确认后直接登录。');
+            }
+        };
+
+        window.doGateResetPassword = async () => {
+            if (!supabaseClient) return showToast('正在连接服务器...');
+            const email = gateEmail();
+            if (!email) return showToast('请先输入邮箱再点重置');
+            const redirectTo = IS_FILE_ORIGIN ? undefined : new URL(location.href).toString();
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+            if (error) return showToast(authErrorMsg(error.message));
+            showToast('已发送重置邮件到 ' + email + '，请查收');
+        };
+
+        window.toggleAuthModal = () => {
+            closeQuickMenu();
+            document.getElementById('auth-modal').classList.add('open');
+        };
+
+        window.closeAuthModal = () => {
+            document.getElementById('auth-modal').classList.remove('open');
+        };
+
+        window.doLogout = async () => {
+            if (!supabaseClient) return;
+            await supabaseClient.auth.signOut();
+            authSession = null;
+            authUser = null;
+            MY_SYNC_ID = localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
+            renderAuthState();
+            updateSyncLabel();
+            closeAuthModal();
+            showToast('已退出登录');
+        };
 
         // ================= 核心修改：ID 弹窗逻辑 =================
         window.changeSyncID = () => {
@@ -10211,12 +10691,17 @@
             if (!list) return;
             const buddy = ensureAiBuddyState();
             const html = buddy.messages.map(msg => ({ ...msg, displayContent: getDisplayAiMessage(msg) }))
-                .filter(msg => String(msg.displayContent || '').trim()).map(msg => `
+                .filter(msg => String(msg.displayContent || '').trim()).map(msg => {
+                    const escaped = escapeHtml(msg.displayContent);
+                    return `
                 <div class="ai-message-row ${msg.role === 'user' ? 'user' : 'assistant'}">
-                    <div class="ai-message ${msg.role === 'user' ? 'user' : 'assistant'}">${escapeHtml(msg.displayContent)}</div>
-                    <span class="ai-message-time">${formatAiTime(msg.at)}</span>
-                </div>
-            `).join('');
+                    <div class="ai-message ${msg.role === 'user' ? 'user' : 'assistant'}">${escaped}</div>
+                    <div class="ai-message-actions">
+                        <span class="ai-message-time">${formatAiTime(msg.at)}</span>
+                        ${msg.role === 'assistant' ? `<button class="ai-copy-btn" data-copy-text="${encodeURIComponent(msg.displayContent)}" onclick="copyAiMessage(decodeURIComponent(this.dataset.copyText))" title="复制"><i class="fas fa-copy"></i></button>` : ''}
+                    </div>
+                </div>`;
+                }).join('');
             const waiting = aiSending ? `
                 <div class="ai-message-row assistant">
                     <div class="ai-message assistant ai-typing-bubble">
@@ -10227,12 +10712,161 @@
                             <span class="ai-typing-dot"></span>
                         </span>
                     </div>
-                    <span class="ai-message-time">正在连接模型</span>
+                    <div class="ai-message-actions">
+                        <span class="ai-message-time">正在连接模型</span>
+                        <button class="ai-stop-btn" onclick="stopAiReply()" title="停止回复"><i class="fas fa-stop"></i> 停止</button>
+                    </div>
                 </div>
             ` : '';
             list.innerHTML = html + waiting;
             list.scrollTop = list.scrollHeight;
+
+            // 为每条消息绑定选区事件
+            list.querySelectorAll('.ai-message.assistant, .ai-message.user').forEach(el => {
+                el.addEventListener('mouseup', handleAiTextSelection);
+            });
         }
+
+        // 选中 AI 消息文字时弹出浮动工具栏
+        function handleAiTextSelection(e) {
+            setTimeout(() => {
+                const sel = window.getSelection();
+                const text = (sel?.toString() || '').trim();
+                const menu = document.getElementById('ai-selection-menu');
+                if (!text || !menu) return hideAiSelectionMenu();
+
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                menu.innerHTML = `
+                    <button onclick="addSelectionToCalendarNote()" title="加到日历笔记">
+                        <i class="fas fa-calendar-plus"></i> 日历笔记
+                    </button>
+                    <button onclick="addSelectionToNotebook()" title="加到多维笔记本">
+                        <i class="fas fa-book"></i> 多维笔记
+                    </button>
+                `;
+                menu.style.left = `${Math.min(rect.left, window.innerWidth - 180)}px`;
+                menu.style.top = `${rect.bottom + 6}px`;
+                menu.classList.add('open');
+                window._aiSelectionText = text;
+            }, 10);
+        }
+
+        function hideAiSelectionMenu() {
+            const menu = document.getElementById('ai-selection-menu');
+            if (menu) menu.classList.remove('open');
+            window._aiSelectionText = '';
+        }
+
+        window.addSelectionToCalendarNote = () => {
+            const text = window._aiSelectionText || '';
+            if (!text) return;
+            const key = dateToStudyKey(new Date());
+            const existing = currentState.notes[key] || '';
+            currentState.notes[key] = existing ? `${existing}<p>${escapeHtml(text)}</p>` : `<p>${escapeHtml(text)}</p>`;
+            hideAiSelectionMenu();
+            save();
+            refresh();
+            showToast('已加到今天日历笔记');
+        };
+
+        window.addSelectionToNotebook = () => {
+            const text = window._aiSelectionText || '';
+            if (!text) return;
+            hideAiSelectionMenu();
+            showAiNotebookPicker(text);
+        };
+
+        function showAiNotebookPicker(text) {
+            window._aiSelectionText = text; // 存起来供 onclick 使用
+            ensureNotebookFolders();
+            const cats = getCategories();
+            if (!cats.length) return showToast('请先创建科目分类');
+
+            let html = '<div class="ai-picker-header">选择要加入的位置</div>';
+            cats.forEach(cat => {
+                const folders = getNotebookFoldersBySubject(cat.type);
+                html += `<div class="ai-picker-subject" style="border-left:3px solid ${sanitizeColor(cat.color)};margin-bottom:6px;padding-left:8px;">`;
+                html += `<div class="ai-picker-subject-name">${escapeHtml(cat.name)}</div>`;
+
+                folders.forEach(folder => {
+                    const folderEntries = getNotebookEntriesByFolder(folder.id);
+                    html += `<div class="ai-picker-folder">📁 ${escapeHtml(folder.name || '默认文件夹')}</div>`;
+                    if (folderEntries.length) {
+                        folderEntries.slice(0, 3).forEach(entry => {
+                            html += `<button class="ai-picker-entry" data-entry-id="${entry.id}" onclick="appendToNotebookEntry(this.dataset.entryId)">${escapeHtml(getNotebookEntryTitle(entry))} <span>${escapeHtml((entry.content || '').slice(0, 20))}</span></button>`;
+                        });
+                    }
+                });
+
+                html += `<button class="ai-picker-new" data-subject="${cat.type}" onclick="createNotebookFromSelection(this.dataset.subject)">+ 新建「${escapeHtml(cat.name)}」笔记</button>`;
+                html += `</div>`;
+            });
+
+            html += `<button class="ai-picker-cancel" onclick="hideAiNotebookPicker()">取消</button>`;
+
+            const menu = document.getElementById('ai-selection-menu');
+            menu.innerHTML = html;
+            menu.classList.add('open', 'ai-picker');
+            menu.style.left = `${Math.max(10, (window.innerWidth - 300) / 2)}px`;
+            menu.style.top = `${Math.max(60, window.innerHeight * 0.15)}px`;
+            menu.style.maxWidth = '300px';
+            menu.style.maxHeight = `${window.innerHeight * 0.6}px`;
+            menu.style.overflowY = 'auto';
+            menu.style.flexDirection = 'column';
+            menu.style.padding = '12px';
+            menu.style.gap = '4px';
+        }
+
+        window.appendToNotebookEntry = (entryId) => {
+            const text = window._aiSelectionText || '';
+            if (!text || !entryId) return;
+            const entry = currentState.notebookEntries?.[entryId];
+            if (!entry) return showToast('笔记不存在');
+            const newHtml = (entry.html || '') + '<p>' + escapeHtml(text) + '</p>';
+            entry.html = newHtml;
+            entry.content = textFromHtml(newHtml);
+            entry.updatedAt = new Date().toISOString();
+            hideAiNotebookPicker();
+            save();
+            refresh();
+            showToast('已追加到「' + getNotebookEntryTitle(entry) + '」');
+        };
+
+        window.createNotebookFromSelection = (subjectType) => {
+            const text = window._aiSelectionText || '';
+            if (!text || !subjectType) return;
+            ensureNotebookFolders();
+            notebookComposeSubject = subjectType;
+            notebookCurrentFolderId = getDefaultNotebookFolderId(subjectType);
+            notebookCurrentEntryId = null;
+            notebookCurrentDateKey = getAutoNotebookDateKey();
+            upsertNotebookEntry({
+                dateKey: notebookCurrentDateKey,
+                subjectType,
+                folderId: notebookCurrentFolderId,
+                title: keyToLabel(notebookCurrentDateKey),
+                html: `<p>${escapeHtml(text)}</p>`
+            });
+            hideAiNotebookPicker();
+            window.openNotebookModal();
+            showToast('已创建新笔记');
+        };
+
+        function hideAiNotebookPicker() {
+            const menu = document.getElementById('ai-selection-menu');
+            if (menu) {
+                menu.classList.remove('open', 'ai-picker');
+                menu.style = '';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#ai-selection-menu') && !e.target.closest('.ai-message')) {
+                hideAiSelectionMenu();
+                hideAiNotebookPicker();
+            }
+        });
 
         function fillAiProfileForm() {
             const buddy = ensureAiBuddyState();
@@ -10659,7 +11293,7 @@ ${(ctx.relevantNotes || []).length
             }).filter(Boolean).join('\n');
         }
 
-        async function callAiApi(userMessage, ctx) {
+        async function callAiApi(userMessage, ctx, signal) {
             const endpoint = getAiApiEndpoint();
             if (!endpoint) return null;
             const cfg = getAiModelConfig();
@@ -10667,7 +11301,8 @@ ${(ctx.relevantNotes || []).length
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: buildAiApiHeaders(endpoint),
-                body: JSON.stringify(buildAiApiRequest(userMessage, ctx))
+                body: JSON.stringify(buildAiApiRequest(userMessage, ctx)),
+                signal
             });
             const contentType = response.headers.get('content-type') || '';
             if (!response.ok) {
@@ -10750,7 +11385,7 @@ ${(ctx.relevantNotes || []).length
                 headers: buildAiApiHeaders(STUDY_PUSH_ENDPOINT),
                 body: JSON.stringify({
                     mode,
-                    syncId: MY_SYNC_ID,
+                    syncId: effectiveSyncId(),
                     pushConfig: buddy.push || {},
                     summary: buildWechatPushSummary()
                 })
@@ -11022,10 +11657,35 @@ ${(ctx.relevantNotes || []).length
         }
 
         window.handleAiInputKey = (event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
+            // Ctrl+Enter 或 Cmd+Enter 发送，普通 Enter 换行
+            if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 sendAiMessage();
             }
+        };
+
+        window.stopAiReply = () => {
+            if (aiAbortController) {
+                aiAbortController.abort();
+                aiAbortController = null;
+            }
+            if (aiSending) {
+                aiSending = false;
+                addAiMessage('assistant', '⏹️ 已停止回复。');
+                renderAiBuddy();
+                renderAiSendButton();
+                showToast('已停止');
+            }
+        };
+
+        window.copyAiMessage = (content) => {
+            const text = String(content || '');
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制');
+            }).catch(() => {
+                showToast('复制失败，请手动选择复制');
+            });
         };
 
         window.autoResizeAiInput = () => {
@@ -11045,6 +11705,7 @@ ${(ctx.relevantNotes || []).length
         let aiSending = false;
         let aiPushSending = false;
         let aiDailyPushInFlight = false;
+        let aiAbortController = null;
 
         function syncWechatPushFormToState() {
             const buddy = ensureAiBuddyState();
@@ -11197,6 +11858,7 @@ ${(ctx.relevantNotes || []).length
                 input.style.height = '';
             }
             aiSending = true;
+            aiAbortController = new AbortController();
             const userMessage = addAiMessage('user', text);
             save();
             const ctx = buildAiStudyContext();
@@ -11205,7 +11867,7 @@ ${(ctx.relevantNotes || []).length
             try {
                 let reply = '';
                 let apiData = null;
-                const apiResult = await callAiApi(text, ctx);
+                const apiResult = await callAiApi(text, ctx, aiAbortController.signal);
                 reply = apiResult?.text || generateAiReply(text, ctx);
                 apiData = apiResult?.data || null;
                 ensureAiMessagePresent(userMessage);
@@ -11228,14 +11890,19 @@ ${(ctx.relevantNotes || []).length
                     showToast('AI 任务写入失败');
                 }
             } catch (err) {
-                console.error('AI API 调用失败:', err);
-                setAiApiStatus('failed', err.message || String(err));
-                const fallbackReply = `AI 连接失败，暂时没有拿到模型回复。\n\n错误详情：${err.message || err}\n\n我没有用本地规则冒充 AI 回答。先点「资料」里的「测试」看连接是否通过；如果测试也失败，通常是 Supabase Secrets、DeepSeek 余额/Key、模型 ID 或 Edge Function 版本的问题。`;
-                ensureAiMessagePresent(userMessage);
-                addAiMessage('assistant', fallbackReply);
-                showToast('AI 连接失败，已显示详情');
+                if (err.name === 'AbortError') {
+                    // 用户手动停止 — stopAiReply 已经处理了
+                } else {
+                    console.error('AI API 调用失败:', err);
+                    setAiApiStatus('failed', err.message || String(err));
+                    const fallbackReply = `AI 连接失败，暂时没有拿到模型回复。\n\n错误详情：${err.message || err}\n\n我没有用本地规则冒充 AI 回答。先点「资料」里的「测试」看连接是否通过；如果测试也失败，通常是 Supabase Secrets、DeepSeek 余额/Key、模型 ID 或 Edge Function 版本的问题。`;
+                    ensureAiMessagePresent(userMessage);
+                    addAiMessage('assistant', fallbackReply);
+                    showToast('AI 连接失败，已显示详情');
+                }
             } finally {
                 aiSending = false;
+                aiAbortController = null;
                 renderAiBuddy();
                 renderAiCalendarReminder();
                 save();
@@ -11616,6 +12283,7 @@ ${(ctx.relevantNotes || []).length
             document.getElementById('quick-menu-panel')?.classList.remove('open');
             document.getElementById('quick-menu-overlay')?.classList.remove('open');
             document.getElementById('quick-menu-fab')?.classList.remove('open');
+            document.body.classList.remove('quick-menu-open');
             setQuickFabIcon(false);
         }
 
@@ -11628,6 +12296,7 @@ ${(ctx.relevantNotes || []).length
             panel.classList.toggle('open', nextOpen);
             overlay.classList.toggle('open', nextOpen);
             fab.classList.toggle('open', nextOpen);
+            document.body.classList.toggle('quick-menu-open', nextOpen);
             setQuickFabIcon(nextOpen);
         }
 

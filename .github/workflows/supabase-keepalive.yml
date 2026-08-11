@@ -1,0 +1,42 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    # 每天北京时间 09:17（GitHub Actions 使用 UTC）
+    - cron: "17 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Query one study record
+        env:
+          SUPABASE_URL: "https://atpywxgykzhgtzhdpqbe.supabase.co"
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "$SUPABASE_ANON_KEY" ]]; then
+            echo "Missing repository secret: SUPABASE_ANON_KEY" >&2
+            exit 1
+          fi
+
+          curl \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --retry-all-errors \
+            --max-time 30 \
+            --output /dev/null \
+            --header "apikey: $SUPABASE_ANON_KEY" \
+            --header "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/study_progress?select=id&limit=1"
