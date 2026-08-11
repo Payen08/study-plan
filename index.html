@@ -1293,6 +1293,182 @@
             border-color: #e2e8f0;
         }
 
+        .maimemo-result-shell {
+            margin-bottom: 10px;
+        }
+
+        .maimemo-card {
+            border: 1px solid #bfdbfe;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #ffffff, #f8fbff);
+            padding: 16px;
+            box-shadow: 0 10px 28px -24px rgba(37, 99, 235, 0.7);
+        }
+
+        .maimemo-card.is-loading {
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 64px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .maimemo-word-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .maimemo-word {
+            color: #0f172a;
+            font-size: 24px;
+            line-height: 1.15;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            overflow-wrap: anywhere;
+        }
+
+        .maimemo-source {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .maimemo-section {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .maimemo-section-title {
+            color: #475569;
+            font-size: 11px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .maimemo-definition,
+        .maimemo-note,
+        .maimemo-phrase {
+            color: #1e293b;
+            font-size: 14px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .maimemo-note + .maimemo-note,
+        .maimemo-phrase + .maimemo-phrase {
+            margin-top: 8px;
+        }
+
+        .maimemo-phrase-translation,
+        .maimemo-empty-hint {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        .maimemo-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .maimemo-action-btn {
+            min-height: 44px;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 0 14px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: background 0.18s, border-color 0.18s, color 0.18s;
+        }
+
+        .maimemo-action-btn:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+
+        .maimemo-action-btn.secondary {
+            background: #fff;
+            color: #475569;
+            border-color: #e2e8f0;
+        }
+
+        .maimemo-action-btn.secondary:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .maimemo-error {
+            border: 1px solid #fecaca;
+            border-radius: 14px;
+            background: #fff7f7;
+            color: #991b1b;
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .maimemo-card {
+            background: #18181b;
+            border-color: #1e3a5f;
+            box-shadow: none;
+        }
+
+        body.dark-mode .maimemo-word,
+        body.dark-mode .maimemo-definition,
+        body.dark-mode .maimemo-note,
+        body.dark-mode .maimemo-phrase {
+            color: #f4f4f5;
+        }
+
+        body.dark-mode .maimemo-section {
+            border-top-color: #27272a;
+        }
+
+        body.dark-mode .maimemo-section-title,
+        body.dark-mode .maimemo-phrase-translation,
+        body.dark-mode .maimemo-empty-hint {
+            color: #a1a1aa;
+        }
+
+        body.dark-mode .maimemo-source,
+        body.dark-mode .maimemo-action-btn {
+            background: #172554;
+            border-color: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        body.dark-mode .maimemo-action-btn.secondary {
+            background: #27272a;
+            border-color: #3f3f46;
+            color: #d4d4d8;
+        }
+
+        body.dark-mode .maimemo-error {
+            background: #2a1518;
+            border-color: #7f1d1d;
+            color: #fecaca;
+        }
+
         .search-highlight {
             background: #fef08a;
             color: #854d0e;
@@ -5461,7 +5637,7 @@
         <div class="modal-content search-modal bg-white flex flex-col">
             <div class="search-header">
                 <i class="fas fa-search text-slate-400"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记或任务... 输入 #标签 可筛选"
+                <input type="text" id="search-input" class="search-input" placeholder="搜索笔记、任务或英文单词..."
                     oninput="handleSearch(this.value)">
                 <button onclick="toggleSearch()"
                     class="text-slate-400 hover:text-slate-600 text-sm font-bold">取消</button>
@@ -5470,8 +5646,8 @@
                 <div class="search-tags-label">热门标签</div>
                 <div id="search-tags-row" class="search-tags-row"></div>
             </div>
-            <div id="search-results" class="search-results">
-                <div class="empty-state">输入关键词开始搜索...</div>
+            <div id="search-results" class="search-results" aria-live="polite" aria-busy="false">
+                <div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">英文单词会同时查询墨墨</span></div>
             </div>
         </div>
     </div>
@@ -6175,8 +6351,9 @@
         // 默认走 Supabase Edge Function；DeepSeek sk 只放在 Function Secrets，不能放前端。
         const AI_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-buddy`;
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
+        const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'wechat-push-debug-2026-05-28-v1';
+        const BUILD_TAG = 'maimemo-lookup-2026-08-11-v1';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -8321,10 +8498,14 @@
                 // 打开时清空并聚焦
                 const inp = document.getElementById('search-input');
                 inp.value = '';
-                document.getElementById('search-results').innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">输入 #标签 可按标签聚合笔记</span></div>';
+                const resultsEl = document.getElementById('search-results');
+                resultsEl.setAttribute('aria-busy', 'false');
+                resultsEl.innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">英文单词会同时查询墨墨 · 输入 #标签 可筛选</span></div>';
                 // 显示热门标签
                 renderSearchTags();
                 setTimeout(() => inp.focus(), 150);
+            } else {
+                cancelMaimemoSearch();
             }
         };
 
@@ -8359,11 +8540,172 @@
             return `${parts[0]}年${parts[1]}月${parts[2]}日`;
         }
 
+        let maimemoSearchTimer = null;
+        let maimemoSearchSeq = 0;
+        let maimemoSearchController = null;
+        const maimemoLookupCache = new Map();
+        const maimemoLookupResults = new Map();
+
+        function normalizeMaimemoWord(value) {
+            const word = String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+            return (/^[a-z][a-z' -]{0,62}[a-z]$|^[a-z]$/i.test(word)) ? word : '';
+        }
+
+        function cancelMaimemoSearch() {
+            clearTimeout(maimemoSearchTimer);
+            maimemoSearchTimer = null;
+            maimemoSearchSeq += 1;
+            maimemoSearchController?.abort();
+            maimemoSearchController = null;
+        }
+
+        function makeMaimemoResultShell(resultsEl, word) {
+            const shell = document.createElement('section');
+            shell.id = 'maimemo-search-result';
+            shell.className = 'maimemo-result-shell';
+            shell.dataset.word = word;
+            shell.innerHTML = `<div class="maimemo-card is-loading"><i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i><span>正在查询墨墨：${escapeHtml(word)}</span></div>`;
+            resultsEl.appendChild(shell);
+            resultsEl.setAttribute('aria-busy', 'true');
+            return shell;
+        }
+
+        function renderMaimemoResult(word, data) {
+            const shell = document.getElementById('maimemo-search-result');
+            const resultsEl = document.getElementById('search-results');
+            if (!shell || shell.dataset.word !== word || !resultsEl) return;
+            resultsEl.setAttribute('aria-busy', 'false');
+
+            if (!data?.found) {
+                shell.innerHTML = `<div class="maimemo-card"><div class="maimemo-word-head"><div><div class="maimemo-word">${escapeHtml(word)}</div><div class="maimemo-empty-hint">墨墨没有找到这个拼写，可以检查原形或让 AI 解释。</div></div><span class="maimemo-source">墨墨</span></div><div class="maimemo-actions"><button class="maimemo-action-btn" data-word="${escapeHtml(word)}" onclick="askAiAboutMaimemoWord(this.dataset.word)"><i class="fas fa-wand-magic-sparkles"></i> AI 解释</button></div></div>`;
+                return;
+            }
+
+            const interpretations = Array.isArray(data.interpretations) ? data.interpretations : [];
+            const notes = Array.isArray(data.notes) ? data.notes : [];
+            const phrases = Array.isArray(data.phrases) ? data.phrases : [];
+            maimemoLookupResults.set(word, data);
+
+            const definitionHtml = interpretations.length
+                ? `<div class="maimemo-section"><div class="maimemo-section-title">我的释义</div>${interpretations.map(item => `<div class="maimemo-definition">${escapeHtml(item.interpretation || '')}</div>`).join('')}</div>`
+                : `<div class="maimemo-section"><div class="maimemo-section-title">释义</div><div class="maimemo-empty-hint">墨墨开放 API 没有返回自定义释义；内置词典释义暂不开放，可使用 AI 解释。</div></div>`;
+            const noteHtml = notes.length
+                ? `<div class="maimemo-section"><div class="maimemo-section-title">我的助记</div>${notes.map(item => `<div class="maimemo-note">${item.type ? `<strong>${escapeHtml(item.type)}：</strong>` : ''}${escapeHtml(item.note || '')}</div>`).join('')}</div>`
+                : '';
+            const phraseHtml = phrases.length
+                ? `<div class="maimemo-section"><div class="maimemo-section-title">我的例句</div>${phrases.slice(0, 4).map(item => `<div class="maimemo-phrase">${escapeHtml(item.phrase || '')}${item.interpretation ? `<div class="maimemo-phrase-translation">${escapeHtml(item.interpretation)}</div>` : ''}</div>`).join('')}</div>`
+                : '';
+
+            shell.innerHTML = `<div class="maimemo-card"><div class="maimemo-word-head"><div class="maimemo-word">${escapeHtml(data.word || word)}</div><span class="maimemo-source">墨墨</span></div>${definitionHtml}${noteHtml}${phraseHtml}<div class="maimemo-actions"><button class="maimemo-action-btn" data-word="${escapeHtml(word)}" onclick="saveMaimemoWordToNotebook(this.dataset.word)"><i class="fas fa-book"></i> 保存到英语笔记</button><button class="maimemo-action-btn secondary" data-word="${escapeHtml(word)}" onclick="askAiAboutMaimemoWord(this.dataset.word)"><i class="fas fa-wand-magic-sparkles"></i> AI 解释</button></div></div>`;
+        }
+
+        function renderMaimemoError(word, message) {
+            const shell = document.getElementById('maimemo-search-result');
+            const resultsEl = document.getElementById('search-results');
+            if (!shell || shell.dataset.word !== word || !resultsEl) return;
+            resultsEl.setAttribute('aria-busy', 'false');
+            shell.innerHTML = `<div class="maimemo-error" role="alert"><strong>墨墨暂时无法查询</strong><br>${escapeHtml(message || '请稍后再试')}<div class="maimemo-actions"><button class="maimemo-action-btn secondary" data-word="${escapeHtml(word)}" onclick="retryMaimemoLookup(this.dataset.word)"><i class="fas fa-rotate-right"></i> 重试</button></div></div>`;
+        }
+
+        async function lookupMaimemoWord(word, seq, force = false) {
+            const cached = maimemoLookupCache.get(word);
+            if (!force && cached && Date.now() - cached.savedAt < 10 * 60 * 1000) {
+                if (seq === maimemoSearchSeq) renderMaimemoResult(word, cached.data);
+                return;
+            }
+            if (IS_FILE_ORIGIN) {
+                renderMaimemoError(word, '本地 file:// 模式不能连接云端，请使用 GitHub Pages 或 localhost。');
+                return;
+            }
+
+            maimemoSearchController?.abort();
+            maimemoSearchController = new AbortController();
+            try {
+                const response = await fetch(MAIMEMO_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: buildAiApiHeaders(MAIMEMO_API_ENDPOINT),
+                    body: JSON.stringify({ action: 'lookup', word }),
+                    signal: maimemoSearchController.signal
+                });
+                let data = {};
+                try { data = await response.json(); } catch (_) {}
+                if (!response.ok) throw new Error(data.detail || data.error || `HTTP ${response.status}`);
+                if (seq !== maimemoSearchSeq) return;
+                maimemoLookupCache.set(word, { data, savedAt: Date.now() });
+                renderMaimemoResult(word, data);
+            } catch (error) {
+                if (error?.name === 'AbortError' || seq !== maimemoSearchSeq) return;
+                renderMaimemoError(word, error?.message || String(error));
+            }
+        }
+
+        function scheduleMaimemoLookup(word) {
+            clearTimeout(maimemoSearchTimer);
+            const seq = ++maimemoSearchSeq;
+            maimemoSearchTimer = setTimeout(() => lookupMaimemoWord(word, seq), 450);
+        }
+
+        window.retryMaimemoLookup = (word) => {
+            const normalized = normalizeMaimemoWord(word);
+            if (!normalized) return;
+            const resultsEl = document.getElementById('search-results');
+            const shell = document.getElementById('maimemo-search-result');
+            if (shell) shell.innerHTML = `<div class="maimemo-card is-loading"><i class="fas fa-circle-notch fa-spin"></i><span>正在重新查询墨墨：${escapeHtml(normalized)}</span></div>`;
+            resultsEl?.setAttribute('aria-busy', 'true');
+            const seq = ++maimemoSearchSeq;
+            lookupMaimemoWord(normalized, seq, true);
+        };
+
+        window.askAiAboutMaimemoWord = (word) => {
+            const normalized = normalizeMaimemoWord(word);
+            if (!normalized) return;
+            document.getElementById('search-modal')?.classList.remove('open');
+            aiQuickPrompt(`请解释英语单词「${normalized}」：给出常见中文释义、词性、考研常见搭配，并提供一个简短例句。若有多个高频义项请按常用程度排列。`);
+        };
+
+        window.saveMaimemoWordToNotebook = (word) => {
+            const normalized = normalizeMaimemoWord(word);
+            const data = maimemoLookupResults.get(normalized);
+            if (!normalized || !data) return showToast('请先完成墨墨查词');
+            const englishCategory = getCategories().find(cat => /英语|english/i.test(cat.name || '')) || getCategories()[0];
+            if (!englishCategory) return showToast('请先创建一个英语分类');
+            ensureNotebookFolders();
+            const title = `${data.word || normalized} · 墨墨查词`;
+            const parts = [`<p><strong>${escapeHtml(data.word || normalized)}</strong></p>`];
+            if (data.interpretations?.length) {
+                parts.push('<p><strong>释义</strong></p>');
+                data.interpretations.forEach(item => parts.push(`<p>${escapeHtml(item.interpretation || '')}</p>`));
+            }
+            if (data.notes?.length) {
+                parts.push('<p><strong>助记</strong></p>');
+                data.notes.forEach(item => parts.push(`<p>${item.type ? `${escapeHtml(item.type)}：` : ''}${escapeHtml(item.note || '')}</p>`));
+            }
+            if (data.phrases?.length) {
+                parts.push('<p><strong>例句</strong></p>');
+                data.phrases.slice(0, 4).forEach(item => parts.push(`<p>${escapeHtml(item.phrase || '')}${item.interpretation ? `<br>${escapeHtml(item.interpretation)}` : ''}</p>`));
+            }
+            if (!data.interpretations?.length) parts.push('<p>墨墨暂无自定义释义，可在 AI 学习伙伴中补充。</p>');
+            const existing = getNotebookEntriesBySubject(englishCategory.type).find(entry => (entry.title || '').toLowerCase() === title.toLowerCase());
+            upsertNotebookEntry({
+                ...(existing || {}),
+                dateKey: existing?.dateKey || getAutoNotebookDateKey(),
+                subjectType: englishCategory.type,
+                folderId: existing?.folderId || getDefaultNotebookFolderId(englishCategory.type),
+                title,
+                html: parts.join('')
+            });
+            save();
+            refresh();
+            showToast(existing ? '英语笔记已更新' : '已保存到英语笔记本');
+        };
+
         window.handleSearch = (q) => {
             window._searchQ = q; // 保存搜索词，供 jumpToResult 传给 openNote
             const resultsEl = document.getElementById('search-results');
             if (!q.trim()) {
-                resultsEl.innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">输入 #标签 可按标签聚合笔记</span></div>';
+                cancelMaimemoSearch();
+                resultsEl.setAttribute('aria-busy', 'false');
+                resultsEl.innerHTML = '<div class="empty-state">输入关键词开始搜索...<br><span style="font-size:12px;color:#cbd5e1">英文单词会同时查询墨墨 · 输入 #标签 可筛选</span></div>';
                 window._searchQ = '';
                 return;
             }
@@ -8371,6 +8713,7 @@
             // ===== 标签搜索模式 =====
             const tagMatch = q.trim().match(/^#([\u4e00-\u9fff\w\-]+)$/);
             if (tagMatch) {
+                cancelMaimemoSearch();
                 const tag = tagMatch[1];
                 const notes = getNotesByTag(tag);
                 if (!notes.length) {
@@ -8465,12 +8808,25 @@
                 });
             });
 
+            resultsEl.innerHTML = '';
+            resultsEl.setAttribute('aria-busy', 'false');
+            const maimemoWord = normalizeMaimemoWord(q);
+            if (maimemoWord) {
+                makeMaimemoResultShell(resultsEl, maimemoWord);
+                scheduleMaimemoLookup(maimemoWord);
+            } else {
+                cancelMaimemoSearch();
+            }
+
             if (!res.length) {
-                resultsEl.innerHTML = '<div class="empty-state">未找到相关内容</div>';
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.style.padding = maimemoWord ? '18px' : '40px';
+                empty.textContent = maimemoWord ? '本地笔记和任务中没有匹配内容' : '未找到相关内容';
+                resultsEl.appendChild(empty);
                 return;
             }
 
-            resultsEl.innerHTML = '';
             res.forEach((r, idx) => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
