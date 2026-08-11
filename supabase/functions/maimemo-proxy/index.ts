@@ -16,7 +16,7 @@ type CacheEntry = {
 
 const lookupCache = new Map<string, CacheEntry>();
 const requestBuckets = new Map<string, number[]>();
-const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_TTL_MS = 30 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 100;
 const RATE_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT = 30;
@@ -91,13 +91,21 @@ function pruneCache() {
 }
 
 async function maimemoRequest(path: string, token: string) {
-  const response = await fetch(`${MAIMEMO_BASE_URL}${path}`, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
+  let response: Response;
+  try {
+    response = await fetch(`${MAIMEMO_BASE_URL}${path}`, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
   const text = await response.text();
   let data: any = null;
   try {
@@ -140,6 +148,101 @@ function cleanPhrases(value: unknown) {
     interpretation: String(item?.interpretation || "").slice(0, 1200),
     origin: String(item?.origin || "").slice(0, 120),
   })).filter((item) => item.phrase);
+}
+
+type AiDefinition = {
+  meanings: Array<{ partOfSpeech: string; definition: string }>;
+  collocations: Array<{ phrase: string; meaning: string }>;
+  example: { english: string; chinese: string } | null;
+};
+
+function cleanText(value: unknown, maxLength: number) {
+  return String(value || "")
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function parseAiDefinition(content: unknown): AiDefinition | null {
+  const raw = String(content || "").trim();
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+  const candidate = fenced || raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1);
+  if (!candidate) return null;
+  try {
+    const parsed = JSON.parse(candidate);
+    const meanings = (Array.isArray(parsed?.meanings) ? parsed.meanings : [])
+      .slice(0, 6)
+      .map((item: any) => ({
+        partOfSpeech: cleanText(item?.partOfSpeech, 24),
+        definition: cleanText(item?.definition, 240),
+      }))
+      .filter((item: { definition: string }) => item.definition);
+    const collocations = (Array.isArray(parsed?.collocations) ? parsed.collocations : [])
+      .slice(0, 5)
+      .map((item: any) => ({
+        phrase: cleanText(item?.phrase, 100),
+        meaning: cleanText(item?.meaning, 160),
+      }))
+      .filter((item: { phrase: string }) => item.phrase);
+    const english = cleanText(parsed?.example?.english, 280);
+    const chinese = cleanText(parsed?.example?.chinese, 280);
+    if (!meanings.length) return null;
+    return {
+      meanings,
+      collocations,
+      example: english ? { english, chinese } : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function generateAiDefinition(word: string): Promise<AiDefinition | null> {
+  const apiKey = Deno.env.get("DEEPSEEK_API_KEY");
+  if (!apiKey) throw new Error("AI 释义服务尚未配置");
+  const baseUrl = (Deno.env.get("DEEPSEEK_BASE_URL") || "https://api.deepseek.com").replace(/\/$/, "");
+  const model = Deno.env.get("DEEPSEEK_MODEL_FLASH")
+    || Deno.env.get("DEEPSEEK_MODEL")
+    || "deepseek-chat";
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        stream: false,
+        max_tokens: 700,
+        messages: [
+          {
+            role: "system",
+            content: "你是严谨的英汉学习词典。只输出合法 JSON，不要 Markdown。格式：{\"meanings\":[{\"partOfSpeech\":\"n.\",\"definition\":\"常用中文释义\"}],\"collocations\":[{\"phrase\":\"English phrase\",\"meaning\":\"中文含义\"}],\"example\":{\"english\":\"自然、简短的英文例句\",\"chinese\":\"中文翻译\"}}。义项按常用程度排列，最多 5 个；搭配最多 4 个。",
+          },
+          { role: "user", content: `请解释：${word}` },
+        ],
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  const text = await response.text();
+  if (!response.ok) throw new Error(`AI 服务 HTTP ${response.status}`);
+  let data: any;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("AI 服务返回格式异常");
+  }
+  const definition = parseAiDefinition(data?.choices?.[0]?.message?.content);
+  if (!definition) throw new Error("AI 释义格式异常");
+  return definition;
 }
 
 async function lookupWord(word: string, token: string) {
@@ -188,17 +291,31 @@ async function lookupWord(word: string, token: string) {
     safeDetail(`/phrases?voc_id=${encodedId}`, "phrases"),
   ]);
 
+  const cleanedInterpretations = cleanInterpretations(interpretations);
+  let aiDefinition: AiDefinition | null = null;
+  if (!cleanedInterpretations.length) {
+    try {
+      aiDefinition = await generateAiDefinition(String(vocabulary.spelling || word));
+    } catch (error) {
+      console.error("AI definition failed:", error);
+      warnings.push(`aiDefinition: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
   const result = {
     found: true,
     word: String(vocabulary.spelling || word),
     vocId,
-    interpretations: cleanInterpretations(interpretations),
+    interpretations: cleanedInterpretations,
     notes: cleanNotes(notes),
     phrases: cleanPhrases(phrases),
+    aiDefinition,
+    definitionSource: cleanedInterpretations.length ? "maimemo" : aiDefinition ? "ai" : "none",
     warnings: warnings.slice(0, 3),
     source: "maimemo",
   };
-  lookupCache.set(word, { expiresAt: Date.now() + CACHE_TTL_MS, value: result });
+  const resultTtl = !cleanedInterpretations.length && !aiDefinition ? 60 * 1000 : CACHE_TTL_MS;
+  lookupCache.set(word, { expiresAt: Date.now() + resultTtl, value: result });
   pruneCache();
   return result;
 }

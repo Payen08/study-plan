@@ -1342,6 +1342,29 @@
             font-weight: 800;
         }
 
+        .maimemo-source.ai {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .maimemo-ai-notice {
+            color: #9a3412;
+            background: #fff7ed;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 11px;
+            line-height: 1.55;
+            margin-bottom: 8px;
+        }
+
+        .maimemo-pos {
+            display: inline-block;
+            min-width: 30px;
+            margin-right: 6px;
+            color: #2563eb;
+            font-weight: 900;
+        }
+
         .maimemo-section {
             border-top: 1px solid #e2e8f0;
             padding-top: 10px;
@@ -1455,6 +1478,16 @@
             background: #172554;
             border-color: #1e3a8a;
             color: #bfdbfe;
+        }
+
+        body.dark-mode .maimemo-source.ai,
+        body.dark-mode .maimemo-ai-notice {
+            background: #431407;
+            color: #fed7aa;
+        }
+
+        body.dark-mode .maimemo-pos {
+            color: #93c5fd;
         }
 
         body.dark-mode .maimemo-action-btn.secondary {
@@ -6353,7 +6386,7 @@
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'maimemo-lookup-2026-08-11-v1';
+        const BUILD_TAG = 'maimemo-ai-definition-2026-08-11-v2';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -8584,19 +8617,25 @@
             const interpretations = Array.isArray(data.interpretations) ? data.interpretations : [];
             const notes = Array.isArray(data.notes) ? data.notes : [];
             const phrases = Array.isArray(data.phrases) ? data.phrases : [];
+            const aiDefinition = data.aiDefinition && Array.isArray(data.aiDefinition.meanings) ? data.aiDefinition : null;
             maimemoLookupResults.set(word, data);
 
             const definitionHtml = interpretations.length
                 ? `<div class="maimemo-section"><div class="maimemo-section-title">我的释义</div>${interpretations.map(item => `<div class="maimemo-definition">${escapeHtml(item.interpretation || '')}</div>`).join('')}</div>`
-                : `<div class="maimemo-section"><div class="maimemo-section-title">释义</div><div class="maimemo-empty-hint">墨墨开放 API 没有返回自定义释义；内置词典释义暂不开放，可使用 AI 解释。</div></div>`;
+                : aiDefinition
+                    ? `<div class="maimemo-section"><div class="maimemo-section-title">AI 释义</div><div class="maimemo-ai-notice">墨墨已完成单词联动；以下释义由 AI 自动补全，请结合语境核对。</div>${aiDefinition.meanings.map(item => `<div class="maimemo-definition"><span class="maimemo-pos">${escapeHtml(item.partOfSpeech || '')}</span>${escapeHtml(item.definition || '')}</div>`).join('')}</div>`
+                    : `<div class="maimemo-section"><div class="maimemo-section-title">释义</div><div class="maimemo-empty-hint">暂时无法生成释义，可以稍后重试或继续询问 AI。</div></div>`;
             const noteHtml = notes.length
                 ? `<div class="maimemo-section"><div class="maimemo-section-title">我的助记</div>${notes.map(item => `<div class="maimemo-note">${item.type ? `<strong>${escapeHtml(item.type)}：</strong>` : ''}${escapeHtml(item.note || '')}</div>`).join('')}</div>`
                 : '';
             const phraseHtml = phrases.length
                 ? `<div class="maimemo-section"><div class="maimemo-section-title">我的例句</div>${phrases.slice(0, 4).map(item => `<div class="maimemo-phrase">${escapeHtml(item.phrase || '')}${item.interpretation ? `<div class="maimemo-phrase-translation">${escapeHtml(item.interpretation)}</div>` : ''}</div>`).join('')}</div>`
                 : '';
+            const aiExtraHtml = aiDefinition
+                ? `${aiDefinition.collocations?.length ? `<div class="maimemo-section"><div class="maimemo-section-title">常用搭配</div>${aiDefinition.collocations.map(item => `<div class="maimemo-phrase"><strong>${escapeHtml(item.phrase || '')}</strong>${item.meaning ? `<div class="maimemo-phrase-translation">${escapeHtml(item.meaning)}</div>` : ''}</div>`).join('')}</div>` : ''}${aiDefinition.example?.english ? `<div class="maimemo-section"><div class="maimemo-section-title">例句</div><div class="maimemo-phrase">${escapeHtml(aiDefinition.example.english)}${aiDefinition.example.chinese ? `<div class="maimemo-phrase-translation">${escapeHtml(aiDefinition.example.chinese)}</div>` : ''}</div></div>` : ''}`
+                : '';
 
-            shell.innerHTML = `<div class="maimemo-card"><div class="maimemo-word-head"><div class="maimemo-word">${escapeHtml(data.word || word)}</div><span class="maimemo-source">墨墨</span></div>${definitionHtml}${noteHtml}${phraseHtml}<div class="maimemo-actions"><button class="maimemo-action-btn" data-word="${escapeHtml(word)}" onclick="saveMaimemoWordToNotebook(this.dataset.word)"><i class="fas fa-book"></i> 保存到英语笔记</button><button class="maimemo-action-btn secondary" data-word="${escapeHtml(word)}" onclick="askAiAboutMaimemoWord(this.dataset.word)"><i class="fas fa-wand-magic-sparkles"></i> AI 解释</button></div></div>`;
+            shell.innerHTML = `<div class="maimemo-card"><div class="maimemo-word-head"><div class="maimemo-word">${escapeHtml(data.word || word)}</div><span class="maimemo-source${aiDefinition && !interpretations.length ? ' ai' : ''}">${aiDefinition && !interpretations.length ? '墨墨 + AI' : '墨墨'}</span></div>${definitionHtml}${noteHtml}${phraseHtml}${aiExtraHtml}<div class="maimemo-actions"><button class="maimemo-action-btn" data-word="${escapeHtml(word)}" onclick="saveMaimemoWordToNotebook(this.dataset.word)"><i class="fas fa-book"></i> 保存到英语笔记</button><button class="maimemo-action-btn secondary" data-word="${escapeHtml(word)}" onclick="askAiAboutMaimemoWord(this.dataset.word)"><i class="fas fa-wand-magic-sparkles"></i> ${aiDefinition ? '继续问 AI' : 'AI 解释'}</button></div></div>`;
         }
 
         function renderMaimemoError(word, message) {
@@ -8676,6 +8715,17 @@
                 parts.push('<p><strong>释义</strong></p>');
                 data.interpretations.forEach(item => parts.push(`<p>${escapeHtml(item.interpretation || '')}</p>`));
             }
+            if (!data.interpretations?.length && data.aiDefinition?.meanings?.length) {
+                parts.push('<p><strong>AI 释义（请结合语境核对）</strong></p>');
+                data.aiDefinition.meanings.forEach(item => parts.push(`<p>${item.partOfSpeech ? `<strong>${escapeHtml(item.partOfSpeech)}</strong> ` : ''}${escapeHtml(item.definition || '')}</p>`));
+                if (data.aiDefinition.collocations?.length) {
+                    parts.push('<p><strong>常用搭配</strong></p>');
+                    data.aiDefinition.collocations.forEach(item => parts.push(`<p>${escapeHtml(item.phrase || '')}${item.meaning ? `：${escapeHtml(item.meaning)}` : ''}</p>`));
+                }
+                if (data.aiDefinition.example?.english) {
+                    parts.push(`<p><strong>例句</strong></p><p>${escapeHtml(data.aiDefinition.example.english)}${data.aiDefinition.example.chinese ? `<br>${escapeHtml(data.aiDefinition.example.chinese)}` : ''}</p>`);
+                }
+            }
             if (data.notes?.length) {
                 parts.push('<p><strong>助记</strong></p>');
                 data.notes.forEach(item => parts.push(`<p>${item.type ? `${escapeHtml(item.type)}：` : ''}${escapeHtml(item.note || '')}</p>`));
@@ -8684,7 +8734,7 @@
                 parts.push('<p><strong>例句</strong></p>');
                 data.phrases.slice(0, 4).forEach(item => parts.push(`<p>${escapeHtml(item.phrase || '')}${item.interpretation ? `<br>${escapeHtml(item.interpretation)}` : ''}</p>`));
             }
-            if (!data.interpretations?.length) parts.push('<p>墨墨暂无自定义释义，可在 AI 学习伙伴中补充。</p>');
+            if (!data.interpretations?.length && !data.aiDefinition?.meanings?.length) parts.push('<p>释义暂时无法生成，可在 AI 学习伙伴中补充。</p>');
             const existing = getNotebookEntriesBySubject(englishCategory.type).find(entry => (entry.title || '').toLowerCase() === title.toLowerCase());
             upsertNotebookEntry({
                 ...(existing || {}),
