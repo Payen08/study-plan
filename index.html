@@ -6914,6 +6914,316 @@
             body.hero-ui .notebook-title-input:focus { font-size: 20px !important; }
         }
     </style>
+    <style id="ai-profile-heroui-polish">
+        /* AI 资料面板：HeroUI 风格的清晰表单层级 */
+        body.hero-ui .ai-profile-drawer {
+            left: 50%;
+            right: auto;
+            width: min(920px, calc(100% - 48px));
+            padding: 20px;
+            transform: translateX(-50%);
+            border: 1px solid var(--hero-divider);
+            border-radius: 20px;
+            background: #f7f7f8;
+            box-shadow: 0 18px 48px -24px rgba(24, 24, 27, 0.28);
+        }
+
+        body.hero-ui .ai-profile-drawer .ai-controls-row {
+            margin-bottom: 16px;
+            padding: 0;
+            gap: 12px;
+        }
+
+        body.hero-ui .ai-status-wrap { gap: 8px; }
+
+        body.hero-ui .ai-status-pill,
+        body.hero-ui .ai-test-btn {
+            min-height: 40px;
+            padding-inline: 14px;
+            border: 1px solid var(--hero-divider) !important;
+            border-radius: 12px !important;
+            background: var(--hero-content1) !important;
+            color: var(--foreground) !important;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        body.hero-ui .ai-test-btn:hover { background: var(--hero-default-100) !important; }
+
+        body.hero-ui .ai-model-segment {
+            min-height: 40px;
+            padding: 4px !important;
+            border: 1px solid var(--hero-divider) !important;
+            background: var(--hero-default-100) !important;
+        }
+
+        body.hero-ui .ai-model-option {
+            height: 32px;
+            min-width: 56px;
+            padding-inline: 14px;
+            border: 0 !important;
+            border-radius: 10px !important;
+            color: var(--muted) !important;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+        }
+
+        body.hero-ui .ai-model-option:hover { color: var(--foreground) !important; }
+
+        body.hero-ui .ai-model-option.active {
+            background: var(--accent) !important;
+            color: var(--accent-foreground) !important;
+            box-shadow: 0 2px 7px color-mix(in srgb, var(--accent) 25%, transparent) !important;
+        }
+
+        body.hero-ui :is(.ai-model-option, .ai-test-btn, .ai-profile-save-btn):active {
+            transform: scale(0.98);
+        }
+
+        body.hero-ui .ai-profile-section,
+        body.hero-ui.dark-mode .ai-profile-section {
+            padding: 20px !important;
+            border: 1px solid var(--hero-divider) !important;
+            border-radius: 16px !important;
+            background: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(24, 24, 27, 0.03) !important;
+        }
+
+        body.hero-ui .ai-profile-section + .ai-profile-section { margin-top: 14px !important; }
+
+        body.hero-ui .ai-profile-section-title {
+            margin-bottom: 18px;
+            color: var(--foreground);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        body.hero-ui .ai-profile-grid { gap: 16px 14px; }
+
+        body.hero-ui .ai-profile-label {
+            margin: 0 0 7px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        body.hero-ui #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea),
+        body.hero-ui.dark-mode #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea) {
+            min-height: 44px;
+            padding: 11px 13px;
+            border: 1px solid var(--color-border-weak) !important;
+            border-radius: 12px !important;
+            background: var(--hero-default-100) !important;
+            color: var(--foreground) !important;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        body.hero-ui #ai-profile-drawer .ai-profile-textarea { min-height: 76px; resize: none; }
+        body.hero-ui #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea):hover {
+            background: var(--hero-default-200) !important;
+        }
+
+        body.hero-ui #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea):focus {
+            border-color: var(--accent) !important;
+            background: var(--hero-content1) !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent) !important;
+        }
+
+        body.hero-ui:not(.dark-mode) #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea) {
+            border-color: #c9c9cf !important;
+            background: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05) !important;
+        }
+
+        body.hero-ui:not(.dark-mode) #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea):hover {
+            border-color: #a1a1aa !important;
+            background: #ffffff !important;
+        }
+
+        body.hero-ui:not(.dark-mode) #ai-profile-drawer :is(.ai-profile-input, .ai-profile-textarea):focus {
+            border-color: var(--accent) !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent) !important;
+        }
+
+        body.hero-ui .ai-profile-hint {
+            display: block;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        body.hero-ui .ai-profile-save-btn,
+        body.hero-ui.dark-mode .ai-profile-save-btn {
+            min-height: 46px;
+            margin-top: 14px !important;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: var(--accent) !important;
+            color: var(--accent-foreground) !important;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--accent) 70%, transparent) !important;
+        }
+
+        body.hero-ui .ai-profile-save-btn:hover { background: var(--accent-hover) !important; }
+
+        body.hero-ui.dark-mode .ai-profile-drawer { background: #111113; }
+        body.hero-ui.dark-mode .ai-profile-section { background: #18181b !important; }
+        body.hero-ui.dark-mode :is(.ai-status-pill, .ai-test-btn) { background: #18181b !important; }
+
+        @media (max-width: 768px) {
+            body.hero-ui .ai-profile-drawer {
+                top: 108px;
+                width: calc(100% - 24px);
+                max-height: calc(100% - 132px);
+                padding: 14px;
+                border-radius: 18px;
+            }
+
+            body.hero-ui .ai-profile-drawer .ai-controls-row { align-items: stretch; }
+            body.hero-ui .ai-profile-section { padding: 16px !important; }
+        }
+
+        @media (max-width: 480px) {
+            body.hero-ui .ai-profile-drawer .ai-controls-row { flex-direction: column; }
+            body.hero-ui .ai-status-wrap,
+            body.hero-ui .ai-model-segment { width: 100%; }
+            body.hero-ui .ai-status-pill { flex: 1; }
+            body.hero-ui .ai-model-option { flex: 1; min-width: 0; }
+            body.hero-ui .ai-profile-grid { grid-template-columns: 1fr; gap: 14px; }
+            body.hero-ui .ai-profile-field-wide { grid-column: auto; }
+        }
+    </style>
+    <style id="mobile-overlay-edge-fix">
+        @media (max-width: 768px) {
+            /* 手机端恢复独立 AI 入口，并与右下角主菜单错层放置。 */
+            body.hero-ui .ai-buddy-fab {
+                display: flex !important;
+                right: 16px !important;
+                bottom: max(92px, calc(env(safe-area-inset-bottom, 0px) + 92px)) !important;
+            }
+
+            /* AI 使用贴边的移动端工作区，不继承桌面浮卡留白。 */
+            body.hero-ui .ai-buddy-panel,
+            body.hero-ui .ai-buddy-panel.expanded {
+                top: max(8px, env(safe-area-inset-top, 0px)) !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: calc(100dvh - max(8px, env(safe-area-inset-top, 0px))) !important;
+                max-height: none !important;
+                border-right: 0 !important;
+                border-bottom: 0 !important;
+                border-left: 0 !important;
+                border-radius: 20px 20px 0 0 !important;
+                transform-origin: bottom center;
+            }
+
+            /* 每日笔记与多维笔记在手机上占满视口。 */
+            body.hero-ui #note-modal,
+            body.hero-ui #notebook-modal {
+                align-items: stretch !important;
+                padding: 0 !important;
+            }
+
+            body.hero-ui #note-modal .modal-content.note-mode,
+            body.hero-ui #notebook-modal .notebook-modal {
+                inset: auto !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                margin: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            body.hero-ui #note-modal.open .modal-content.note-mode,
+            body.hero-ui #notebook-modal.open .notebook-modal {
+                transform: translateY(0) scale(1) !important;
+            }
+        }
+    </style>
+    <style id="quick-menu-heroui-polish">
+        body.hero-ui .quick-menu-panel,
+        body.hero-ui.dark-mode .quick-menu-panel {
+            width: min(248px, calc(100vw - 24px));
+            padding: 8px !important;
+            border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent) !important;
+            border-radius: 18px !important;
+            background: color-mix(in srgb, var(--surface) 94%, transparent) !important;
+            box-shadow: 0 18px 48px -16px rgba(24, 24, 27, 0.28) !important;
+            backdrop-filter: blur(20px) saturate(1.35);
+            -webkit-backdrop-filter: blur(20px) saturate(1.35);
+        }
+
+        body.hero-ui .quick-menu-item,
+        body.hero-ui.dark-mode .quick-menu-item {
+            min-height: 50px;
+            padding: 6px 8px;
+            gap: 11px;
+            border: 0 !important;
+            border-radius: 12px !important;
+            background: transparent !important;
+            color: var(--foreground) !important;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+        }
+
+        body.hero-ui .quick-menu-item + .quick-menu-item { margin-top: 2px; }
+
+        body.hero-ui .quick-menu-item i,
+        body.hero-ui.dark-mode .quick-menu-item i {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--hero-default-100);
+            color: var(--muted) !important;
+            font-size: 15px;
+            transition: background 160ms ease, color 160ms ease;
+        }
+
+        body.hero-ui .quick-menu-item:hover,
+        body.hero-ui.dark-mode .quick-menu-item:hover {
+            background: var(--hero-default-100) !important;
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui .quick-menu-item:hover i,
+        body.hero-ui.dark-mode .quick-menu-item:hover i {
+            background: var(--hero-content1);
+            color: var(--foreground) !important;
+        }
+
+        body.hero-ui .quick-menu-item:active { transform: scale(0.985); }
+
+        body.hero-ui .quick-menu-item:focus-visible {
+            outline: 0;
+            box-shadow: 0 0 0 2px var(--accent) inset;
+        }
+
+        @media (max-width: 768px) {
+            body.hero-ui .quick-menu-panel {
+                right: 12px;
+                bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 84px));
+            }
+        }
+    </style>
 </head>
 
 <body class="hero-ui safe-area-top safe-area-bottom pb-20 md:pb-10">
@@ -7491,7 +7801,7 @@
                 <button id="ai-push-test-btn" class="ai-mini-btn mt-3 w-full justify-center" type="button"
                     onclick="testWechatPush(event)"><i class="fas fa-paper-plane"></i> 发送微信测试</button>
             </div>
-            <button class="ai-mini-btn mt-3 w-full justify-center" onclick="saveAiProfile()"><i
+            <button class="ai-mini-btn ai-profile-save-btn mt-3 w-full justify-center" onclick="saveAiProfile()"><i
                     class="fas fa-check"></i> 保存资料</button>
         </div>
         <div id="ai-buddy-messages" class="ai-messages"></div>
