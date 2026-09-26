@@ -8672,6 +8672,7 @@
         let cloudSyncInFlight = false;
         let queuedCloudSnapshot = null;
         let queuedCloudJson = '';
+        let queuedCloudRecordId = '';
         let cloudRetryTimer = null;
         let cloudPullInFlight = false;
         let lastCloudPullAt = 0;
@@ -8717,10 +8718,10 @@
 
                     // 首屏最多等待 5 秒，但不能把慢启动/项目唤醒误判成永久离线。
                     // 后台请求会继续完成；页面 focus 与每分钟轮询也会再次尝试拉取。
-                    const startupSync = Promise.allSettled([
-                        initAuth(),
-                        loadCloud().then(() => flushPendingCloudSync())
-                    ]);
+                    // 先确定账号与同步 ID，再读取对应的云端记录。
+                    const startupSync = initAuth()
+                        .then(() => loadCloud())
+                        .then(() => flushPendingCloudSync());
                     const startupWait = new Promise(resolve => setTimeout(resolve, 5000));
                     await Promise.race([startupSync, startupWait]);
                 } catch (e) {
@@ -9079,6 +9080,50 @@
             return s;
         }
 
+        // V2 会把 2026 日期写成 9-1 或 2026-09-01；V1 日历使用 2026-9-1。
+        function normalize2026DateKey(key) {
+            const match = String(key || '').match(/^(?:2026-)?(\d{1,2})-(\d{1,2})$/);
+            if (!match) return key;
+            const month = Number(match[1]);
+            const day = Number(match[2]);
+            if (month < 1 || month > 12 || day < 1 || day > 31) return key;
+            return `2026-${month}-${day}`;
+        }
+
+        function normalize2026State(s) {
+            const state = ensureStateStructure(s);
+            const notes = {};
+            Object.entries(state.notes).forEach(([key, value]) => {
+                const normalizedKey = normalize2026DateKey(key);
+                if (!(normalizedKey in notes) || key === normalizedKey) notes[normalizedKey] = value;
+            });
+            state.notes = notes;
+
+            const customTasks = {};
+            Object.entries(state.customTasks).forEach(([key, tasks]) => {
+                const normalizedKey = normalize2026DateKey(key);
+                if (!Array.isArray(tasks)) return;
+                if (!customTasks[normalizedKey]) customTasks[normalizedKey] = [];
+                const existing = new Set(customTasks[normalizedKey].map(task => task?.id || task?.text));
+                tasks.forEach(task => {
+                    const taskKey = task?.id || task?.text;
+                    if (!taskKey || existing.has(taskKey)) return;
+                    customTasks[normalizedKey].push(task);
+                    existing.add(taskKey);
+                });
+            });
+            state.customTasks = customTasks;
+
+            Object.values(state.notebookEntries).forEach(entry => {
+                if (!entry || typeof entry !== 'object') return;
+                entry.dateKey = normalize2026DateKey(entry.dateKey);
+                if (Array.isArray(entry.linkedDateKeys)) {
+                    entry.linkedDateKeys = [...new Set(entry.linkedDateKeys.map(normalize2026DateKey))];
+                }
+            });
+            return state;
+        }
+
         // 数据完整性检查
         function isValidState(state) {
             if (!state || typeof state !== 'object') return false;
@@ -9271,12 +9316,21 @@
             }, 3000);
         }
 
-        async function pushCloudState(payload) {
-            const recordId = MY_SYNC_ID;
+        async function pushCloudState(payload, recordId) {
+            // V2 在同一行保存 appData；V1 只更新自己负责的年份和设置。
+            const { data: current, error: readError } = await supabaseClient
+                .from('study_progress')
+                .select('data')
+                .eq('id', recordId)
+                .maybeSingle();
+            if (readError) throw readError;
+            const currentData = current?.data && typeof current.data === 'object' ? current.data : {};
             const payloadToWrite = {
+                ...currentData,
                 ...payload,
                 _cloudMeta: {
-                    syncId: MY_SYNC_ID,
+                    ...currentData._cloudMeta,
+                    syncId: recordId,
                     idMode: 'raw',
                     savedAt: new Date().toISOString()
                 }
@@ -9284,7 +9338,7 @@
             let { data, error } = await supabaseClient
                 .from('study_progress')
                 .upsert({ id: recordId, data: payloadToWrite })
-                .select('id,data')
+                .select('id')
                 .maybeSingle();
 
             if (!error) return (data?.id || recordId);
@@ -9300,10 +9354,12 @@
             while (queuedCloudSnapshot) {
                 const payload = queuedCloudSnapshot;
                 const payloadJson = queuedCloudJson || JSON.stringify(payload);
+                const recordId = queuedCloudRecordId;
                 queuedCloudSnapshot = null;
                 queuedCloudJson = '';
+                queuedCloudRecordId = '';
                 try {
-                    const recordId = await pushCloudState(payload);
+                    await pushCloudState(payload, recordId);
                     debug.lastErr = null;
                     debug.lastOkAt = new Date().toISOString();
                     debug.lastRecordId = recordId;
@@ -9311,13 +9367,15 @@
                         clearTimeout(cloudRetryTimer);
                         cloudRetryTimer = null;
                     }
-                    localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
-                    localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+                    if (localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId) {
+                        localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
+                        localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+                    }
                     updateStatus('online');
                 } catch (e) {
                     debug.lastErr = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : String(e);
                     localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, payloadJson);
-                    localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
+                    localStorage.setItem(PENDING_CLOUD_ID_KEY, recordId);
                     updateStatus('offline');
                     const reason = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' | ');
                     if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${reason || '请检查 Supabase 配置/RLS（重点看 UPDATE policy）'}`);
@@ -9328,9 +9386,10 @@
             cloudSyncInFlight = false;
         }
 
-        function queueCloudSync(payload, payloadJson) {
+        function queueCloudSync(payload, payloadJson, recordId = getCloudRecordId()) {
             queuedCloudSnapshot = payload;
             queuedCloudJson = payloadJson;
+            queuedCloudRecordId = recordId;
             flushCloudQueue();
         }
 
@@ -9338,10 +9397,10 @@
             if (!isCloud || !supabaseClient) return;
             const pendingId = localStorage.getItem(PENDING_CLOUD_ID_KEY);
             const pendingJson = localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY);
-            if (!pendingJson || !pendingId || pendingId !== MY_SYNC_ID) return;
+            if (!pendingJson || !pendingId || pendingId !== getCloudRecordId()) return;
             try {
                 const pendingPayload = JSON.parse(pendingJson);
-                queueCloudSync(pendingPayload, pendingJson);
+                queueCloudSync(pendingPayload, pendingJson, pendingId);
             } catch (_) {
                 localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
                 localStorage.removeItem(PENDING_CLOUD_ID_KEY);
@@ -9403,7 +9462,7 @@
                 } catch (e) {
                     console.error('云端保存失败:', e);
                     localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, json);
-                    localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
+                    localStorage.setItem(PENDING_CLOUD_ID_KEY, getCloudRecordId());
                     updateStatus('offline');
                 }
             } else if (!localSaveOk) {
@@ -9466,7 +9525,7 @@
             if (localState) {
                 if (localState['2025'] || localState['2026']) {
                     if (localState['2025']) fullState['2025'] = ensureStateStructure(localState['2025']);
-                    if (localState['2026']) fullState['2026'] = ensureStateStructure(localState['2026']);
+                    if (localState['2026']) fullState['2026'] = normalize2026State(localState['2026']);
                     if (localState['settings']) fullState.settings = localState['settings'];
                 } else {
                     fullState['2025'] = ensureStateStructure(localState);
@@ -9493,7 +9552,7 @@
                         cloudState['2026'] = { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} };
                     } else {
                         if (raw['2025']) cloudState['2025'] = ensureStateStructure(raw['2025']);
-                        if (raw['2026']) cloudState['2026'] = ensureStateStructure(raw['2026']);
+                        if (raw['2026']) cloudState['2026'] = normalize2026State(raw['2026']);
                         if (raw['settings']) cloudState.settings = raw['settings'];
                     }
 
@@ -9544,7 +9603,7 @@
                     // 检测是否已经是新结构
                     if (raw["2025"] || raw["2026"]) {
                         if (raw["2025"]) fullState["2025"] = ensureStateStructure(raw["2025"]);
-                        if (raw["2026"]) fullState["2026"] = ensureStateStructure(raw["2026"]);
+                        if (raw["2026"]) fullState["2026"] = normalize2026State(raw["2026"]);
                         if (raw["settings"]) fullState.settings = raw["settings"];
                     } else {
                         fullState["2025"] = ensureStateStructure(raw);
@@ -9602,40 +9661,6 @@
             const p = total ? Math.round((done / total) * 100) : 0;
             document.getElementById('progress-text').innerText = p + '%';
             document.getElementById('progress-fill').style.width = p + '%';
-        }
-
-        function renderAuthState() {
-            const gate = document.getElementById('auth-gate');
-
-            // file:// 直开 → 永远不拦
-            if (IS_FILE_ORIGIN) {
-                if (gate) gate.classList.add('hidden');
-                return;
-            }
-
-            const userEmail = document.getElementById('auth-user-email');
-
-            if (authUser) {
-                if (gate) gate.classList.add('hidden');
-                if (userEmail) userEmail.textContent = authUser.email || authUser.id;
-            } else {
-                if (gate) gate.classList.remove('hidden');
-            }
-
-            // 更新底部同步栏
-            const btnLabel = document.getElementById('sync-btn-label');
-            const btnIcon = document.getElementById('sync-btn-icon');
-            const manualBtn = document.getElementById('sync-id-manual-btn');
-            if (authUser) {
-                const name = authUser.user_metadata?.display_name || authUser.email || authUser.id;
-                if (btnLabel) btnLabel.innerHTML = '已登录: <span class="text-blue-600 font-mono">' + escapeHtml(name) + '</span>';
-                if (btnIcon) { btnIcon.className = 'fas fa-user-check text-green-500'; }
-                if (manualBtn) manualBtn.style.display = 'none';
-            } else {
-                updateSyncLabel();
-                if (btnIcon) { btnIcon.className = 'fas fa-fingerprint text-blue-500'; }
-                if (manualBtn) manualBtn.style.display = '';
-            }
         }
 
         window.skipAuthGate = () => {
@@ -11748,9 +11773,13 @@
 
         // ================= Supabase Auth 账号系统 =================
         function effectiveSyncId() {
-            return authUser?.id || MY_SYNC_ID;
+            return MY_SYNC_ID;
         }
 
+        function syncIdForUser(user) {
+            const savedId = localStorage.getItem('study_sync_id');
+            return savedId && savedId !== DEFAULT_SYNC_ID ? savedId : (user?.id || DEFAULT_SYNC_ID);
+        }
 
         async function initAuth() {
             if (!supabaseClient) return;
@@ -11758,34 +11787,17 @@
                 const { data } = await supabaseClient.auth.getSession();
                 authSession = data?.session || null;
                 authUser = authSession?.user || null;
-                if (authUser) MY_SYNC_ID = authUser.id;
+                MY_SYNC_ID = syncIdForUser(authUser);
             } catch (_) {}
 
             supabaseClient.auth.onAuthStateChange(async (_event, session) => {
                 const wasLoggedIn = !!authUser;
-                const oldSyncId = MY_SYNC_ID; // 记住旧的，比如 "payen"
                 authSession = session;
                 authUser = session?.user || null;
-                if (authUser) MY_SYNC_ID = authUser.id;
+                MY_SYNC_ID = syncIdForUser(authUser);
                 renderAuthState();
 
                 if (!wasLoggedIn && authUser) {
-                    // 刚登录：把旧 sync ID 的数据迁移到新账号下
-                    const needMigration = oldSyncId && oldSyncId !== authUser.id && oldSyncId !== DEFAULT_SYNC_ID;
-                    if (needMigration) {
-                        try {
-                            // 拉取旧 ID 的云端数据，合并进来
-                            const oldCloud = await fetchStateBySyncId(oldSyncId);
-                            if (oldCloud) {
-                                fullState = mergeStates(fullState, oldCloud);
-                                currentState = fullState[CURRENT_YEAR.toString()];
-                                cleanEmptyNotes();
-                                save();
-                                showToast(`数据已从「${oldSyncId}」迁移到你的账号`);
-                            }
-                        } catch (_) {}
-                    }
-                    // 加载新账号下的云端数据
                     await loadCloud(true);
                     showToast('已登录，数据已同步');
                 }
@@ -11795,6 +11807,8 @@
         }
 
         function renderAuthState() {
+            const gate = document.getElementById('auth-gate');
+            if (gate) gate.classList.toggle('hidden', IS_FILE_ORIGIN || !!authUser);
             const loggedOutView = document.getElementById('auth-logged-out-view');
             const loggedInView = document.getElementById('auth-logged-in-view');
             const userEmail = document.getElementById('auth-user-email');
@@ -11817,9 +11831,9 @@
             const manualBtn = document.getElementById('sync-id-manual-btn');
             if (authUser) {
                 const displayName = authUser.user_metadata?.display_name || authUser.email || authUser.id;
-                if (btnLabel) btnLabel.innerHTML = '已登录: <span class="text-blue-600 font-mono">' + escapeHtml(displayName) + '</span>';
+                if (btnLabel) btnLabel.innerHTML = '已登录: <span class="text-blue-600 font-mono">' + escapeHtml(displayName) + '</span> · ID: ' + escapeHtml(MY_SYNC_ID);
                 if (btnIcon) { btnIcon.className = 'fas fa-user-check text-green-500'; }
-                if (manualBtn) manualBtn.style.display = 'none';
+                if (manualBtn) manualBtn.style.display = '';
             } else {
                 updateSyncLabel();
                 if (btnIcon) { btnIcon.className = 'fas fa-fingerprint text-blue-500'; }
@@ -11931,9 +11945,10 @@
                 showToast('⚠️ 请输入同步 ID');
                 return;
             }
-            MY_SYNC_ID = val;
             localStorage.setItem('study_sync_id', val);
+            MY_SYNC_ID = syncIdForUser(authUser);
             updateSyncLabel();
+            renderAuthState();
             document.getElementById('id-cancel-btn').style.display = '';
             document.getElementById('id-modal').classList.remove('open');
             if (isCloud) {
