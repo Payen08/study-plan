@@ -1,6 +1,6 @@
 // Study Plan PWA Service Worker
 // HTML and Supabase responses must stay fresh. Only static non-HTML assets are cached.
-const CACHE_NAME = 'study-plan-v20260427-pwa-refresh-v2';
+const CACHE_NAME = 'study-plan-v20261009-multi-device-sync-v1';
 const ASSETS_TO_CACHE = [
   './manifest.json',
   './icon-512.png'

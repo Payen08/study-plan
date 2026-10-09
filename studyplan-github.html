@@ -8126,7 +8126,7 @@
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'obsidian-bridge-2026-09-08-v1';
+        const BUILD_TAG = 'multi-device-sync-2026-10-09-v1';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -8670,6 +8670,9 @@
         const PENDING_CLOUD_PAYLOAD_KEY = 'study_pending_cloud_payload';
         const PENDING_CLOUD_ID_KEY = 'study_pending_cloud_id';
         let cloudSyncInFlight = false;
+        let cloudFlushPromise = null;
+        let cloudLoadPromise = null;
+        let localStateRevision = 0;
         let queuedCloudSnapshot = null;
         let queuedCloudJson = '';
         let cloudRetryTimer = null;
@@ -8712,15 +8715,16 @@
 
             if (!IS_FILE_ORIGIN && SUPABASE_URL && SUPABASE_KEY && window.supabase) {
                 try {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                        global: { fetch: fetchCloudWithTimeout }
+                    });
                     isCloud = true;
 
                     // 首屏最多等待 5 秒，但不能把慢启动/项目唤醒误判成永久离线。
                     // 后台请求会继续完成；页面 focus 与每分钟轮询也会再次尝试拉取。
-                    const startupSync = Promise.allSettled([
-                        initAuth(),
-                        loadCloud().then(() => flushPendingCloudSync())
-                    ]);
+                    loadLocal();
+                    // 先确定账号，再读取相应记录，避免读写使用不同 ID。
+                    const startupSync = initAuth().then(() => refreshCloudIfSafe(true));
                     const startupWait = new Promise(resolve => setTimeout(resolve, 5000));
                     await Promise.race([startupSync, startupWait]);
                 } catch (e) {
@@ -9263,89 +9267,145 @@
             return window._cloudDebug;
         }
 
+        // 手机休眠或网络切换后，请求必须能退出并进入重试。
+        async function fetchCloudWithTimeout(input, options = {}) {
+            const controller = new AbortController();
+            const abort = () => controller.abort();
+            if (options.signal?.aborted) abort();
+            else options.signal?.addEventListener('abort', abort, { once: true });
+            const timer = setTimeout(abort, 20000);
+            try {
+                return await fetch(input, { ...options, signal: controller.signal });
+            } finally {
+                clearTimeout(timer);
+                options.signal?.removeEventListener('abort', abort);
+            }
+        }
+
+        function hasPendingCloudSync() {
+            return !!queuedCloudSnapshot || cloudSyncInFlight ||
+                (localStorage.getItem(PENDING_CLOUD_ID_KEY) === getCloudRecordId() &&
+                    !!localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY));
+        }
+
         function scheduleCloudRetry() {
             if (cloudRetryTimer) return;
             cloudRetryTimer = setTimeout(() => {
                 cloudRetryTimer = null;
-                if (isCloud) flushPendingCloudSync();
-            }, 3000);
+                if (isCloud) refreshCloudIfSafe(true);
+            }, 3000 + Math.floor(Math.random() * 2000));
         }
 
-        async function pushCloudState(payload) {
-            const recordId = MY_SYNC_ID;
+        async function pushCloudState(payload, recordId) {
             const payloadToWrite = {
                 ...payload,
                 _cloudMeta: {
-                    syncId: MY_SYNC_ID,
+                    syncId: recordId,
                     idMode: 'raw',
                     savedAt: new Date().toISOString()
                 }
             };
-            let { data, error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('study_progress')
                 .upsert({ id: recordId, data: payloadToWrite })
                 .select('id,data')
                 .maybeSingle();
-
-            if (!error) return (data?.id || recordId);
-
-            throw error;
+            if (error) throw error;
+            return data?.id || recordId;
         }
 
-        async function flushCloudQueue() {
-            if (cloudSyncInFlight || !isCloud || !supabaseClient || !queuedCloudSnapshot) return;
+        function flushCloudQueue() {
+            if (cloudFlushPromise) return cloudFlushPromise;
+            if (!isCloud || !supabaseClient || !queuedCloudSnapshot) return Promise.resolve();
+            cloudFlushPromise = runCloudQueue().finally(() => { cloudFlushPromise = null; });
+            return cloudFlushPromise;
+        }
+
+        async function runCloudQueue() {
             const debug = ensureCloudDebug();
             cloudSyncInFlight = true;
             updateStatus('syncing');
-            while (queuedCloudSnapshot) {
-                const payload = queuedCloudSnapshot;
-                const payloadJson = queuedCloudJson || JSON.stringify(payload);
-                queuedCloudSnapshot = null;
-                queuedCloudJson = '';
-                try {
-                    const recordId = await pushCloudState(payload);
-                    debug.lastErr = null;
-                    debug.lastOkAt = new Date().toISOString();
-                    debug.lastRecordId = recordId;
-                    if (cloudRetryTimer) {
-                        clearTimeout(cloudRetryTimer);
-                        cloudRetryTimer = null;
+            try {
+                while (queuedCloudSnapshot) {
+                    const payload = queuedCloudSnapshot;
+                    const payloadJson = queuedCloudJson || JSON.stringify(payload);
+                    const recordId = getCloudRecordId();
+                    queuedCloudSnapshot = null;
+                    queuedCloudJson = '';
+                    try {
+                        await pushCloudState(payload, recordId);
+                        if (recordId !== getCloudRecordId()) break;
+                        debug.lastErr = null;
+                        debug.lastOkAt = new Date().toISOString();
+                        debug.lastRecordId = recordId;
+                        if (cloudRetryTimer) {
+                            clearTimeout(cloudRetryTimer);
+                            cloudRetryTimer = null;
+                        }
+                        // 只确认本次快照，不能清掉另一个标签页或新的编辑。
+                        if (localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId &&
+                            localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY) === payloadJson) {
+                            localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
+                            localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+                        }
+                        const stillPending = !!queuedCloudSnapshot ||
+                            (localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId &&
+                                !!localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY));
+                        updateStatus(stillPending ? 'syncing' : 'online');
+                        if (stillPending) scheduleCloudRetry();
+                    } catch (e) {
+                        if (recordId !== getCloudRecordId()) break;
+                        debug.lastErr = e?.message || e?.details || e?.hint || String(e);
+                        // 缓存写入失败时，仍在内存中保留本次失败的快照。
+                        if (!queuedCloudSnapshot &&
+                            !(localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId &&
+                                localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY))) {
+                            queuedCloudSnapshot = payload;
+                            queuedCloudJson = payloadJson;
+                        }
+                        // 待同步快照已在入队时保存。失败的旧请求不再覆盖它。
+                        updateStatus('offline');
+                        if (typeof showToast === 'function') showToast(`⚠️ 云端保存未完成，已保留本地数据并自动重试：${debug.lastErr}`);
+                        scheduleCloudRetry();
+                        break;
                     }
-                    localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
-                    localStorage.removeItem(PENDING_CLOUD_ID_KEY);
-                    updateStatus('online');
-                } catch (e) {
-                    debug.lastErr = (e && (e.message || e.details || e.hint)) ? (e.message || e.details || e.hint) : String(e);
-                    localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, payloadJson);
-                    localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
-                    updateStatus('offline');
-                    const reason = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' | ');
-                    if (typeof showToast === 'function') showToast(`⚠️ 云端保存失败：${reason || '请检查 Supabase 配置/RLS（重点看 UPDATE policy）'}`);
-                    scheduleCloudRetry();
-                    break;
                 }
+            } finally {
+                cloudSyncInFlight = false;
             }
-            cloudSyncInFlight = false;
         }
 
         function queueCloudSync(payload, payloadJson) {
             queuedCloudSnapshot = payload;
-            queuedCloudJson = payloadJson;
-            flushCloudQueue();
+            queuedCloudJson = payloadJson || JSON.stringify(payload);
+            // 发送之前持久化，关闭页面、断网、休眠也能恢复。
+            try {
+                localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, queuedCloudJson);
+                localStorage.setItem(PENDING_CLOUD_ID_KEY, getCloudRecordId());
+            } catch (e) {
+                console.warn('待同步数据缓存失败:', e);
+            }
+            return flushCloudQueue();
         }
 
         async function flushPendingCloudSync() {
             if (!isCloud || !supabaseClient) return;
+            if (cloudFlushPromise || queuedCloudSnapshot) {
+                await flushCloudQueue();
+                return;
+            }
             const pendingId = localStorage.getItem(PENDING_CLOUD_ID_KEY);
             const pendingJson = localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY);
-            if (!pendingJson || !pendingId || pendingId !== MY_SYNC_ID) return;
+            if (!pendingJson || pendingId !== getCloudRecordId()) return;
+            let pendingPayload;
             try {
-                const pendingPayload = JSON.parse(pendingJson);
-                queueCloudSync(pendingPayload, pendingJson);
+                pendingPayload = JSON.parse(pendingJson);
             } catch (_) {
-                localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
-                localStorage.removeItem(PENDING_CLOUD_ID_KEY);
+                ensureCloudDebug().lastErr = '待同步数据无法解析，请先导出本地备份';
+                updateStatus('offline');
+                return;
             }
+            await queueCloudSync(pendingPayload, pendingJson);
         }
 
         function hasActiveEditorSession() {
@@ -9357,19 +9417,19 @@
         async function refreshCloudIfSafe(force = false) {
             if (!isCloud || !supabaseClient || cloudPullInFlight || hasActiveEditorSession() || aiSending) return;
             const now = Date.now();
-            if (!force && now - lastCloudPullAt < 30000) return;
+            if (!force && now - lastCloudPullAt < 10000) return;
             cloudPullInFlight = true;
             lastCloudPullAt = now;
             try {
                 await flushPendingCloudSync();
-                await loadCloud(true);
-                await flushPendingCloudSync();
+                if (!hasPendingCloudSync()) await loadCloud(true);
             } finally {
                 cloudPullInFlight = false;
             }
         }
 
         async function save() {
+            localStateRevision++;
             updateProgress();
             // 数据完整性检查
             if (!isValidState(fullState)) {
@@ -9387,12 +9447,10 @@
                 return;
             }
             // 始终先保存到本地（本地优先，确保数据不丢）
-            let localSaveOk = true;
             try {
                 localStorage.setItem('study_v2', json);
             } catch (e) {
                 console.error('本地保存失败:', e);
-                localSaveOk = false;
                 if (typeof showToast === 'function') showToast('⚠️ 本地保存失败，已尝试仅同步云端');
             }
             // 云端同步
@@ -9406,7 +9464,12 @@
                     localStorage.setItem(PENDING_CLOUD_ID_KEY, MY_SYNC_ID);
                     updateStatus('offline');
                 }
-            } else if (!localSaveOk) {
+            } else {
+                // 初始化连接尚未完成时的编辑也要留待联网后上传。
+                try {
+                    localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, json);
+                    localStorage.setItem(PENDING_CLOUD_ID_KEY, getCloudRecordId());
+                } catch (_) {}
                 updateStatus('offline');
             }
         }
@@ -9447,7 +9510,16 @@
             }
         }
 
-        async function loadCloud(silent = false) {
+        function loadCloud(silent = false) {
+            if (cloudLoadPromise) return cloudLoadPromise;
+            cloudLoadPromise = performCloudLoad(silent).finally(() => { cloudLoadPromise = null; });
+            return cloudLoadPromise;
+        }
+
+        async function performCloudLoad(silent = false) {
+            if (hasPendingCloudSync() || hasActiveEditorSession()) return;
+            const recordId = getCloudRecordId();
+            const revision = localStateRevision;
             updateStatus('syncing');
             let cloudOk = true;
 
@@ -9478,10 +9550,16 @@
                 let { data, error } = await supabaseClient
                     .from('study_progress')
                     .select('data')
-                    .eq('id', getCloudRecordId())
+                    .eq('id', recordId)
                     .maybeSingle();
 
+                // 等待网络期间可能发生了编辑、保存或切换账号。
+                if (recordId !== getCloudRecordId() || revision !== localStateRevision ||
+                    hasPendingCloudSync() || hasActiveEditorSession()) return;
                 if (error) throw error;
+                ensureCloudDebug().lastErr = null;
+                ensureCloudDebug().lastOkAt = new Date().toISOString();
+                ensureCloudDebug().lastRecordId = recordId;
 
                 if (data?.data) {
                     const raw = data.data;
@@ -9515,7 +9593,10 @@
                 }
             } catch (e) {
                 console.error('云端加载失败:', e);
+                if (recordId !== getCloudRecordId() || revision !== localStateRevision) return;
                 cloudOk = false;
+                ensureCloudDebug().lastErr = e?.message || String(e);
+                scheduleCloudRetry();
                 if (!silent && typeof showToast === 'function') showToast(`❌ 同步失败: ${e?.message || '网络或配置异常'}`);
             }
 
@@ -11761,33 +11842,44 @@
                 if (authUser) MY_SYNC_ID = authUser.id;
             } catch (_) {}
 
-            supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
                 const wasLoggedIn = !!authUser;
                 const oldSyncId = MY_SYNC_ID; // 记住旧的，比如 "payen"
                 authSession = session;
                 authUser = session?.user || null;
-                if (authUser) MY_SYNC_ID = authUser.id;
+                MY_SYNC_ID = authUser?.id || localStorage.getItem('study_sync_id') || DEFAULT_SYNC_ID;
                 renderAuthState();
+                updateSyncLabel();
 
                 if (!wasLoggedIn && authUser) {
-                    // 刚登录：把旧 sync ID 的数据迁移到新账号下
-                    const needMigration = oldSyncId && oldSyncId !== authUser.id && oldSyncId !== DEFAULT_SYNC_ID;
-                    if (needMigration) {
+                    const loginId = authUser.id;
+                    // 回调立即返回；在认证锁释放后才访问 Supabase。
+                    setTimeout(async () => {
+                        if (getCloudRecordId() !== loginId) return;
                         try {
-                            // 拉取旧 ID 的云端数据，合并进来
-                            const oldCloud = await fetchStateBySyncId(oldSyncId);
-                            if (oldCloud) {
-                                fullState = mergeStates(fullState, oldCloud);
-                                currentState = fullState[CURRENT_YEAR.toString()];
-                                cleanEmptyNotes();
-                                save();
-                                showToast(`数据已从「${oldSyncId}」迁移到你的账号`);
+                            // 刚登录：把旧 sync ID 的数据迁移到新账号下
+                            const needMigration = oldSyncId && oldSyncId !== authUser.id && oldSyncId !== DEFAULT_SYNC_ID;
+                            if (needMigration) {
+                                try {
+                                    // 拉取旧 ID 的云端数据，合并进来
+                                    const oldCloud = await fetchStateBySyncId(oldSyncId);
+                                    if (oldCloud && getCloudRecordId() === loginId) {
+                                        fullState = mergeStates(fullState, oldCloud);
+                                        currentState = fullState[CURRENT_YEAR.toString()];
+                                        cleanEmptyNotes();
+                                        save();
+                                        showToast(`数据已从「${oldSyncId}」迁移到你的账号`);
+                                    }
+                                } catch (_) {}
                             }
-                        } catch (_) {}
-                    }
-                    // 加载新账号下的云端数据
-                    await loadCloud(true);
-                    showToast('已登录，数据已同步');
+                            if (getCloudRecordId() !== loginId) return;
+                            await refreshCloudIfSafe(true);
+                        } catch (e) {
+                            ensureCloudDebug().lastErr = e?.message || String(e);
+                            updateStatus('offline');
+                            scheduleCloudRetry();
+                        }
+                    }, 0);
                 }
             });
 
@@ -11936,10 +12028,7 @@
             updateSyncLabel();
             document.getElementById('id-cancel-btn').style.display = '';
             document.getElementById('id-modal').classList.remove('open');
-            if (isCloud) {
-                loadCloud();
-                flushPendingCloudSync();
-            }
+            if (isCloud) refreshCloudIfSafe(true);
         };
 
         // Scroll highlight helper
@@ -14822,7 +14911,7 @@ ${(ctx.relevantNotes || []).length
         });
         setInterval(() => {
             if (!document.hidden && isCloud) refreshCloudIfSafe();
-        }, 60000);
+        }, 15000);
     </script>
     <script src="./study-knowledge.js?v=20260908"></script>
     <!-- PWA Service Worker 注册 -->
