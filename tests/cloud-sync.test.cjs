@@ -39,7 +39,7 @@ function harness(extra = {}) {
         DEFAULT_SYNC_ID: 'default', MY_SYNC_ID: 'payen', authUser: null, authSession: null,
         isCloud: true, cloudSyncInFlight: false, cloudFlushPromise: null,
         cloudLoadPromise: null, cloudPullInFlight: false, cloudRetryTimer: null,
-        queuedCloudSnapshot: null, queuedCloudJson: '', localStateRevision: 0,
+        queuedCloudSnapshot: null, queuedCloudJson: '', queuedCloudRecordId: '', localStateRevision: 0,
         lastCloudPullAt: 0, aiSending: false, CURRENT_YEAR: 2026,
         fullState: { '2026': { done: [], notes: {}, customTasks: {}, notebookEntries: {} } },
         updateStatus: status => statuses.push(status), showToast() {},
@@ -61,10 +61,11 @@ function harness(extra = {}) {
     });
     context.window.switchYear = () => {};
     for (const name of [
-        'effectiveSyncId', 'getCloudRecordId', 'ensureCloudDebug', 'hasPendingCloudSync',
+        'syncIdForUser', 'effectiveSyncId', 'getCloudRecordId', 'ensureCloudDebug', 'hasPendingCloudSync',
         'scheduleCloudRetry', 'pushCloudState', 'flushCloudQueue', 'runCloudQueue',
         'queueCloudSync', 'flushPendingCloudSync', 'hasActiveEditorSession',
-        'refreshCloudIfSafe', 'loadCloud', 'performCloudLoad', 'initAuth'
+        'refreshCloudIfSafe', 'loadCloud', 'performCloudLoad', 'initAuth',
+        'normalize2026DateKey', 'normalize2026State'
     ]) vm.runInContext(source(name), context);
     return { context, data, timers, statuses, writes };
 }
@@ -223,4 +224,60 @@ test('Network timeout aborts stalled fetch and permits caller cancellation', asy
     const caller = new AbortController();
     caller.abort();
     await assert.rejects(h.context.fetchCloudWithTimeout('https://example.test', { signal: caller.signal }), /aborted/);
+});
+
+
+test('Manual sync ID remains effective on signed-in devices', async () => {
+    const h = harness();
+    h.data.set('study_sync_id', 'payen');
+    let callback;
+    h.context.supabaseClient.auth = {
+        getSession: async () => ({ data: { session: { user: { id: 'account-uuid' } } } }),
+        onAuthStateChange(fn) { callback = fn; }
+    };
+    await h.context.initAuth();
+    assert.equal(h.context.getCloudRecordId(), 'payen');
+    callback('TOKEN_REFRESHED', { user: { id: 'account-uuid' } });
+    assert.equal(h.context.getCloudRecordId(), 'payen');
+});
+
+test('Upload preserves V2 appData and remote cloud metadata', async () => {
+    const h = harness();
+    let payload, count = 0;
+    h.context.supabaseClient.from = () => ({
+        select() { return this; }, eq() { return this; },
+        upsert(value) { payload = value; return this; },
+        maybeSingle: async () => (++count === 1 ?
+            { data: { data: { appData: { important: 'v2' }, _cloudMeta: { version: 2 } } } } :
+            { data: { id: 'payen' } })
+    });
+    await h.context.pushCloudState({ '2026': { done: [] } }, 'payen');
+    assert.equal(payload.data.appData.important, 'v2');
+    assert.equal(payload.data._cloudMeta.version, 2);
+    assert.equal(payload.id, 'payen');
+});
+
+test('Queued upload keeps its original record ID when active ID changes', async () => {
+    const h = harness();
+    h.context.cloudFlushPromise = Promise.resolve();
+    h.context.queueCloudSync({ value: 'original-record' }, '{"value":"original-record"}', 'original-id');
+    h.context.MY_SYNC_ID = 'different-id';
+    h.context.cloudFlushPromise = null;
+    let writtenId;
+    h.context.pushCloudState = async (_payload, id) => { writtenId = id; return id; };
+    await h.context.flushCloudQueue();
+    assert.equal(writtenId, 'original-id');
+});
+
+test('V2 date formats normalize without duplicate tasks or linked dates', () => {
+    const h = harness();
+    const normalized = h.context.normalize2026State({
+        notes: { '09-01': 'old format', '2026-9-1': 'canonical' },
+        customTasks: { '09-01': [{ id: 't1', text: 'Task' }], '2026-09-01': [{ id: 't1', text: 'Task' }] },
+        notebookEntries: { n1: { dateKey: '09-01', linkedDateKeys: ['09-01', '2026-09-01'] } }
+    });
+    assert.equal(normalized.notes['2026-9-1'], 'canonical');
+    assert.equal(normalized.customTasks['2026-9-1'].length, 1);
+    assert.equal(normalized.notebookEntries.n1.dateKey, '2026-9-1');
+    assert.equal(normalized.notebookEntries.n1.linkedDateKeys.length, 1);
 });
