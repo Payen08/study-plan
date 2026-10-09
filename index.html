@@ -7739,72 +7739,6 @@
                     </label>
                 </div>
             </div>
-            <div class="ai-profile-section mt-3" style="display:none !important;" aria-hidden="true">
-                <div class="ai-profile-section-title">微信提醒</div>
-                <div class="ai-profile-grid">
-                    <label class="ai-profile-check ai-profile-field-wide">
-                        <input id="ai-push-enabled" type="checkbox">
-                        <span>开启每日微信提醒</span>
-                    </label>
-                    <label>
-                        <span class="ai-profile-label">推送方式</span>
-                        <select id="ai-push-provider" class="ai-profile-input" onchange="onPushProviderChange()">
-                            <option value="wechatwork">企业微信自建应用</option>
-                            <option value="messagepusher">自建 message-pusher</option>
-                            <option value="serverchan">Server 酱</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="ai-profile-label">提醒时间</span>
-                        <input id="ai-push-time" type="time" class="ai-profile-input">
-                    </label>
-                    <label class="ai-profile-field-wide">
-                        <span class="ai-profile-label">推送状态</span>
-                        <div id="ai-push-status" class="ai-profile-status">未测试</div>
-                    </label>
-                    <!-- message-pusher 专属配置 -->
-                    <div id="ai-push-mp-config" class="ai-profile-field-wide" style="display:none;">
-                        <div class="ai-profile-grid" style="margin-top:4px;">
-                            <label class="ai-profile-field-wide">
-                                <span class="ai-profile-label">message-pusher 地址</span>
-                                <input id="ai-push-mp-url" type="text" class="ai-profile-input"
-                                    placeholder="http://你的服务器:3000">
-                            </label>
-                            <label>
-                                <span class="ai-profile-label">用户名</span>
-                                <input id="ai-push-mp-username" type="text" class="ai-profile-input"
-                                    placeholder="你的用户名">
-                            </label>
-                            <label>
-                                <span class="ai-profile-label">推送 Token</span>
-                                <input id="ai-push-mp-token" type="password" class="ai-profile-input"
-                                    placeholder="Bearer Token">
-                            </label>
-                            <label class="ai-profile-field-wide">
-                                <span class="ai-profile-label">渠道名称</span>
-                                <input id="ai-push-mp-channel" type="text" class="ai-profile-input"
-                                    placeholder="微信测试号渠道名">
-                            </label>
-                        </div>
-                    </div>
-                    <label class="ai-profile-field-wide">
-                        <span class="ai-profile-label">推送内容</span>
-                        <textarea id="ai-push-topics" class="ai-profile-textarea"
-                            placeholder="例如：今日任务、逾期任务、本周进度"></textarea>
-                    </label>
-                    <div id="ai-push-hint-sc" class="ai-profile-hint ai-profile-field-wide">
-                        SendKey 放在 Supabase Secrets 的 SERVERCHAN_SENDKEY。
-                    </div>
-                    <div id="ai-push-hint-mp" class="ai-profile-hint ai-profile-field-wide" style="display:none;">
-                        Token 会发到 Supabase Edge Function，不会暴露给前端。
-                    </div>
-                    <div id="ai-push-hint-ww" class="ai-profile-hint ai-profile-field-wide">
-                        CorpId / AgentId / Secret 配置在 Supabase Secrets。<br>可见范围需包含你自己，否则收不到。
-                    </div>
-                </div>
-                <button id="ai-push-test-btn" class="ai-mini-btn mt-3 w-full justify-center" type="button"
-                    onclick="testWechatPush(event)"><i class="fas fa-paper-plane"></i> 发送微信测试</button>
-            </div>
             <button class="ai-mini-btn ai-profile-save-btn mt-3 w-full justify-center" onclick="saveAiProfile()"><i
                     class="fas fa-check"></i> 保存资料</button>
         </div>
@@ -8114,6 +8048,7 @@
     <div id="note-link-menu" class="note-link-menu"></div>
     <div id="ai-selection-menu" class="ai-selection-menu"></div>
 
+    <script src="./study-cloud-data.js?v=20261009-v2"></script>
     <script>
         // ================= 配置区 =================
         const DEFAULT_SYNC_ID = "default";
@@ -8126,7 +8061,7 @@
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'multi-device-sync-2026-10-09-v1';
+        const BUILD_TAG = 'content-sync-2026-10-09-v2';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -8371,6 +8306,7 @@
             if (!Array.isArray(buddy.messages)) buddy.messages = [];
             if (!Array.isArray(buddy.reminders)) buddy.reminders = [];
             if (!buddy.push || typeof buddy.push !== 'object') buddy.push = fallback.push;
+            buddy.push.enabled = false; // 每日微信提醒已移除，旧云端配置也不能重新启用。
             buddy.push.provider = buddy.push.provider || fallback.push.provider;
             buddy.push.time = buddy.push.time || fallback.push.time;
             buddy.push.topics = buddy.push.topics || fallback.push.topics;
@@ -8677,6 +8613,13 @@
         let queuedCloudJson = '';
         let queuedCloudRecordId = '';
         let cloudRetryTimer = null;
+        let cloudRetryAttempts = 0;
+        let cloudBaseState = null;
+        let cloudBaseRecordId = '';
+        const cloudReadMemo = new Map();
+        let queuedCloudBaseState = null;
+        let queuedCloudPersistPromise = Promise.resolve();
+        const syncCache = StudyCloudData.createCache(window.indexedDB);
         let cloudPullInFlight = false;
         let lastCloudPullAt = 0;
 
@@ -8725,7 +8668,10 @@
                     // 后台请求会继续完成；页面 focus 与定时轮询也会再次尝试拉取。
                     loadLocal();
                     // 先确定账号，再读取相应记录，避免读写使用不同 ID。
-                    const startupSync = initAuth().then(() => refreshCloudIfSafe(true));
+                    const startupSync = initAuth().then(async () => {
+                        await restoreSyncCache(getCloudRecordId());
+                        return refreshCloudIfSafe(true);
+                    });
                     const startupWait = new Promise(resolve => setTimeout(resolve, 5000));
                     await Promise.race([startupSync, startupWait]);
                 } catch (e) {
@@ -9318,13 +9264,30 @@
             const abort = () => controller.abort();
             if (options.signal?.aborted) abort();
             else options.signal?.addEventListener('abort', abort, { once: true });
-            const timer = setTimeout(abort, 20000);
+            const timer = setTimeout(abort, options.method && options.method !== 'GET' ? 60000 : 30000);
             try {
                 return await fetch(input, { ...options, signal: controller.signal });
             } finally {
                 clearTimeout(timer);
                 options.signal?.removeEventListener('abort', abort);
             }
+        }
+
+        async function restoreSyncCache(recordId) {
+            try {
+                const cached = await syncCache.get(recordId);
+                if (recordId !== getCloudRecordId()) return;
+                if (cached.stateJSON) {
+                    fullState = JSON.parse(cached.stateJSON);
+                    ensureSettingsStructure();
+                    currentState = fullState[CURRENT_YEAR.toString()];
+                    window.switchYear(CURRENT_YEAR);
+                }
+                if (cached.pendingBaseJSON) {
+                    cloudBaseState = JSON.parse(cached.pendingBaseJSON);
+                    cloudBaseRecordId = recordId;
+                }
+            } catch (e) { console.warn('读取本地大容量缓存失败:', e); }
         }
 
         function hasPendingCloudSync() {
@@ -9338,35 +9301,100 @@
             cloudRetryTimer = setTimeout(() => {
                 cloudRetryTimer = null;
                 if (isCloud) refreshCloudIfSafe(true);
-            }, 3000 + Math.floor(Math.random() * 2000));
+            }, Math.min(60000, 3000 * 2 ** cloudRetryAttempts++) + Math.floor(Math.random() * 2000));
         }
 
-        async function pushCloudState(payload, recordId) {
-            // 保留远程 V2 的 appData 和其他非 V1 字段。
-            const { data: current, error: readError } = await supabaseClient
-                .from('study_progress')
-                .select('data')
-                .eq('id', recordId)
-                .maybeSingle();
-            if (readError) throw readError;
-            const currentData = current?.data && typeof current.data === 'object' ? current.data : {};
-            const payloadToWrite = {
-                ...currentData,
-                ...payload,
-                _cloudMeta: {
-                    ...currentData._cloudMeta,
-                    syncId: recordId,
-                    idMode: 'raw',
-                    savedAt: new Date().toISOString()
+        async function readCloudSection(recordId, section, offset = 0) {
+            const { data, error } = await supabaseClient.rpc('study_cloud_read', {
+                p_id: recordId, p_section: section, p_offset: offset, p_limit: 20
+            });
+            if (error) {
+                if (error.code === 'PGRST202' || error.code === '42883') {
+                    throw new Error('云端同步接口尚未安装，请先执行 20261009000000_study_cloud_patch.sql');
                 }
-            };
-            const { data, error } = await supabaseClient
-                .from('study_progress')
-                .upsert({ id: recordId, data: payloadToWrite })
-                .select('id')
-                .maybeSingle();
-            if (error) throw error;
-            return data?.id || recordId;
+                throw error;
+            }
+            return data;
+        }
+
+        async function readCloudRecord(recordId) {
+            const info = await readCloudSection(recordId, 'info');
+            if (!info?.exists) return { exists: false, state: null, revision: '' };
+            const memo = cloudReadMemo.get(recordId);
+            if (info.version && memo?.version === info.version && memo.record.revision === (info.meta?.v1Revision || '')) {
+                return { ...memo.record, state: JSON.parse(JSON.stringify(memo.record.state)) };
+            }
+            const settings = (await readCloudSection(recordId, 'settings')).value || {};
+            let state;
+            let legacyState = null;
+            if (info.hasV1) {
+                legacyState = {
+                    '2025': ensureStateStructure((await readCloudSection(recordId, '2025')).value),
+                    '2026': normalize2026State((await readCloudSection(recordId, '2026')).value),
+                    settings
+                };
+            }
+            if (legacyState && info.meta?.v1Revision) {
+                state = legacyState;
+            } else {
+                // 旧客户端可能写过空的年份对象；不能因此屏蔽 V2 的真实内容。
+                const tables = {};
+                for (const [name, field] of [['tasks', 'tasks'], ['notes', 'notes'], ['folders', 'notebook_folders'], ['subjects', 'subjects']]) {
+                    const items = [];
+                    let offset = 0;
+                    do {
+                        const page = await readCloudSection(recordId, field, offset);
+                        items.push(...(page.value || []));
+                        offset = page.nextOffset;
+                    } while (offset !== null && offset !== undefined);
+                    tables[name] = items;
+                }
+                const imported = StudyCloudData.importV2(tables, settings);
+                state = legacyState ? mergeStates(legacyState, imported) : imported;
+            }
+            const record = { exists: true, state, revision: info.meta?.v1Revision || '' };
+            if (info.version) cloudReadMemo.set(recordId, { version: info.version, record: JSON.parse(JSON.stringify(record)) });
+            return record;
+        }
+
+        async function pushCloudState(payload, recordId, baseState = null) {
+            // 在数据库内局部写入，避免下载/上传整条 appData；版本检查保护并发保存。
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const remote = await readCloudRecord(recordId);
+                const merged = remote.state
+                    ? (baseState ? StudyCloudData.merge(baseState, payload, remote.state) : mergeStates(payload, remote.state))
+                    : payload;
+                if (merged.settings?.aiBuddy?.push) merged.settings.aiBuddy.push.enabled = false;
+                const revision = crypto.randomUUID();
+                const { data, error } = await supabaseClient.rpc('study_cloud_patch', {
+                    p_id: recordId, p_state: merged,
+                    p_expected_revision: remote.revision, p_revision: revision
+                });
+                if (error) {
+                    if (error.code === 'PGRST202' || error.code === '42883') {
+                        throw new Error('云端保存接口尚未安装，请先执行 20261009000000_study_cloud_patch.sql；本地编辑仍保留');
+                    }
+                    throw error;
+                }
+                if (data?.saved) {
+                    cloudReadMemo.delete(recordId);
+                    if (getCloudRecordId() === recordId) {
+                        cloudBaseState = JSON.parse(JSON.stringify(merged));
+                        cloudBaseRecordId = recordId;
+                        // 网络等待期间有新编辑时，不能用确认结果覆盖它。
+                        if (JSON.stringify(fullState) === JSON.stringify(payload) && !hasActiveEditorSession()) {
+                            fullState = JSON.parse(JSON.stringify(merged));
+                            ensureSettingsStructure();
+                            currentState = fullState[CURRENT_YEAR.toString()];
+                            refresh();
+                            window.switchYear(CURRENT_YEAR);
+                            try { localStorage.setItem('study_v2', JSON.stringify(fullState)); } catch (_) {}
+                        }
+                    }
+                    return recordId;
+                }
+            }
+            throw new Error('其他设备正在修改内容，已保留本地编辑，稍后自动重试');
         }
 
         function flushCloudQueue() {
@@ -9385,32 +9413,43 @@
                     const payload = queuedCloudSnapshot;
                     const payloadJson = queuedCloudJson || JSON.stringify(payload);
                     const recordId = queuedCloudRecordId;
+                    const baseState = queuedCloudBaseState;
+                    const persisted = queuedCloudPersistPromise;
                     queuedCloudSnapshot = null;
                     queuedCloudJson = '';
                     queuedCloudRecordId = '';
+                    queuedCloudBaseState = null;
                     try {
-                        await pushCloudState(payload, recordId);
+                        await persisted;
+                        await pushCloudState(payload, recordId, baseState);
                         if (recordId !== getCloudRecordId()) break;
                         debug.lastErr = null;
+                        cloudRetryAttempts = 0;
                         debug.lastOkAt = new Date().toISOString();
                         debug.lastRecordId = recordId;
                         if (cloudRetryTimer) {
                             clearTimeout(cloudRetryTimer);
                             cloudRetryTimer = null;
                         }
+                        let cachedPending = false;
+                        try {
+                            const cached = await syncCache.acknowledge(recordId, payloadJson, JSON.stringify(cloudBaseState || payload));
+                            cachedPending = !!cached.pendingJSON;
+                        } catch (e) { console.warn('确认本地队列失败:', e); }
                         // 只确认本次快照，不能清掉另一个标签页或新的编辑。
                         if (localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId &&
                             localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY) === payloadJson) {
                             localStorage.removeItem(PENDING_CLOUD_PAYLOAD_KEY);
                             localStorage.removeItem(PENDING_CLOUD_ID_KEY);
                         }
-                        const stillPending = !!queuedCloudSnapshot ||
+                        const stillPending = cachedPending || !!queuedCloudSnapshot ||
                             (localStorage.getItem(PENDING_CLOUD_ID_KEY) === recordId &&
                                 !!localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY));
                         updateStatus(stillPending ? 'syncing' : 'online');
                         if (stillPending) scheduleCloudRetry();
                     } catch (e) {
                         if (recordId !== getCloudRecordId()) break;
+                        const previousError = debug.lastErr;
                         debug.lastErr = e?.message || e?.details || e?.hint || String(e);
                         // 缓存写入失败时，仍在内存中保留本次失败的快照。
                         if (!queuedCloudSnapshot &&
@@ -9419,10 +9458,11 @@
                             queuedCloudSnapshot = payload;
                             queuedCloudJson = payloadJson;
                             queuedCloudRecordId = recordId;
+                            queuedCloudBaseState = baseState;
                         }
                         // 待同步快照已在入队时保存。失败的旧请求不再覆盖它。
                         updateStatus('offline');
-                        if (typeof showToast === 'function') showToast(`⚠️ 云端保存未完成，已保留本地数据并自动重试：${debug.lastErr}`);
+                        if (previousError !== debug.lastErr && typeof showToast === 'function') showToast(`⚠️ 云端保存未完成，已保留本地数据并自动重试：${debug.lastErr}`);
                         scheduleCloudRetry();
                         break;
                     }
@@ -9437,6 +9477,18 @@
             queuedCloudSnapshot = payload;
             queuedCloudJson = payloadJson || JSON.stringify(payload);
             queuedCloudRecordId = recordId;
+            queuedCloudBaseState = cloudBaseRecordId === recordId ? cloudBaseState : null;
+            const durableJSON = queuedCloudJson;
+            queuedCloudPersistPromise = syncCache.update(recordId, {
+                stateJSON: queuedCloudJson, pendingJSON: queuedCloudJson,
+                pendingBaseJSON: queuedCloudBaseState ? JSON.stringify(queuedCloudBaseState) : ''
+            }).catch(e => {
+                console.warn('大容量待同步缓存失败:', e);
+                // 旧小容量缓存存在时仍可恢复，否则明确说明只保留在当前页面。
+                if (localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY) !== durableJSON) {
+                    showToast('本地缓存不可用，编辑暂留当前页面；保存完成前请勿关闭');
+                }
+            });
             // 发送之前持久化，关闭页面、断网、休眠也能恢复。
             try {
                 localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, queuedCloudJson);
@@ -9453,9 +9505,20 @@
                 await flushCloudQueue();
                 return;
             }
-            const pendingId = localStorage.getItem(PENDING_CLOUD_ID_KEY);
-            const pendingJson = localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY);
-            if (!pendingJson || pendingId !== getCloudRecordId()) return;
+            const recordId = getCloudRecordId();
+            let pendingId = localStorage.getItem(PENDING_CLOUD_ID_KEY);
+            let pendingJson = localStorage.getItem(PENDING_CLOUD_PAYLOAD_KEY);
+            try {
+                const cached = await syncCache.get(recordId);
+                if (recordId !== getCloudRecordId()) return;
+                if (cached.pendingJSON) {
+                    pendingId = recordId;
+                    pendingJson = cached.pendingJSON;
+                    cloudBaseState = cached.pendingBaseJSON ? JSON.parse(cached.pendingBaseJSON) : null;
+                    cloudBaseRecordId = recordId;
+                }
+            } catch (_) {}
+            if (!pendingJson || pendingId !== recordId) return;
             let pendingPayload;
             try {
                 pendingPayload = JSON.parse(pendingJson);
@@ -9476,7 +9539,7 @@
         async function refreshCloudIfSafe(force = false) {
             if (!isCloud || !supabaseClient || cloudPullInFlight || hasActiveEditorSession() || aiSending) return;
             const now = Date.now();
-            if (!force && now - lastCloudPullAt < 10000) return;
+            if (!force && (cloudRetryTimer || now - lastCloudPullAt < 10000)) return;
             cloudPullInFlight = true;
             lastCloudPullAt = now;
             try {
@@ -9508,9 +9571,10 @@
             // 始终先保存到本地（本地优先，确保数据不丢）
             try {
                 localStorage.setItem('study_v2', json);
+                localStorage.setItem('study_local_state_id', getCloudRecordId());
             } catch (e) {
                 console.error('本地保存失败:', e);
-                if (typeof showToast === 'function') showToast('⚠️ 本地保存失败，已尝试仅同步云端');
+                // 大笔记由 IndexedDB 队列保存，不依赖 localStorage 容量。
             }
             // 云端同步
             if (isCloud) {
@@ -9524,11 +9588,7 @@
                     updateStatus('offline');
                 }
             } else {
-                // 初始化连接尚未完成时的编辑也要留待联网后上传。
-                try {
-                    localStorage.setItem(PENDING_CLOUD_PAYLOAD_KEY, json);
-                    localStorage.setItem(PENDING_CLOUD_ID_KEY, getCloudRecordId());
-                } catch (_) {}
+                queueCloudSync(JSON.parse(json), json);
                 updateStatus('offline');
             }
         }
@@ -9555,18 +9615,7 @@
         // 从云端拉取指定 syncId 的数据（用于数据迁移）
         async function fetchStateBySyncId(syncId) {
             if (!syncId || !supabaseClient) return null;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('study_progress')
-                    .select('data')
-                    .eq('id', syncId)
-                    .maybeSingle();
-                if (error || !data?.data) return null;
-                const state = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-                return isValidState(state) ? state : null;
-            } catch (_) {
-                return null;
-            }
+            try { return (await readCloudRecord(syncId)).state; } catch (_) { return null; }
         }
 
         function loadCloud(silent = false) {
@@ -9579,11 +9628,12 @@
             if (hasPendingCloudSync() || hasActiveEditorSession()) return;
             const recordId = getCloudRecordId();
             const revision = localStateRevision;
-            updateStatus('syncing');
+            if (!silent || !ensureCloudDebug().lastOkAt) updateStatus('syncing');
             let cloudOk = true;
 
             // 1. 先加载本地数据作为基础和备份
-            const localBackup = localStorage.getItem('study_v2');
+            const localBackup = localStorage.getItem('study_local_state_id') && localStorage.getItem('study_local_state_id') !== recordId
+                ? null : localStorage.getItem('study_v2');
             let localState = null;
             if (localBackup) {
                 try {
@@ -9593,62 +9643,32 @@
                 } catch (e) { console.warn('本地数据解析失败'); }
             }
 
-            // 2. 从本地加载到 fullState（确保有数据基础）
-            if (localState) {
-                if (localState['2025'] || localState['2026']) {
-                    if (localState['2025']) fullState['2025'] = ensureStateStructure(localState['2025']);
-                    if (localState['2026']) fullState['2026'] = normalize2026State(localState['2026']);
-                    if (localState['settings']) fullState.settings = localState['settings'];
-                } else {
-                    fullState['2025'] = ensureStateStructure(localState);
-                }
-            }
+            // init 已恢复本地/IndexedDB 数据。拉取期间保持当前内容，
+            // 不能用较旧的小容量缓存覆盖新编辑或已恢复的大笔记。
 
             // 3. 尝试拉取云端数据
             try {
-                let { data, error } = await supabaseClient
-                    .from('study_progress')
-                    .select('data')
-                    .eq('id', recordId)
-                    .maybeSingle();
-
-                // 等待网络期间可能发生了编辑、保存或切换账号。
+                const remote = await readCloudRecord(recordId);
                 if (recordId !== getCloudRecordId() || revision !== localStateRevision ||
                     hasPendingCloudSync() || hasActiveEditorSession()) return;
-                if (error) throw error;
-                ensureCloudDebug().lastErr = null;
-                ensureCloudDebug().lastOkAt = new Date().toISOString();
-                ensureCloudDebug().lastRecordId = recordId;
-
-                if (data?.data) {
-                    const raw = data.data;
-                    let cloudState = {};
-
-                    // 数据迁移：处理旧格式
-                    if (!raw['2025'] && !raw['2026']) {
-                        cloudState['2025'] = ensureStateStructure(raw);
-                        cloudState['2026'] = { done: [], notes: {}, customTasks: {}, notebookEntries: {}, notebookFolders: {} };
-                    } else {
-                        if (raw['2025']) cloudState['2025'] = ensureStateStructure(raw['2025']);
-                        if (raw['2026']) cloudState['2026'] = normalize2026State(raw['2026']);
-                        if (raw['settings']) cloudState.settings = raw['settings'];
-                    }
-
-                    // 4. 智能合并：本地 + 云端取并集，不丢失任何一方数据
-                    if (localState && isValidState(fullState)) {
-                        const merged = mergeStates(fullState, cloudState);
-                        if (merged['2025']) fullState['2025'] = merged['2025'];
-                        if (merged['2026']) fullState['2026'] = merged['2026'];
-                        if (merged.settings) fullState.settings = merged.settings;
-                    } else {
-                        // 本地没数据，直接用云端
-                        if (cloudState['2025']) fullState['2025'] = cloudState['2025'];
-                        if (cloudState['2026']) fullState['2026'] = cloudState['2026'];
-                        if (cloudState.settings) fullState.settings = cloudState.settings;
-                    }
-                    if (!silent && typeof showToast === 'function') showToast('✅ 云端同步成功');
+                const debug = ensureCloudDebug();
+                debug.lastErr = null;
+                debug.lastRecordId = recordId;
+                cloudRetryAttempts = 0;
+                if (remote.state) {
+                    const merged = cloudBaseRecordId === recordId && cloudBaseState
+                        ? StudyCloudData.merge(cloudBaseState, fullState, remote.state)
+                        : (localState ? mergeStates(fullState, remote.state) : remote.state);
+                    for (const year of ['2025', '2026']) if (merged[year]) fullState[year] = merged[year];
+                    if (merged.settings) fullState.settings = merged.settings;
+                    cloudBaseState = JSON.parse(JSON.stringify(remote.state));
+                    cloudBaseRecordId = recordId;
+                    debug.lastOkAt = new Date().toISOString();
+                    if (!silent && typeof showToast === 'function') showToast('✅ 已读取云端任务和笔记');
                 } else {
-                    if (!silent && typeof showToast === 'function') showToast('⚠️ 云端无此ID的数据，已使用本地数据');
+                    cloudOk = false;
+                    debug.lastErr = `同步 ID「${recordId}」没有云端记录，请确认两端 ID 一致`;
+                    if (!silent && typeof showToast === 'function') showToast(debug.lastErr);
                 }
             } catch (e) {
                 console.error('云端加载失败:', e);
@@ -9668,11 +9688,17 @@
             cleanEmptyNotes();
 
             // 5. 合并后立即保存到本地（确保合并结果持久化）
-            localStorage.setItem('study_v2', JSON.stringify(fullState));
+            const stateJSON = JSON.stringify(fullState);
+            try { await syncCache.update(recordId, { stateJSON }); } catch (e) { console.warn('大容量本地缓存失败:', e); }
+            try {
+                localStorage.setItem('study_v2', stateJSON);
+                localStorage.setItem('study_local_state_id', recordId);
+            } catch (e) { console.warn('旧本地缓存空间不足，使用 IndexedDB:', e); }
 
             refresh();
             window.switchYear(CURRENT_YEAR);
-            updateStatus(cloudOk ? 'online' : 'offline');
+            if (!hasActiveEditorSession()) refreshNotebookUI();
+            updateStatus(cloudOk ? 'loaded' : 'offline');
         }
 
         function loadLocal() {
@@ -11835,11 +11861,11 @@
         function updateStatus(s) {
             const badge = document.getElementById('cloud-status-badge');
             if (!badge) return;
-            if (s === 'online') {
+            if (s === 'online' || s === 'loaded') {
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> ${timeStr} 已同步`;
-                badge.title = `云端同步正常 · ID: ${getCloudRecordId()}`;
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.6)]"></span> ${timeStr} ${s === 'loaded' ? '云端已读取' : '已同步'}`;
+                badge.title = `${s === 'loaded' ? '已读取任务和笔记；本地修改须成功上传才算同步' : '本次保存已由云端确认'} · ID: ${getCloudRecordId()}`;
             } else if (s === 'syncing') {
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span> 同步中`;
                 badge.title = '正在连接 Supabase…';
@@ -11847,7 +11873,7 @@
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 本地模式`;
                 badge.title = 'file:// 直开不会连接 Supabase，请使用 HTTP 地址';
             } else {
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> 未同步`;
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> ${hasPendingCloudSync() ? '保存未完成' : '未同步'}`;
                 badge.title = ensureCloudDebug().lastErr || '暂时无法连接 Supabase，页面会自动重试';
             }
         }
@@ -12029,11 +12055,15 @@
             document.getElementById('id-modal').classList.remove('open');
         };
 
-        window.saveSyncID = () => {
+        window.saveSyncID = async () => {
             const val = document.getElementById('sync-id-input').value.trim();
             if (!val) {
                 showToast('⚠️ 请输入同步 ID');
                 return;
+            }
+            const previousId = getCloudRecordId();
+            if (previousId !== val) {
+                try { await syncCache.update(previousId, { stateJSON: JSON.stringify(fullState) }); } catch (_) {}
             }
             localStorage.setItem('study_sync_id', val);
             MY_SYNC_ID = syncIdForUser(authUser);
@@ -12041,6 +12071,18 @@
             renderAuthState();
             document.getElementById('id-cancel-btn').style.display = '';
             document.getElementById('id-modal').classList.remove('open');
+            if (previousId !== getCloudRecordId()) {
+                cloudBaseState = null;
+                cloudBaseRecordId = '';
+                ensureCloudDebug().lastOkAt = null;
+                updateStatus(isCloud ? 'syncing' : 'offline');
+                fullState = { '2025': ensureStateStructure(null), '2026': ensureStateStructure(null), settings: {} };
+                ensureSettingsStructure();
+                currentState = fullState[CURRENT_YEAR.toString()];
+                localStorage.setItem('study_local_state_id', getCloudRecordId());
+                try { localStorage.setItem('study_v2', JSON.stringify(fullState)); } catch (_) {}
+                await restoreSyncCache(getCloudRecordId());
+            }
             if (isCloud) refreshCloudIfSafe(true);
         };
 
@@ -13736,24 +13778,8 @@ ${(ctx.relevantNotes || []).length
             }
         }
 
-        async function callStudyPushApi(mode = 'test') {
-            const buddy = ensureAiBuddyState();
-            const response = await fetch(STUDY_PUSH_ENDPOINT, {
-                method: 'POST',
-                headers: buildAiApiHeaders(STUDY_PUSH_ENDPOINT),
-                body: JSON.stringify({
-                    mode,
-                    syncId: effectiveSyncId(),
-                    pushConfig: buddy.push || {},
-                    summary: buildWechatPushSummary()
-                })
-            });
-            if (!response.ok) {
-                const detail = await readApiError(response);
-                throw new Error(detail ? `推送 API ${response.status}：${detail}` : `推送 API ${response.status}`);
-            }
-            const contentType = response.headers.get('content-type') || '';
-            return contentType.includes('application/json') ? response.json() : response.text();
+        async function callStudyPushApi() {
+            return { skipped: true, sent: false, reason: '每日微信提醒已移除' };
         }
 
         function formatPushResult(result) {
@@ -14062,13 +14088,12 @@ ${(ctx.relevantNotes || []).length
 
         let aiSending = false;
         let aiPushSending = false;
-        let aiDailyPushInFlight = false;
         let aiAbortController = null;
 
         function syncWechatPushFormToState() {
             const buddy = ensureAiBuddyState();
             buddy.push = buddy.push || JSON.parse(JSON.stringify(DEFAULT_AI_BUDDY.push));
-            buddy.push.enabled = !!document.getElementById('ai-push-enabled')?.checked;
+            buddy.push.enabled = false;
             buddy.push.provider = document.getElementById('ai-push-provider')?.value || 'messagepusher';
             buddy.push.time = document.getElementById('ai-push-time')?.value || DEFAULT_AI_BUDDY.push.time;
             buddy.push.topics = document.getElementById('ai-push-topics')?.value.trim() || DEFAULT_AI_BUDDY.push.topics;
@@ -14080,101 +14105,7 @@ ${(ctx.relevantNotes || []).length
             return buddy.push;
         }
 
-        window.testWechatPush = async (event) => {
-            event?.stopPropagation?.();
-            if (aiPushSending) return;
-            const buddy = ensureAiBuddyState();
-            const push = syncWechatPushFormToState();
-            aiPushSending = true;
-            push.lastStatus = { state: 'sending', message: '正在发送测试', checkedAt: new Date().toISOString() };
-            renderWechatPushStatus();
-            showToast('正在发送微信测试...');
-            const btn = document.getElementById('ai-push-test-btn');
-            if (btn) btn.setAttribute('disabled', 'disabled');
-            try {
-                const result = await callStudyPushApi('test');
-                const detail = formatPushResult(result);
-                push.lastStatus = {
-                    state: result?.sent ? 'sent' : 'idle',
-                    message: result?.sent ? detail : '测试完成',
-                    checkedAt: new Date().toISOString()
-                };
-                buddy.push.enabled = true;
-                const enabledInput = document.getElementById('ai-push-enabled');
-                if (enabledInput) enabledInput.checked = true;
-                showToast(result?.sent ? `微信测试通过：${detail}` : '微信测试完成');
-            } catch (err) {
-                console.error('微信推送测试失败:', err);
-                push.lastStatus = {
-                    state: 'failed',
-                    message: err.message || String(err),
-                    checkedAt: new Date().toISOString()
-                };
-                const hint = push.provider === 'messagepusher'
-                    ? '检查 message-pusher 地址/Token/渠道名，以及 Supabase Secrets'
-                    : push.provider === 'wechatwork'
-                        ? '检查企业微信 CorpId/AgentId/Secret 是否正确，以及可见范围是否包含你'
-                        : '检查 Server 酱 SendKey';
-                showToast(`微信测试失败：${hint}`);
-            } finally {
-                aiPushSending = false;
-                if (btn) btn.removeAttribute('disabled');
-                renderWechatPushStatus();
-                save();
-            }
-        };
-
-        function parseDailyPushTime(value) {
-            const match = String(value || '').match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
-            if (!match) return { h: 8, m: 0 };
-            return { h: Number(match[1]), m: Number(match[2]) };
-        }
-
-        async function triggerWechatDailyPush(now = new Date()) {
-            if (aiDailyPushInFlight) return;
-            const buddy = ensureAiBuddyState();
-            const push = buddy.push || {};
-            if (!push.enabled) return;
-            aiDailyPushInFlight = true;
-            push.lastStatus = { state: 'sending', message: '正在发送今日提醒', checkedAt: new Date().toISOString() };
-            renderWechatPushStatus();
-            try {
-                const result = await callStudyPushApi('daily');
-                if (result?.sent || result?.skipped) {
-                    push.lastSentDate = formatDateStampFromDate(now);
-                    push.lastStatus = {
-                        state: result?.sent ? 'sent' : 'idle',
-                        message: result?.sent ? '今日提醒已发送' : (result?.reason || '今日无需发送'),
-                        checkedAt: new Date().toISOString()
-                    };
-                    if (result?.sent) showToast('微信学习提醒已发送');
-                    save();
-                }
-            } catch (err) {
-                console.error('微信每日提醒失败:', err);
-                push.lastStatus = {
-                    state: 'failed',
-                    message: err.message || String(err),
-                    checkedAt: new Date().toISOString()
-                };
-                save();
-            } finally {
-                aiDailyPushInFlight = false;
-                renderWechatPushStatus();
-            }
-        }
-
-        function checkWechatPushReminder(now = new Date()) {
-            const buddy = ensureAiBuddyState();
-            const push = buddy.push || {};
-            if (!push.enabled) return;
-            const todayStamp = formatDateStampFromDate(now);
-            if (push.lastSentDate === todayStamp) return;
-            const scheduled = parseDailyPushTime(push.time);
-            const nowMinutes = now.getHours() * 60 + now.getMinutes();
-            const scheduledMinutes = scheduled.h * 60 + scheduled.m;
-            if (nowMinutes >= scheduledMinutes) triggerWechatDailyPush(now);
-        }
+        window.testWechatPush = () => showToast('每日微信提醒已移除');
 
         window.testAiConnection = async () => {
             if (aiSending) return;
@@ -14402,7 +14333,6 @@ ${(ctx.relevantNotes || []).length
                 }
             });
             checkAiReminders(now);
-            checkWechatPushReminder(now);
         }
 
         function dismissAiReminder(id) {

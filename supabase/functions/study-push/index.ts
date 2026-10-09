@@ -477,6 +477,11 @@ Deno.serve(async (req) => {
   }
 
   const mode = body.mode === "daily" ? "daily" : "test";
+  // Daily reminders were removed. Old cached clients and scheduled jobs must
+  // stop here, before fetching large state or contacting a push provider.
+  if (mode === "daily") {
+    return jsonResponse({ skipped: true, sent: false, reason: "Daily reminders removed" });
+  }
   let state = body.state || null;
   const syncId = body.syncId || Deno.env.get("STUDY_PUSH_SYNC_ID") || "default";
   try {

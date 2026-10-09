@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-08-11  
+最后更新：2026-10-09
 工作目录：`/Users/mac/Downloads/study-plan-main 1`
 
 这份文档写给一个完全没有上下文的新会话。先读完再改代码，尤其是 `studyplan-github.html`、`index.html`、PWA、Supabase 同步这几块很容易踩坑。
@@ -603,3 +603,15 @@ rg -n "AI_API_ENDPOINT|buildAiSystemPrompt|create_tasks|study-push|collectNotebo
 4. 修改只动必要区域，不要大面积重构。
 5. 修改后再语法检查 + 浏览器回归。
 6. 发布前问用户是否把 `studyplan-github.html` 同步到 `index.html`。
+
+
+## 2026-10-09 同步修复
+
+- 真实 `payen` 记录包含 V2 `appData`，整条 `data` 查询会报 PostgreSQL statement timeout。旧版只读年份字段，还会把读取成功错误标成“已同步”。
+- 新增 `study-cloud-data.js`：V2 任务/每日笔记/Notebook 转换、三方合并、按同步 ID 隔离的 IndexedDB 大容量缓存。旧笔记缺失科目/有效文件夹关联时保留在“学习 → 默认文件夹”。
+- `index.html` 与 `studyplan-github.html` 已保持一致。读取状态为“云端已读取”，仅保存得到服务端确认后显示“已同步”。
+- `supabase/migrations/20261009000000_study_cloud_patch.sql` 已在用户的 Supabase 项目安装：`study_cloud_read` 分段分页读取，`study_cloud_patch` 局部更新并检查版本，保留 `appData` 和既有 RLS 权限。
+- 前端每日微信提醒入口和自动请求已移除。线上 `study-push` 已仅加入 daily 模式提前返回的拦截；实际请求返回 200 / sent:false，不调用 Server 酱。线上该函数原有版本约 380 行，与本地更长的函数版本不同，部署时保留了线上其他代码。
+- 两个独立浏览器已读取到相同的 19 条旧 Notebook 列表。真实数据库保存/读回/版本冲突/V2 保留用 `tests/cloud-live-probe.sql` 验证，所有测试写入均回滚。
+- 测试：`node --test tests/cloud-sync.test.cjs tests/cloud-data.test.cjs`。隔离 SQL / IndexedDB 测试可安装 `@electric-sql/pglite` 和 `fake-indexeddb` 后设置 `STUDY_SYNC_TEST_MODULES` 为其 node_modules 路径并运行 `node --test tests/*.test.cjs`。
+- 用户在验证完成后明确授权推送 GitHub；本次前端修复随提交发布，GitHub Pages 需要完成部署后才会使用新前端。
