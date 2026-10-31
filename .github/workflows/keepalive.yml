@@ -1,7 +1,6 @@
 name: Supabase 保活
 on:
-  schedule:
-    - cron: '0 8 */3 * *'  # 每 3 天跑一次（UTC 08:00）
+  # 定时保活统一由 supabase-keepalive.yml 执行，避免重复请求。
   workflow_dispatch:        # 允许手动触发
 
 jobs:
