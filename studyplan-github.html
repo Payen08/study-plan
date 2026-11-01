@@ -5859,6 +5859,64 @@
             content: '这篇笔记还没有正文';
         }
 
+        .notebook-compose-body,
+        .notebook-preview-pane,
+        .notebook-markdown-pane {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            min-width: 0;
+        }
+        .notebook-markdown-pane[hidden],
+        .notebook-preview-pane[hidden] { display: none; }
+        #notebook-markdown-live {
+            flex: 1;
+            min-height: 0;
+            height: 100%;
+            border: 0;
+            background: transparent;
+        }
+        #notebook-markdown-live .vditor-ir { min-height: 0; background: transparent; }
+        #notebook-markdown-live .vditor-ir pre.vditor-reset {
+            padding: 16px 0 !important;
+            font: 16px/1.8 'Noto Sans SC', sans-serif;
+            color: var(--foreground);
+            background: transparent;
+            overflow-wrap: anywhere;
+        }
+        #notebook-markdown-live pre[contenteditable="true"]:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        #notebook-markdown-live[aria-busy="true"]::after {
+            content: '编辑器加载中…';
+            color: var(--muted);
+            font-size: 14px;
+        }
+        #notebook-markdown-live .vditor-toolbar,
+        #notebook-markdown-live .vditor-preview { display: none !important; }
+        #notebook-modal.nb-markdown #notebook-editor-tools { display: none; }
+        .notebook-format-select { flex-shrink: 0; width: 106px; font-size: 12px; }
+        .notebook-markdown-hint { flex: 1; color: var(--muted); font-size: 12px; }
+        #notebook-modal.nb-markdown .notebook-editor { white-space: normal; }
+        .notebook-format-select { flex-shrink: 0; width: 106px; font-size: 12px; }
+        .notebook-markdown-hint { flex: 1; color: var(--muted); font-size: 12px; }
+        .notebook-editor :is(h1, h2, h3, h4, h5, h6) { font-weight: 750; margin: 20px 0 10px; }
+        .notebook-editor h1 { font-size: 1.6em; }
+        .notebook-editor h2 { font-size: 1.35em; }
+        .notebook-editor h3 { font-size: 1.15em; }
+        .notebook-editor pre { padding: 14px; overflow-x: auto; background: var(--surface-secondary); border-radius: 10px; white-space: pre; }
+        .notebook-editor code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.9em; }
+        .notebook-editor :not(pre) > code { padding: 2px 5px; border-radius: 4px; background: var(--surface-secondary); }
+        .notebook-editor :is(ul, ol) { list-style-position: outside; }
+        .notebook-editor ul { list-style-type: disc; }
+        .notebook-editor ol { list-style-type: decimal; }
+        .notebook-editor hr { margin: 20px 0; border-color: var(--border); }
+        @media (max-width: 900px) {
+            .notebook-markdown-hint { display: none; }
+        }
+
         .notebook-entry-action-btn.active {
             color: #b45309;
             border-color: #f3d28b;
@@ -7302,6 +7360,7 @@
         }
     </style>
     <link rel="stylesheet" href="./study-knowledge.css?v=20260908">
+    <link rel="stylesheet" href="./vendor/vditor-4.0.1/dist/index.css">
 </head>
 
 <body class="hero-ui safe-area-top safe-area-bottom pb-20 md:pb-10">
@@ -7918,10 +7977,23 @@
                             <input id="notebook-title-input" class="notebook-title-input" placeholder="无标题笔记"
                                 oninput="handleNotebookComposeInput()">
                             <h2 id="notebook-read-title" class="notebook-read-title" hidden></h2>
-                            <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="false" role="textbox" aria-label="笔记正文" aria-multiline="true" aria-readonly="true" tabindex="0"
-                                data-placeholder="写点什么..."></div>
+                            <div class="notebook-compose-body">
+                                <div id="notebook-markdown-pane" class="notebook-markdown-pane" hidden>
+                                    <textarea id="notebook-markdown-source" hidden aria-hidden="true" tabindex="-1"></textarea>
+                                    <div id="notebook-markdown-live"></div>
+                                </div>
+                                <div id="notebook-preview-pane" class="notebook-preview-pane">
+                                    <div id="notebook-editor" class="notebook-editor lh-normal" contenteditable="false" role="textbox" aria-label="笔记正文" aria-multiline="true" aria-readonly="true" tabindex="0"
+                                        data-placeholder="写点什么..."></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="notebook-footer">
+                            <select id="notebook-format-select" class="notebook-format-select" aria-label="笔记格式" onchange="setNotebookFormat(this.value)">
+                                <option value="html">富文本</option>
+                                <option value="markdown">Markdown</option>
+                            </select>
+                            <span id="notebook-markdown-hint" class="notebook-markdown-hint" hidden>直接输入 Markdown，就地排版并自动保存</span>
                             <div id="notebook-editor-tools" class="notebook-tools">
                                 <button class="toolbar-btn" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
                                 <button class="toolbar-btn" onclick="execCmd('italic')" title="斜体"><i class="fas fa-italic"></i></button>
@@ -8129,6 +8201,12 @@
     <div id="note-link-menu" class="note-link-menu"></div>
     <div id="ai-selection-menu" class="ai-selection-menu"></div>
 
+    <script src="./vendor/marked-18.1.2.umd.js"></script>
+    <script src="./vendor/purify-3.4.17.min.js"></script>
+    <script src="./vendor/turndown-7.2.4.js"></script>
+    <script src="./vendor/vditor-4.0.1/dist/index.min.js"></script>
+    <script src="./study-markdown.js?v=20261101"></script>
+    <script src="./study-markdown-editor.js?v=20261101"></script>
     <script src="./study-cloud-data.js?v=20261009-v2"></script>
     <script>
         // ================= 配置区 =================
@@ -8142,7 +8220,7 @@
         const STUDY_PUSH_ENDPOINT = `${SUPABASE_URL}/functions/v1/study-push`;
         const MAIMEMO_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/maimemo-proxy`;
         const IS_FILE_ORIGIN = window.location.protocol === 'file:';
-        const BUILD_TAG = 'notebook-reading-2026-11-01-v1';
+        const BUILD_TAG = 'notebook-inline-markdown-2026-11-01-v1';
         window.STUDYPLAN_BUILD_TAG = BUILD_TAG;
         console.log('[studyplan]', BUILD_TAG);
 
@@ -8645,7 +8723,7 @@
             const today = new Date().toDateString();
             const dateKey = entry.dateKey || getAutoNotebookDateKey();
             const html = sanitizeRichHtml((entry.html || '').trim());
-            const content = textFromHtml(html || entry.content || '');
+            const content = textFromHtml(html || entry.content || '') || (entry.format === 'markdown' ? String(entry.markdown || '').trim() : '');
             const title = (entry.title || currentState.notebookEntries[id]?.title || '').trim();
             const existing = currentState.notebookEntries[id];
             const linkedDateKeys = Array.from(new Set([
@@ -10134,6 +10212,9 @@
         let notebookAutosaveTimer = null;
         let notebookEditorDirty = false; // 追踪用户是否实际编辑过（防止误删已保存数据）
         let notebookEditMode = false;
+        let notebookFormat = 'html';
+        let notebookPreviewTimer = null;
+        let notebookInlineEditor = null;
         const editor = document.getElementById('note-editor');
         const notebookEditor = document.getElementById('notebook-editor');
         const notebookTitleInput = document.getElementById('notebook-title-input');
@@ -10713,7 +10794,9 @@
                 subjectType: englishCategory.type,
                 folderId: existing?.folderId || getDefaultNotebookFolderId(englishCategory.type),
                 title,
-                html: parts.join('')
+                html: parts.join(''),
+                format: 'html',
+                markdown: null
             });
             save();
             refresh();
@@ -11178,8 +11261,17 @@
             const modeBtn = document.getElementById('notebook-mode-btn');
             const readTitle = document.getElementById('notebook-read-title');
             modal?.classList.toggle('nb-reading', !notebookEditMode);
-            notebookEditor.contentEditable = notebookEditMode ? 'true' : 'false';
-            notebookEditor.setAttribute('aria-readonly', String(!notebookEditMode));
+            modal?.classList.toggle('nb-editing', notebookEditMode);
+            modal?.classList.toggle('nb-markdown', notebookFormat === 'markdown');
+            const richEditing = notebookEditMode && notebookFormat === 'html';
+            notebookEditor.contentEditable = richEditing ? 'true' : 'false';
+            notebookEditor.setAttribute('aria-readonly', String(!richEditing));
+            const markdownEditing = notebookEditMode && notebookFormat === 'markdown';
+            document.getElementById('notebook-markdown-pane').hidden = !markdownEditing;
+            document.getElementById('notebook-preview-pane').hidden = markdownEditing;
+            if (markdownEditing) ensureNotebookInlineEditor();
+            document.getElementById('notebook-markdown-hint').hidden = notebookFormat !== 'markdown';
+            document.getElementById('notebook-format-select').value = notebookFormat;
             if (notebookTitleInput) notebookTitleInput.readOnly = !notebookEditMode;
             if (readTitle) {
                 readTitle.textContent = notebookTitleInput?.value.trim() || '无标题笔记';
@@ -11193,21 +11285,72 @@
             }
         }
 
+        function ensureNotebookInlineEditor() {
+            const source = document.getElementById('notebook-markdown-source');
+            const dark = document.body.classList.contains('dark-mode');
+            if (!notebookInlineEditor) {
+                notebookInlineEditor = StudyMarkdownEditor.create(document.getElementById('notebook-markdown-live'), {
+                    value: source.value, dark,
+                    onChange: value => handleNotebookMarkdownInput(value)
+                });
+            } else {
+                notebookInlineEditor.setValue(source.value);
+                notebookInlineEditor.setTheme(dark);
+            }
+        }
+
+        function renderNotebookMarkdownPreview() {
+            clearTimeout(notebookPreviewTimer);
+            if (notebookFormat !== 'markdown') return;
+            notebookEditor.innerHTML = StudyMarkdown.render(document.getElementById('notebook-markdown-source').value);
+        }
+
+        window.handleNotebookMarkdownInput = (value) => {
+            if (!notebookEditMode || notebookFormat !== 'markdown') return;
+            if (typeof value === 'string') document.getElementById('notebook-markdown-source').value = value;
+            handleNotebookComposeInput();
+        };
+
+        window.setNotebookFormat = (format) => {
+            if (!notebookEditMode || !['html', 'markdown'].includes(format) || format === notebookFormat) return;
+            clearTimeout(notebookAutosaveTimer);
+            clearTimeout(notebookPreviewTimer);
+            const source = document.getElementById('notebook-markdown-source');
+            if (notebookFormat === 'markdown' && notebookInlineEditor) source.value = notebookInlineEditor.getValue();
+            try {
+                if (format === 'markdown') source.value = StudyMarkdown.toMarkdown(notebookEditor.innerHTML);
+                else notebookEditor.innerHTML = StudyMarkdown.render(source.value);
+            } catch (error) {
+                document.getElementById('notebook-format-select').value = notebookFormat;
+                showToast(error.message);
+                return;
+            }
+            notebookFormat = format;
+            if (format === 'markdown') renderNotebookMarkdownPreview();
+            updateNotebookEditorMode();
+            handleNotebookComposeInput();
+        };
+
         function setNotebookEditMode(editing) {
             clearTimeout(notebookAutosaveTimer);
+            clearTimeout(notebookPreviewTimer);
             // Flush the editable draft before making the same DOM read-only.
             if (!editing && notebookEditorDirty) {
                 commitNotebookDraft();
                 notebookEditorDirty = false;
             }
             notebookEditMode = !!editing;
+            if (notebookFormat === 'markdown') renderNotebookMarkdownPreview();
             hideNoteLinkSuggest();
             updateNotebookEditorMode();
         }
 
         window.toggleNotebookEditMode = () => {
             setNotebookEditMode(!notebookEditMode);
-            if (notebookEditMode) notebookEditor.focus();
+            if (notebookEditMode) {
+                if (notebookFormat === 'markdown') notebookInlineEditor?.focus();
+                else notebookEditor.focus();
+            }
         };
 
         function renderNotebookList() {
@@ -11224,7 +11367,11 @@
             document.getElementById('notebook-current-date').textContent = folderName;
 
             if (notebookTitleInput) notebookTitleInput.value = currentEntry ? (currentEntry.title || '') : '';
-            notebookEditor.innerHTML = sanitizeRichHtml(currentEntry?.html || '');
+            clearTimeout(notebookPreviewTimer);
+            notebookFormat = currentEntry ? (currentEntry.format === 'markdown' && typeof currentEntry.markdown === 'string' ? 'markdown' : 'html') : 'markdown';
+            document.getElementById('notebook-markdown-source').value = notebookFormat === 'markdown' ? (currentEntry?.markdown || '') : '';
+            if (notebookFormat === 'markdown') renderNotebookMarkdownPreview();
+            else notebookEditor.innerHTML = sanitizeRichHtml(currentEntry?.html || '');
             updateNotebookEditorMode();
             renderNotebookFolderMoveSelect();
             setNotebookMobileStep(notebookMobileStep);
@@ -11583,13 +11730,17 @@
 
         function commitNotebookDraft() {
             if (!notebookEditMode) return;
+            if (notebookFormat === 'markdown' && notebookInlineEditor) {
+                document.getElementById('notebook-markdown-source').value = notebookInlineEditor.getValue();
+            }
             const dateKey = notebookCurrentDateKey || currentState.notebookEntries?.[notebookCurrentEntryId]?.dateKey || getAutoNotebookDateKey();
             if (!notebookComposeSubject) return;
             ensureNotebookFolders();
             if (!notebookCurrentFolderId) notebookCurrentFolderId = getDefaultNotebookFolderId(notebookComposeSubject);
             const existing = notebookCurrentEntryId ? currentState.notebookEntries?.[notebookCurrentEntryId] : null;
-            const html = sanitizeRichHtml(notebookEditor.innerHTML);
-            const plain = textFromHtml(html);
+            const markdown = notebookFormat === 'markdown' ? document.getElementById('notebook-markdown-source').value : null;
+            const html = markdown !== null ? StudyMarkdown.render(markdown) : sanitizeRichHtml(notebookEditor.innerHTML);
+            const plain = markdown !== null ? markdown : textFromHtml(html);
             const title = (notebookTitleInput?.value || '').trim();
             if (!plain.trim() && !title) {
                 if (existing && notebookEditorDirty) delete currentState.notebookEntries[existing.id];
@@ -11600,6 +11751,8 @@
                     subjectType: notebookComposeSubject,
                     folderId: notebookCurrentFolderId,
                     title,
+                    format: notebookFormat,
+                    markdown,
                     html: html || '<p><br></p>'
                 });
                 if (savedEntry) {
@@ -11800,13 +11953,17 @@
             const existing = getNotebookEntriesBySubject(subjectType).find(entry => entry.dateKey === curNoteKey);
             const existingHtml = existing?.html || (existing?.content ? escapeHtml(existing.content).replace(/\n/g, '<br>') : '');
             const appendedHtml = `${existingHtml}${existingHtml ? '<p><br></p>' : ''}<p>${escapeHtml(pendingNotebookSelection.text)}</p>`;
+            const appendedMarkdown = existing?.format === 'markdown'
+                ? `${existing.markdown || ''}\n\n${StudyMarkdown.toMarkdown(`<p>${escapeHtml(pendingNotebookSelection.text)}</p>`)}`
+                : null;
             upsertNotebookEntry({
                 ...(existing || {}),
                 dateKey: curNoteKey,
                 subjectType,
                 folderId: existing?.folderId || getDefaultNotebookFolderId(subjectType),
                 title: existing?.title || keyToLabel(curNoteKey),
-                html: appendedHtml
+                html: appendedMarkdown !== null ? StudyMarkdown.render(appendedMarkdown) : appendedHtml,
+                ...(appendedMarkdown !== null ? { markdown: appendedMarkdown } : {})
             });
             hideSubjectMenu();
             refresh();
@@ -11876,7 +12033,7 @@
             editor.addEventListener('focus', () => { activeRichEditor = editor; }, true);
             notebookEditor.addEventListener('focus', () => { activeRichEditor = notebookEditor; }, true);
             notebookEditor.addEventListener('beforeinput', e => {
-                if (!notebookEditMode) e.preventDefault();
+                if (!notebookEditMode || notebookFormat === 'markdown') e.preventDefault();
             });
             notebookEditor.addEventListener('input', () => {
                 activeRichEditor = notebookEditor;
@@ -11905,7 +12062,7 @@
                 updateNoteLinkSuggest(editor);
             });
             notebookEditor.addEventListener('click', e => {
-                if (!notebookEditMode && e.target.closest('input, select, textarea, button')) {
+                if ((!notebookEditMode || notebookFormat === 'markdown') && e.target.closest('input, select, textarea, button')) {
                     e.preventDefault();
                     return;
                 }
@@ -11921,7 +12078,7 @@
                     return;
                 }
                 const externalLink = e.target.closest('a[href]');
-                if (!notebookEditMode && externalLink) {
+                if ((!notebookEditMode || notebookFormat === 'markdown') && externalLink) {
                     e.preventDefault();
                     window.open(externalLink.href, '_blank', 'noopener,noreferrer');
                     return;

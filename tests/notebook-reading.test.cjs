@@ -38,7 +38,8 @@ function harness() {
     const ids = Object.fromEntries([
         'notebook-modal', 'notebook-mode-btn', 'notebook-read-title', 'notebook-title-input',
         'notebook-current-filter', 'notebook-current-date', 'nb-history-panel', 'note-modal',
-        'zoomed-img', 'img-zoom-modal'
+        'zoomed-img', 'img-zoom-modal', 'notebook-markdown-pane', 'notebook-preview-pane', 'notebook-markdown-live',
+        'notebook-markdown-hint', 'notebook-format-select', 'notebook-markdown-source'
     ].map(id => [id, node()]));
     const notebookEditor = node();
     notebookEditor.innerHTML = '<p>编辑后的内容 <b>仍保留格式</b></p>';
@@ -49,11 +50,17 @@ function harness() {
     const c = vm.createContext({
         notebookEditor, notebookTitleInput: ids['notebook-title-input'], editor: node(),
         notebookEditMode: true, notebookEditorDirty: true, notebookAutosaveTimer: 99,
+        notebookFormat: 'html', notebookPreviewTimer: null, notebookInlineEditor: null,
+        StudyMarkdownEditor: { create(element, options) {
+            let value = options.value;
+            return { getValue: () => value, setValue(next) { value = next; }, setTheme() {}, focus() { ids['notebook-markdown-source'].focusCount++; } };
+        } },
+        StudyMarkdown: { render: text => text ? '<p>' + text + '</p>' : '', toMarkdown: text => text.replace(/<[^>]+>/g, '') },
         notebookComposeSubject: 'design', notebookCurrentEntryId: 'a', notebookCurrentFolderId: 'folder',
         notebookCurrentDateKey: '2026-11-1', notebookMobileStep: 'editor', curNoteKey: null,
         currentState: { notebookEntries: { a: first, b: second }, notebookFolders: { folder: { name: '论述题' } } },
         saves: 0, hiddenSuggestions: 0, markdownCommands: 0,
-        document: { getElementById: id => ids[id], addEventListener() {}, execCommand() { c.markdownCommands++; } },
+        document: { body: node(), getElementById: id => ids[id], addEventListener() {}, execCommand() { c.markdownCommands++; } },
         setTimeout(fn, ms) { timers.push({ fn, ms }); return timers.length; },
         clearTimeout(id) { cleared.push(id); },
         getCategories: () => [{ type: 'design', name: '337' }],
@@ -73,6 +80,8 @@ function harness() {
     for (const marker of [
         'function updateNotebookEditorMode(', 'function setNotebookEditMode(',
         'function renderNotebookList(', 'function commitNotebookDraft(',
+        'function renderNotebookMarkdownPreview(', 'window.handleNotebookMarkdownInput =', 'window.setNotebookFormat =',
+        'function ensureNotebookInlineEditor(',
         'window.toggleNotebookEditMode =', 'window.handleNotebookComposeInput =',
         'window.selectNotebookEntry =', 'window.createNotebookNote =',
         'function updateNoteLinkSuggest(', 'function initEditorEvents('
@@ -87,7 +96,7 @@ test('Entering reading mode saves the pending draft before locking it without re
     assert.equal(c.currentState.notebookEntries.a.html, draft);
     assert.equal(c.currentState.notebookEntries.a.title, '设计创新');
     assert.equal(c.saves, 1);
-    assert.deepEqual(cleared, [99]);
+    assert.equal(cleared[0], 99);
     assert.equal(c.notebookEditorDirty, false);
     assert.equal(notebookEditor.innerHTML, draft);
     assert.equal(notebookEditor.contentEditable, 'false');
@@ -139,10 +148,53 @@ test('Opening another note preserves the outgoing draft; new notes start in edit
     assert.equal(notebookEditor.innerHTML, '<p>另一篇正文</p>');
     assert.equal(notebookEditor.contentEditable, 'false');
     c.createNotebookNote();
-    assert.equal(notebookEditor.contentEditable, 'true');
+    assert.equal(c.notebookFormat, 'markdown');
+    assert.equal(notebookEditor.contentEditable, 'false');
+    assert.equal(ids['notebook-markdown-pane'].hidden, false);
     assert.equal(notebookEditor.innerHTML, '');
     assert.equal(ids['notebook-title-input'].readOnly, false);
     assert.equal(ids['notebook-title-input'].value, '');
+});
+
+test('Markdown source survives autosave and a reading/editing round trip without becoming rendered HTML', () => {
+    const { c, ids, notebookEditor } = harness();
+    const markdown = '# 标题\n\n**加粗** 和 `代码`\n\n- [ ] 复习';
+    c.notebookFormat = 'markdown';
+    ids['notebook-markdown-source'].value = markdown;
+    c.handleNotebookMarkdownInput();
+    c.setNotebookEditMode(false);
+    assert.equal(c.currentState.notebookEntries.a.markdown, markdown);
+    assert.equal(c.currentState.notebookEntries.a.format, 'markdown');
+    assert.equal(c.currentState.notebookEntries.a.html, '<p>' + markdown + '</p>');
+    c.toggleNotebookEditMode();
+    assert.equal(ids['notebook-markdown-source'].value, markdown);
+    assert.equal(ids['notebook-markdown-pane'].hidden, false);
+    assert.equal(notebookEditor.contentEditable, 'false');
+    assert.equal(ids['notebook-markdown-source'].focusCount, 1);
+});
+
+test('Opening a Markdown note reloads its source while old HTML notes stay in rich-text mode', () => {
+    const { c, ids, notebookEditor } = harness();
+    c.currentState.notebookEntries.b.format = 'markdown';
+    c.currentState.notebookEntries.b.markdown = '**原文**';
+    c.selectNotebookEntry('b');
+    assert.equal(c.notebookFormat, 'markdown');
+    assert.equal(ids['notebook-markdown-source'].value, '**原文**');
+    assert.equal(notebookEditor.innerHTML, '<p>**原文**</p>');
+    c.selectNotebookEntry('a');
+    assert.equal(c.notebookFormat, 'html');
+    assert.equal(ids['notebook-markdown-source'].value, '');
+});
+
+test('An image-only Markdown note is not treated as an empty draft', () => {
+    const { c, ids } = harness();
+    c.notebookFormat = 'markdown';
+    c.StudyMarkdown.render = () => '<p><img src="image.png" alt=""></p>';
+    ids['notebook-title-input'].value = '';
+    ids['notebook-markdown-source'].value = '![](image.png)';
+    c.commitNotebookDraft();
+    assert.equal(c.currentState.notebookEntries.a.markdown, '![](image.png)');
+    assert.equal(c.saves, 1);
 });
 
 test('Reading blocks checkbox edits and Markdown shortcuts while keeping images and links usable', () => {
